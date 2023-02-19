@@ -10,3 +10,6 @@ class Logger:
     
     def error(msg):
         print('ERROR: ' + msg)
+
+    def trace(msg):
+        print('TRACE: ' + msg)
