@@ -1,0 +1,7 @@
+toolkit/**
+tmp/**
+settings/**
+__pycache__
+test.py
+**/__pycache__/
+*.pyc

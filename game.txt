@@ -1,0 +1,4 @@
+
+bluearchive:
+app: com.nexon.bluearchive
+activity: .MxUnityPlayerActivity
