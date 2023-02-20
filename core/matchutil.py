@@ -48,6 +48,8 @@ class MatchUtil:
             if result['max_val'] > 0.9:
                 # press
                 device.tap(x, y)
+                time.sleep(MatchUtil.s_waitInterval)
+                timer += MatchUtil.s_waitInterval
             else:
                 time.sleep(MatchUtil.s_waitInterval)
                 return True
@@ -61,11 +63,14 @@ class MatchUtil:
     def setWaitInterval(interval: float):
         MatchUtil.s_waitInterval = interval
 
-    def match(image, template, method):
+    def match(image, template, method = cv2.TM_CCOEFF_NORMED):
         result = cv2.matchTemplate(image, templ=template, method=method)
 
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
         return {'min_val':min_val, 'max_val':max_val, 'min_loc':min_loc, 'max_loc':max_loc}
+
+    def isMatch(result):
+        return result['max_val'] > 0.9
 
     def WaitFor(device: Device, template, timeout: float):
 

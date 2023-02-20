@@ -4,5 +4,6 @@ settings/**
 __pycache__
 test.py
 **/__pycache__/
+settings/**
 *.pyc
 **.docx

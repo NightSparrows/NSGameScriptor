@@ -1,12 +1,13 @@
 
 from .gamedata import GameData
+from .statemanager import StateManager
 
 class Game:
 
     def __init__(self, name: str) -> None:
         self._name = name
         self._data = GameData()
-        #self.m_stateManager = StateManager(self.m_data)
+        self._stateManager = StateManager(self._data)
 
     def execute(self):
         raise NotImplementedError('Game ' + self.m_name + ' execute not impl')

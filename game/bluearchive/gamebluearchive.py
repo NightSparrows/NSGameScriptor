@@ -1,4 +1,5 @@
 
+import time
 import cv2
 
 from core.logger import Logger
@@ -8,51 +9,83 @@ from core.game.game import Game
 from core.device.device import Device
 from core.matchutil import MatchUtil
 
+from .state.lobbystate import LobbyState
+from .state.queststate import QuestState
+from .state.mainqueststate import MainQuestState
+
 class GameBlueArchive(Game):
 
     def __init__(self, device: Device) -> None:
         super().__init__('BlueArchive')
         self._device = device
+
+        self.lobbyState = LobbyState(self._device)
+        self.questState = QuestState(self._device, self._data)
+        self.mainQuestState = MainQuestState(self._device, self._data)
+
     
     def execute(self):
 
 
         raise NotImplementedError('Game ' + self.m_name + ' execute not impl')
 
+    def init(self):
+        # in 大廳
+        self._stateManager.init(self.lobbyState)
+        self._stateManager.addState(self.questState)
+        self._stateManager.addState(self.mainQuestState)
+
     def restart(self):
+
+        Logger.info('Restarting Blue archive ... ')
 
         self._device.killApp('com.nexon.bluearchive')
         result = self._device.openApp('com.nexon.bluearchive/.MxUnityPlayerActivity')
 
         Logger.trace(str(result))
 
-        # TODO 進入大廳
+        # 進入大廳
 
-        # 確認活動screen跳過
-        Logger.info('確認有無活動畫面...')
+        # TODO 確認更新視窗
+
+        # TODO 重寫，每個loop都偵測是否在大廳，或開始畫面，或更新視窗... etc
+        
         iconImage = cv2.imread('assets/bluearchive/login/startIcon.png')
-        if not MatchUtil.pressUntilAppear(self._device, iconImage, 100, 687, 60):
-            Logger.error('Failed to 認得開始介面')
-
-        # touch to start
-        Logger.info('正在關閉開始畫面...')
-        if not MatchUtil.pressUntilDisappear(self._device, iconImage, 640, 120, 60):
-            Logger.error('Failed to 關閉開始介面')
-
-        # 把公告關掉
         annImage = cv2.imread('assets/bluearchive/login/announcementText.png')
+        
+        
+        foundLobby = False
+        timer = 0
+        while timer <= 60:
+            self._device.screenshot()
 
-        MatchUtil.setWaitInterval(0.5)
-        Logger.info('等待公告畫面秀出...')
-        have, result = MatchUtil.WaitFor(self._device, annImage, 30)
-        MatchUtil.setWaitInterval(1)
+            screenshot = self._device.getScreenshot()
 
-        if not have:
-            Logger.warn('Not found 公告 window')
-        else:
-            MatchUtil.pressUntilDisappear(self._device, annImage, 1178, 117, 2)
+            if MatchUtil.isMatch(result = MatchUtil.match(screenshot, iconImage)):       # 在開始畫面
+                Logger.info('在開始畫面...')
+                self._device.tap(640, 120)
+                time.sleep(0.5)
+            elif MatchUtil.isMatch(result = MatchUtil.match(screenshot, annImage)):
+                Logger.info('在公告視窗')
+                self._device.tap(1178, 117)
+                time.sleep(0.5)
+                break
+            else:
+                self._device.tap(100, 687)
+                time.sleep(0.5)
+        
 
-        # in 大廳
+            time.sleep(1)
+            timer += 1
 
-        # change state to lobby
-        raise NotImplementedError('Game ' + self._name + ' restart not impl.')
+        if self.lobbyState.detect():
+            Logger.info('In Lobby')
+            foundLobby = True
+
+
+        if not foundLobby:
+            Logger.error('Failed to enter lobby state')
+            return False
+
+        self.init()
+
