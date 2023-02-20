@@ -17,6 +17,15 @@ class MainQuestState(State):
         super().__init__('MainQuest')
         self.iconImage = cv2.imread('assets/bluearchive/state/mainquest/icon.png')
         self.enterBtnImage = cv2.imread('assets/bluearchive/state/quest/icon.png')
+        self.hardOffImage = cv2.imread('assets/bluearchive/state/mainquest/hardOff.png')
+        self.hardOnImage = cv2.imread('assets/bluearchive/state/mainquest/hardOn.png')
+        
+        # load quest area images
+        self.areaIconImages = []
+        for i in range(1, 7):
+            self.areaIconImages.append(cv2.imread('assets/bluearchive/state/mainquest/area' + str(i) + '.png'))
+
+        
         self._device = device
         self._data = data
 
@@ -24,7 +33,46 @@ class MainQuestState(State):
 
         assert(self._data.currentState == self.getName())
 
+        self._device.screenshot()
+
+        screenshot = self._device.getScreenshot()
+
+        currentAreaNo = -1
+        for i in range(len(self.areaIconImages)):
+            result = MatchUtil.match(screenshot, self.areaIconImages[i])
+
+            if MatchUtil.isMatch(result):
+                currentAreaNo = i + 1
+                break
+
+        assert(currentAreaNo != -1)
+        Logger.info('Current area is ' + str(currentAreaNo))
+
+        if currentAreaNo > areaNo:
+            pressPageX = 40
+        elif currentAreaNo == areaNo:                     # already on this page
+            Logger.trace('already on this page')
+            return True
+        else:
+            pressPageX = 1245
         
+        pressCount = abs(currentAreaNo - areaNo)
+
+        for i in range(pressCount):
+            self._device.tap(pressPageX, 360)
+            time.sleep(1)
+        
+        self._device.screenshot()
+        screenshot = self._device.getScreenshot()
+
+        if MatchUtil.isMatch(MatchUtil.match(screenshot, self.areaIconImages[areaNo - 1])):
+            Logger.info('Switch to area ' + str(areaNo) + ' successfully')
+            return True
+        else:
+            Logger.error('Failed to switch to area ' + str(areaNo))
+            return False
+
+
 
 
     def goback(self):

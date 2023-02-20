@@ -94,6 +94,16 @@ class MatchUtil:
         return False, None
 
 
+    def Having(device: Device, template):
+        device.screenshot()
+        screenshot = device.getScreenshot()
+        result = MatchUtil.match(screenshot, template=template, method=cv2.TM_CCOEFF_NORMED)
+
+        if result['max_val'] > 0.9:
+            return True
+        
+        return False
+            
 
 
 
