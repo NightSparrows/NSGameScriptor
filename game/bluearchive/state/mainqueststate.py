@@ -22,7 +22,7 @@ class MainQuestState(State):
         
         # load quest area images
         self.areaIconImages = []
-        for i in range(1, 7):
+        for i in range(1, 8):
             self.areaIconImages.append(cv2.imread('assets/bluearchive/state/mainquest/area' + str(i) + '.png'))
 
         
@@ -92,6 +92,10 @@ class MainQuestState(State):
 
             if MatchUtil.pressUntilDisappear(self._device, self.enterBtnImage, 825, 269, 4):
                 
+                # TODO 通知
+                self._device.tap(1270, 50)
+                time.sleep(1)
+
                 have, result = MatchUtil.WaitFor(self._device, self.iconImage, 5)
                 if have:
                     Logger.trace('Entered MainQuest State')

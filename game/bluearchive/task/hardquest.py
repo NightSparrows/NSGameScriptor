@@ -1,6 +1,7 @@
 
 import time
 import datetime
+from datetime import timedelta
 import cv2
 
 from core.logger import Logger
@@ -61,7 +62,8 @@ class HardQuestTask(Task):
 
         # 沒有AP
         if MatchUtil.Having(self._device, Asset.buyAPWindowImage):
-            # TODO 調整下次執行的時間
+            # 調整下次執行的時間 ()
+            self.m_date = datetime.datetime.now() + timedelta(minutes=20)
             Logger.warn('[TASK][HardQuest] 沒有AP')
             self._device.tap(1240, 85)
             time.sleep(0.5)
@@ -83,12 +85,19 @@ class HardQuestTask(Task):
         while not MatchUtil.Having(self._device, Asset.confirmBtnImage):
             time.sleep(1)
 
+        # 按確定
         self._device.tap(640, 580)
         time.sleep(1)
+        # 按回沒有視窗
         self._device.tap(1240, 85)
         time.sleep(1)
 
-        self._stateManager.goto('Lobby')
+        # go back to lobby
+        # 其實應該不太需要
+        # self._stateManager._initState.enter()
 
+        # TODO 調整下次執行的時間
+        self.m_date = datetime.datetime.today() + timedelta(days=1)
+        Logger.info('[TASK][HardQuest] Task completed.')
         return True
 

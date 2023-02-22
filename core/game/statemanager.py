@@ -27,6 +27,9 @@ class StateManager:
     
     def goto(self, name: str):
 
+        if name is self._data.currentState:
+            return True
+
         wishState = self._states[name]
 
         if wishState is None:

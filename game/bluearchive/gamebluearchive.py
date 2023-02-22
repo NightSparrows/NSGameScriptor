@@ -19,9 +19,14 @@ class GameBlueArchive(Game):
         super().__init__('BlueArchive')
         self._device = device
 
-        self.lobbyState = LobbyState(self._device)
+        # TODO load config file
+
+        # loading states
+        self.lobbyState = LobbyState(self._device, self._data)
         self.questState = QuestState(self._device, self._data)
         self.mainQuestState = MainQuestState(self._device, self._data)
+
+        # TODO load tasks
 
     
     def execute(self):
@@ -56,6 +61,8 @@ class GameBlueArchive(Game):
         
         foundLobby = False
         timer = 0
+        tapX = 100
+        tapY = 687
         while timer <= 60:
             self._device.screenshot()
 
@@ -63,15 +70,19 @@ class GameBlueArchive(Game):
 
             if MatchUtil.isMatch(result = MatchUtil.match(screenshot, iconImage)):       # 在開始畫面
                 Logger.info('在開始畫面...')
+                tapX = 640
+                tapY = 120
                 self._device.tap(640, 120)
                 time.sleep(0.5)
             elif MatchUtil.isMatch(result = MatchUtil.match(screenshot, annImage)):
                 Logger.info('在公告視窗')
-                self._device.tap(1178, 117)
+                if not MatchUtil.pressUntilDisappear(self._device, annImage, 1178, 117, 5):
+                    Logger.error('Failed to close 公告 window')
+                    return False
                 time.sleep(0.5)
                 break
             else:
-                self._device.tap(100, 687)
+                self._device.tap(tapX, tapY)
                 time.sleep(0.5)
         
 
