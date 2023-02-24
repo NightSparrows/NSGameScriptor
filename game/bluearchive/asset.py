@@ -12,3 +12,9 @@ class Asset:
     confirmBtnImage = cv2.imread('assets/bluearchive/etc/confirmBtn.png')
 
     buyAPWindowImage = cv2.imread('assets/bluearchive/etc/buyAP.png')
+
+    # quest
+    questContestImage = cv2.imread('assets/bluearchive/state/quest/contest.png')
+
+    # hard quest
+    notEnoughInfoImage = cv2.imread('assets/bluearchive/task/hardquest/notEnoughInfo.png')

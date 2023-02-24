@@ -54,3 +54,5 @@ class Device:
     def holdScroll(self, x0, y0, x1, y1, time):
         return self.checkOutput('shell input swipe %d %d %d %d %d' % (x0, y0, x1, y1, time))
 
+    def connect(self, deviceName: str):
+        self._connectDevice = deviceName

@@ -26,13 +26,15 @@ class GameBlueArchive(Game):
         self.questState = QuestState(self._device, self._data)
         self.mainQuestState = MainQuestState(self._device, self._data)
 
-        # TODO load tasks
 
     
     def execute(self):
 
+        # TODO 偵測是否在遊戲李，不然妹次都重啟浪費時間
+        self.restart()
 
-        raise NotImplementedError('Game ' + self.m_name + ' execute not impl')
+        self._taskManager.execute()
+
 
     def init(self):
         # in 大廳

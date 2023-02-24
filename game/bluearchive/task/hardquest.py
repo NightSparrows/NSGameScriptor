@@ -16,8 +16,8 @@ from game.bluearchive.asset import Asset
 # 掃蕩3次困難圖
 class HardQuestTask(Task):
 
-    def __init__(self, stateManager: StateManager, mainQuestState: MainQuestState, areaNo: int, levelNo: int, date: datetime) -> None:
-        super().__init__('HardQuest', date)
+    def __init__(self, stateManager: StateManager, mainQuestState: MainQuestState, areaNo: int, levelNo: int, date: datetime, enable: bool) -> None:
+        super().__init__('HardQuest', date, enable)
         self._stateManager = stateManager
         self._mainQuestState = mainQuestState
         self._areaNo = areaNo
@@ -51,6 +51,7 @@ class HardQuestTask(Task):
             Logger.error('[TASK][HardQuest] 無法點入任務資訊')
             return False
         
+        # Skip battle 範圍
         # 按3次
         for i in range(3):
             self._device.tap(1035, 300)
@@ -88,6 +89,8 @@ class HardQuestTask(Task):
         # 按確定
         self._device.tap(640, 580)
         time.sleep(1)
+        # End Skip battle 範圍
+
         # 按回沒有視窗
         self._device.tap(1240, 85)
         time.sleep(1)
@@ -97,7 +100,11 @@ class HardQuestTask(Task):
         # self._stateManager._initState.enter()
 
         # TODO 調整下次執行的時間
-        self.m_date = datetime.datetime.today() + timedelta(days=1)
+        self.m_date = datetime.datetime.today().date() + timedelta(days=1)
         Logger.info('[TASK][HardQuest] Task completed.')
         return True
+
+    def getInfo(self):
+        return '執行困難圖[' + str(self._areaNo) + '-' + str(self._levelNo) + ']'
+
 

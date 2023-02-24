@@ -16,6 +16,8 @@ class StateManager:
 
 
     def init(self, initState: State):
+        self._states.clear()
+        self._enteredStates.clear()
         self._initState = initState
         self._states[initState.getName()] = initState
         self._enteredStates.append(self._initState)
@@ -52,7 +54,8 @@ class StateManager:
         for state in self._enteredStates:
 
             if state.getName() is name:
-                gobackCount = len(self._enteredStates) - dontgobackCount - 1
+                Logger.trace('Found in entered state')
+                gobackCount = len(self._enteredStates) - dontgobackCount
                 for i in range(gobackCount):
                     popState = self._enteredStates.pop()
                     if popState.goback():

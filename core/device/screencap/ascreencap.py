@@ -15,8 +15,16 @@ class aScreenCap(ScreenCap):
     def __init__(self, device) -> None:
         # install ascreencap into emulator
         self._device = device
+        # TODO 根據版本更換不同平台的ascreencap
         device.checkOutput('push toolkit/ascreencap/x86_64/ascreencap ' + aScreenCap.s_screenCapPath)
         device.checkOutput('shell chmod 777 ' + aScreenCap.s_screenCapPath + '/ascreencap')
+
+    def screenshot_save(self):
+        self.screenshot()
+
+        cv2.imwrite('screenshot.png', self._screenshot)
+
+        return
 
     def screenshot(self):
         pipe = self._device.Popen('exec-out ' + aScreenCap.s_screenCapPath + '/ascreencap --pack 2 --stdout')

@@ -1,6 +1,7 @@
 
 from .gamedata import GameData
 from .statemanager import StateManager
+from .taskmanager import TaskManager
 
 class Game:
 
@@ -8,6 +9,7 @@ class Game:
         self._name = name
         self._data = GameData()
         self._stateManager = StateManager(self._data)
+        self._taskManager = TaskManager()
 
     def execute(self):
         raise NotImplementedError('Game ' + self.m_name + ' execute not impl')
