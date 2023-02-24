@@ -55,9 +55,10 @@ class StateManager:
 
             if state.getName() is name:
                 Logger.trace('Found in entered state')
-                gobackCount = len(self._enteredStates) - dontgobackCount
+                gobackCount = len(self._enteredStates) - dontgobackCount - 1
                 for i in range(gobackCount):
                     popState = self._enteredStates.pop()
+                    Logger.info('Poped state ' + popState.getName())
                     if popState.goback():
                         self._data.currentState = self._enteredStates[len(self._enteredStates) - 1].getName()
                 
@@ -71,7 +72,9 @@ class StateManager:
                     time.sleep(1)
                     timer += 1
                 return False
+            dontgobackCount += 1
 
+        for state in self._enteredStates:
             foundParent = False
             parentNo = 0
             for parentState in parentList:
@@ -81,7 +84,6 @@ class StateManager:
                 parentNo += 1
             
             if foundParent:
-                gobackCount = len(self._enteredStates) - dontgobackCount - 1
                 for i in range(parentNo - 1, -1, -1):
                     enterState = parentList[i]
                     print('Entering parent state: ' + enterState.getName())
@@ -96,8 +98,6 @@ class StateManager:
                 self._enteredStates.append(wishState)
                 self._data.currentState = wishState.getName()
                 return True
-
-            dontgobackCount += 1
         
         # 應該不會走到這裡
         return False
