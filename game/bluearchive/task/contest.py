@@ -1,7 +1,10 @@
 
 import time
 import datetime
+import cv2
+import numpy as np
 from datetime import timedelta
+
 
 from core.logger import Logger
 from core.game.task import Task
@@ -16,6 +19,7 @@ class ContestTask(Task):
         super().__init__('contest', date, enable)
         self._stateManager = game._stateManager
         self._game = game
+        self._device = game._device
 
     def execute(self):
         
@@ -27,21 +31,25 @@ class ContestTask(Task):
             Logger.error('無法點入戰術大賽')
             return False
         
-        # 點獲得錢
-        self._game._device.tap(350, 387)
-        time.sleep(1)
+        while True:
+            self._device.screenshot()
+            screenshot = self._device.getScreenshot()
+            #a = [407:407, 353:353]
+            color1 = screenshot[407, 353]
+            color2 = screenshot[486, 353]
 
-        # 點吊飾窗
-        self._game._device.tap(309, 119)
-        time.sleep(1) 
+            if MatchUtil.MatchColor(color1, 213, 215, 214) and MatchUtil.MatchColor(color2, 215, 215, 212):
+                break
 
-        # 點選獲得每日清輝石
-        self._game._device.tap(350, 466)
-        time.sleep(1)
+            result = MatchUtil.match(screenshot, Asset.getRewardBtnImage)
 
-        # 點吊飾窗
-        self._game._device.tap(309, 119)
-        time.sleep(1)
+            if MatchUtil.isMatch(result):
+                point = MatchUtil.calculated(result, Asset.getRewardBtnImage.shape)
+                self._device.tap(point['x']['center'], point['y']['center'])
+                time.sleep(1)
+            
+            self._device.tap(309, 119)
+            time.sleep(1) 
 
         # 返回main quest state
         if not MatchUtil.pressUntilDisappear(self._game._device, Asset.questContestImage, 58, 35, 10):

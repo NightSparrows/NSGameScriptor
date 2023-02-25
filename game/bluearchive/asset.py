@@ -13,6 +13,10 @@ class Asset:
 
     buyAPWindowImage = cv2.imread('assets/bluearchive/etc/buyAP.png')
 
+    # reward button
+    getRewardBtnImage = cv2.imread('assets/bluearchive/etc/getRewardBtn.png')
+    getRewardBtnOffImage = cv2.imread('assets/bluearchive/etc/getRewardBtnOff.png')
+
     # quest
     questContestImage = cv2.imread('assets/bluearchive/state/quest/contest.png')
 

@@ -74,7 +74,8 @@ class StateManager:
                 return False
             dontgobackCount += 1
 
-        for state in self._enteredStates:
+        gobackCount = 0
+        for i in range(len(self._enteredStates) - 1, -1, -1):
             foundParent = False
             parentNo = 0
             for parentState in parentList:
@@ -82,22 +83,35 @@ class StateManager:
                     foundParent = True
                     break
                 parentNo += 1
-            
             if foundParent:
-                for i in range(parentNo - 1, -1, -1):
-                    enterState = parentList[i]
-                    print('Entering parent state: ' + enterState.getName())
-                    if not enterState.enter():
-                        Logger.error('Failed to goto the parnet state: ' + enterState.getName())
-                        return False
-                    self._enteredStates.append(enterState)
-                    self._data.currentState = enterState.getName()
-                if not wishState.enter():
-                    Logger.error('Failed to goto the wish state: ' + wishState.getName())
+                break
+            gobackCount += 1
+            
+        if foundParent:
+            for i in range(gobackCount):
+                state = self._enteredStates.pop()
+                if not state.goback():
+                    Logger.error('Failed to go back')
                     return False
-                self._enteredStates.append(wishState)
-                self._data.currentState = wishState.getName()
-                return True
+                self._data.currentState = self._enteredStates[len(self._enteredStates) - 1].getName()
+            
+            for i in range(parentNo - 1, -1, -1):
+                state = parentList[i]
+                if not state.enter():
+                    Logger.error('Failed to enter state: ' + state.getName())
+                    return False
+                self._data.currentState = state.getName()
+                self._enteredStates.append(state)
+            
+            if not wishState.enter():
+                Logger.error('Failed to enter state: ' + wishState.getName())
+                return False
+            self._data.currentState = wishState.getName()
+            self._enteredStates.append(wishState)
+            print('Current State: ' + self._data.currentState)
+            
+            return True
+
         
         # 應該不會走到這裡
         return False

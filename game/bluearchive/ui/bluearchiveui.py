@@ -14,8 +14,6 @@ class BlueArchiveUI:
 
     def __init__(self) -> None:
         self._running = False
-        self._device = Device()
-        self._game = GameBlueArchive(self._device)
 
         self._configPath = './settings/bluearchive'
 
@@ -28,6 +26,8 @@ class BlueArchiveUI:
             # 沒有檔案
             configData = ConfigUtil.GetDefault()
         
+        self._device = Device(configData['device'])
+        self._game = GameBlueArchive(self._device)
         ConfigUtil.Serialize(game=self._game, config=configData)
 
 
@@ -73,10 +73,13 @@ class BlueArchiveUI:
             print('不是數字')
             return
         
-        if id >= len(self._game._taskManager._tasks):
-            print('超過工作數')
+        result = self._game._taskManager.runTask(id)
+
+        if result == -1:
+            print('非法工作ID')
+        elif result == -2:
+            print('工作執行失敗')
         
-        self._game._taskManager._tasks[id].execute()
 
     def cmdAddTask(self, cmdArgs):
         
@@ -157,8 +160,8 @@ class BlueArchiveUI:
     def run(self):
 
         # TODO 看看模擬器之類的，先都重啟
-        self._game.restart()
-        #self._game.init()
+        #self._game.restart()
+        self._game.init()
 
         self._running = True
         while self._running:

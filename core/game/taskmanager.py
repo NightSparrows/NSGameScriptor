@@ -16,6 +16,22 @@ class TaskManager:
     def addTask(self, task: Task):
         self._tasks.append(task)
 
+    # return
+    # -1: 非法ID
+    # -2: 執行失敗
+    def runTask(self, id: int):
+        if id < 0 or id >= len(self._tasks):
+            return -1
+        
+        result = self._tasks[id].execute()
+
+        if not result:
+            return -2
+        
+        return 0
+
+
+
     # 執行已過期的工作
     def execute(self):
 

@@ -1,12 +1,19 @@
 
 import time
 import cv2
+import numpy as np
 
 from .device.device import Device
 
 class MatchUtil:
 
+    s_threshhold = 0.9
     s_waitInterval = 1.0
+
+    def MatchColor(color, r: int, g: int, b: int):
+        if color[0] == b and color[1] == g and color[2] == r:
+            return True
+        return False
 
     def pressUntilAppear(device: Device, template, x: int, y: int, timeout: float):
         
@@ -69,8 +76,20 @@ class MatchUtil:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
         return {'min_val':min_val, 'max_val':max_val, 'min_loc':min_loc, 'max_loc':max_loc}
 
+    def matchMultiple(image, template, thresh = 0.9, method = cv2.TM_CCOEFF_NORMED):
+        result = cv2.matchTemplate(image, templ=template, method=method)
+
+        (y_points, x_points) = np.where(result >= thresh)
+
+        matches = list()
+        for (x, y) in zip(x_points, y_points):
+            matches.append((x, y))
+
+        return matches
+
+
     def isMatch(result):
-        return result['max_val'] > 0.9
+        return result['max_val'] > MatchUtil.s_threshhold
 
     def WaitFor(device: Device, template, timeout: float):
 

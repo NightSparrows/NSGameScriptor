@@ -18,6 +18,7 @@ class ConfigUtil:
     def GetDefault():
 
         configData = {
+            'device': 'emulator-5554',
             'task' : [
                 {
                     'type': 'HardQuest',
@@ -33,6 +34,8 @@ class ConfigUtil:
     
     def Deserialize(game):
         data = dict()
+
+        data['device'] = game._device._connectDevice
 
         data['task'] = []
         for task in game._taskManager._tasks:

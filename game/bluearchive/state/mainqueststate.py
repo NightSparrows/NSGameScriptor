@@ -99,6 +99,7 @@ class MainQuestState(State):
                 have, result = MatchUtil.WaitFor(self._device, self.iconImage, 5)
                 if have:
                     Logger.trace('Entered MainQuest State')
+                    self._data.currentState = self.getName()
                     return True
                 else:
                     Logger.error('Unknown page cant find quest icon image')
