@@ -38,16 +38,15 @@ class ContestTask(Task):
             color1 = screenshot[407, 353]
             color2 = screenshot[486, 353]
 
-            if MatchUtil.MatchColor(color1, 213, 215, 214) and MatchUtil.MatchColor(color2, 215, 215, 212):
+            if not MatchUtil.MatchColor(color1, 213, 215, 214):
+                self._device.tap(353, 407)
+                time.sleep(1) 
+            elif not MatchUtil.MatchColor(color2, 215, 215, 212):
+                self._device.tap(353, 486)
+                time.sleep(1) 
+            else:
                 break
 
-            result = MatchUtil.match(screenshot, Asset.getRewardBtnImage)
-
-            if MatchUtil.isMatch(result):
-                point = MatchUtil.calculated(result, Asset.getRewardBtnImage.shape)
-                self._device.tap(point['x']['center'], point['y']['center'])
-                time.sleep(1)
-            
             self._device.tap(309, 119)
             time.sleep(1) 
 
@@ -56,12 +55,13 @@ class ContestTask(Task):
             Logger.error('無法返回quest state')
             return False
         
-        self.m_date = datetime.datetime.today().date() + timedelta(days=1)
+        self.m_date = datetime.datetime.combine(datetime.datetime.today().date(), datetime.time(13, 0)) + timedelta(days=1)        # 每日下午1點重置
         Logger.info('戰術大賽每日 complete')
         return True
 
 
-
+    def getInfo(self):
+        return '按戰術大賽獎勵的Task'
 
 
 

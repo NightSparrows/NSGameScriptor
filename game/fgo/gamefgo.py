@@ -9,6 +9,8 @@ from core.matchutil import MatchUtil
 
 from game.fgo.asset import Asset
 from game.fgo.state.lobbystate import LobbyState
+from game.fgo.battle.battle import Battle
+
 
 class GameFGO(Game):
 
@@ -19,8 +21,19 @@ class GameFGO(Game):
         
         self.lobbyState = LobbyState(self._device, self._data)
 
+        self._battles = dict[Battle]()
+
 
     def init(self):
+
+        if self.lobbyState.enter():
+            self.initStates()
+            return True
+        
+        return self.restart()
+
+
+    def initStates(self):
         # in 大廳
         self._stateManager.init(self.lobbyState)
         # TODO other states
@@ -62,7 +75,7 @@ class GameFGO(Game):
             return False
         
 
-        self.init()
+        self.initStates()
 
         return True
 

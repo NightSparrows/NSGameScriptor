@@ -35,8 +35,16 @@ class GameBlueArchive(Game):
 
         self._taskManager.execute()
 
-
     def init(self):
+        Logger.info('Blue archive 初始化中 ...')
+        if self.lobbyState.enter():
+            Logger.info('Already in init state.')
+            self.initStates()
+            return True
+        
+        return self.restart()
+
+    def initStates(self):
         # in 大廳
         self._stateManager.init(self.lobbyState)
         self._stateManager.addState(self.questState)
@@ -100,5 +108,7 @@ class GameBlueArchive(Game):
             Logger.error('Failed to enter lobby state')
             return False
 
-        self.init()
+        self.initStates()
+        
+        return True
 

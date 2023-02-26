@@ -11,6 +11,10 @@ class Game:
         self._stateManager = StateManager(self._data)
         self._taskManager = TaskManager()
 
+    # 若在遊戲裡，則回到init state，否則重啟
+    def init(self):
+        raise NotImplementedError('Game ' + self.m_name + ' init not impl')
+
     def execute(self):
         raise NotImplementedError('Game ' + self.m_name + ' execute not impl')
 

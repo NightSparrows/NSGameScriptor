@@ -1,15 +1,19 @@
 
+import datetime
+
+from .util.serializeutil import SerializeUtil
+
 
 class Logger:
 
     def info(msg):
-        print('INFO:  ' + msg)              # 先這樣
+        print('INFO [' + SerializeUtil.GetStringFromDateTime(datetime.datetime.now()) + ']: ' + msg)              # 先這樣
 
     def warn(msg):
-        print('WARN:  ' + msg)
+        print('WARN [' + SerializeUtil.GetStringFromDateTime(datetime.datetime.now()) + ']: ' + msg)
     
     def error(msg):
-        print('ERROR: ' + msg)
+        print('ERROR[' + SerializeUtil.GetStringFromDateTime(datetime.datetime.now()) + ']: ' + msg)
 
     def trace(msg):
-        print('TRACE: ' + msg)
+        print('TRACE[' + SerializeUtil.GetStringFromDateTime(datetime.datetime.now()) + ']: ' + msg)

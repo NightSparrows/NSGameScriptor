@@ -21,6 +21,10 @@ class LobbyState(State):
         return False
 
     def enter(self):
+        
+        if self.detect():
+            return True
+
         Logger.warn('Maybe future will implement this function')
         return False
 

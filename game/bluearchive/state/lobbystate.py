@@ -22,8 +22,11 @@ class LobbyState(State):
         raise NotImplementedError()
 
     def enter(self):
+
+        if self.detect():   # already in lobby state
+            return True
         
-        if not MatchUtil.pressUntilDisappear(self._device, self.homeBtnImage,1234, 25, 2):
+        if not MatchUtil.TapImage(self._device, self.homeBtnImage):
             return False
 
         if not MatchUtil.WaitFor(self._device, self.iconImage, 5):
@@ -37,9 +40,10 @@ class LobbyState(State):
         return True
 
     def detect(self):
-        self._device.screenshot()
-        if MatchUtil.isMatch(result = MatchUtil.match(self._device.getScreenshot(), self.iconImage)):
+        
+        if MatchUtil.Having(self._device, self.iconImage):   # already in lobby state
             return True
+        
         return False
 
     def getParentName(self):

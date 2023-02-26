@@ -160,9 +160,8 @@ class BlueArchiveUI:
     def run(self):
 
         # TODO 看看模擬器之類的，先都重啟
-        #self._game.restart()
         self._game.init()
-
+        
         self._running = True
         while self._running:
             cmd = input('>')
@@ -177,7 +176,6 @@ class BlueArchiveUI:
 
             if c == 'h' or c == 'help':
                 self.cmdHelp()
-                pass
             elif c == 'l' or c == 'list':
                 self.cmdList()
             elif c == 'e' or c == 'exe':
@@ -188,7 +186,6 @@ class BlueArchiveUI:
                 self.cmdAddTask(cmdArgs)
             elif c == 'r' or c == 'rm':
                 self.cmdRemoveTask(cmdArgs)
-                pass
             else:
                 print('未知的命令')
             

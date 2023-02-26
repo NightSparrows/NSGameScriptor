@@ -10,10 +10,52 @@ class MatchUtil:
     s_threshhold = 0.9
     s_waitInterval = 1.0
 
+    def TapImage(device: Device, template):
+        device.screenshot()
+        result = MatchUtil.match(device.getScreenshot(), template)
+        if MatchUtil.isMatch(result):
+            point = MatchUtil.calculated(result, template.shape)
+            device.tap(point['x']['center'], point['y']['center'])
+            time.sleep(1)
+            return True
+        
+        return False
+
     def MatchColor(color, r: int, g: int, b: int):
         if color[0] == b and color[1] == g and color[2] == r:
             return True
         return False
+
+    def PressUntilColorChange(device: Device, x: int, y: int, timeout: float):
+
+        timer = 0
+
+        device.screenshot()
+
+        screenshot = device.getScreenshot()
+        
+        color = screenshot[y, x]
+
+        while timer <= timeout:
+
+            device.tap(x, y)
+            time.sleep(1)
+
+            device.screenshot()
+            screenshot = device.getScreenshot()
+
+            newColor = screenshot[y, x]
+            if not MatchUtil.MatchColor(color, newColor[2], newColor[1], newColor[0]):
+                return True
+            
+            timer += 1
+        
+        # timeout
+        return False
+
+
+
+
 
     def pressUntilAppear(device: Device, template, x: int, y: int, timeout: float):
         
@@ -139,11 +181,21 @@ class MatchUtil:
         screenshot = device.getScreenshot()
         result = MatchUtil.match(screenshot, template=template, method=cv2.TM_CCOEFF_NORMED)
 
-        if result['max_val'] > 0.9:
+        if MatchUtil.isMatch(result):
             return True
         
         return False
-            
+    
+    def HavinginRange(device: Device, template, x, y, width, height):
+        device.screenshot()
+        screenshot = device.getScreenshot()
+        result = MatchUtil.match(screenshot[y:(y+height), x:(x+width)], template=template, method=cv2.TM_CCOEFF_NORMED)
+
+        if MatchUtil.isMatch(result):
+            return True
+        
+        return False
+
     
     def calculated(result, shape):
         mat_top, mat_left = result['max_loc']
