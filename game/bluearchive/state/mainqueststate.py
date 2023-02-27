@@ -92,7 +92,6 @@ class MainQuestState(State):
 
             if MatchUtil.pressUntilDisappear(self._device, self.enterBtnImage, 825, 269, 4):
                 
-                # TODO 通知
                 self._device.tap(1270, 50)
                 time.sleep(1)
 

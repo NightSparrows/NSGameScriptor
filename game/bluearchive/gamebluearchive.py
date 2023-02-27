@@ -19,8 +19,6 @@ class GameBlueArchive(Game):
         super().__init__('BlueArchive')
         self._device = device
 
-        # TODO load config file
-
         # loading states
         self.lobbyState = LobbyState(self._device, self._data)
         self.questState = QuestState(self._device, self._data)
@@ -30,8 +28,7 @@ class GameBlueArchive(Game):
     
     def execute(self):
 
-        # TODO 偵測是否在遊戲李，不然妹次都重啟浪費時間
-        self.restart()
+        self.init()
 
         self._taskManager.execute()
 

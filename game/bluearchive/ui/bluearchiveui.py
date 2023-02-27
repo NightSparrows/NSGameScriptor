@@ -145,7 +145,7 @@ class BlueArchiveUI:
         if not os.path.exists(self._configPath):
             os.makedirs(self._configPath)
 
-        # TODO 存檔
+        # 存檔
         configData = ConfigUtil.Deserialize(self._game)
         try:
             f = open(self._configPath + '/config.json', 'w')
@@ -159,7 +159,7 @@ class BlueArchiveUI:
 
     def run(self):
 
-        # TODO 看看模擬器之類的，先都重啟
+        # 看看模擬器之類的，否則重啟
         self._game.init()
         
         self._running = True

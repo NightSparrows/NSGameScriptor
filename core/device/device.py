@@ -3,7 +3,10 @@ import subprocess
 
 from enum import Enum
 
+from core.logger import Logger
+
 from .screencap.ascreencap import aScreenCap
+
 
 class Device:
 
@@ -13,11 +16,18 @@ class Device:
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '.\\toolkit\\adb\\adb.exe'
         self._connectDevice = connectDevice
+        
+        try:
+            subprocess.check_output(self._adbExePath + ' devices')
+        except:
+            pass
+
         match screencapType:
             case screencapType.aScreenCap:
                 self._screenCap = aScreenCap(self)
             case _:
                 raise NotImplementedError('unknown screen cap type')
+            
     
     def screenshot(self):
         self._screenCap.screenshot()
@@ -26,7 +36,7 @@ class Device:
         return self._screenCap.getScreenshot()
 
     def checkOutput(self, cmd: str):
-        subprocess.check_output(self._adbExePath + ' -s ' + self._connectDevice  + ' ' + cmd, shell=True)
+        return subprocess.check_output(self._adbExePath + ' -s ' + self._connectDevice  + ' ' + cmd, shell=True)
 
     def Popen(self, cmd):
         return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)

@@ -1,6 +1,7 @@
 
 import time
 import cv2
+import json
 
 from core.logger import Logger
 from core.device.device import Device
@@ -8,8 +9,9 @@ from core.game.game import Game
 from core.matchutil import MatchUtil
 
 from game.fgo.asset import Asset
-from game.fgo.state.lobbystate import LobbyState
 from game.fgo.battle.battle import Battle
+from game.fgo.state.lobbystate import LobbyState
+from game.fgo.state.activitystate import ActivityState
 
 
 class GameFGO(Game):
@@ -22,6 +24,25 @@ class GameFGO(Game):
         self.lobbyState = LobbyState(self._device, self._data)
 
         self._battles = dict[Battle]()
+
+        # Data
+        try:
+            with open('config/fgo/data.json') as f:
+                self._configData = json.load(f)
+        except:
+            # 沒有檔案
+            Logger.error('No FGO config data!')
+
+        if self._configData['activityName'] != None:
+            try:
+                with open('config/fgo/activity/' + self._configData['activityName'] + '.json') as f:
+                    activityData = json.load(f)
+            except:
+                # 沒有檔案
+                Logger.error('No FGO config data!')
+                activityData['current'] = 'None'
+
+        self.activityState = ActivityState(self._device, self._data, activityData)
 
 
     def init(self):
@@ -36,6 +57,8 @@ class GameFGO(Game):
     def initStates(self):
         # in 大廳
         self._stateManager.init(self.lobbyState)
+
+        self._stateManager.addState(self.activityState)
         # TODO other states
 
     def restart(self):

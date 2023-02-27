@@ -15,8 +15,28 @@ class aScreenCap(ScreenCap):
     def __init__(self, device) -> None:
         # install ascreencap into emulator
         self._device = device
+
         # TODO 根據版本更換不同平台的ascreencap
-        device.checkOutput('push toolkit/ascreencap/x86_64/ascreencap ' + aScreenCap.s_screenCapPath)
+
+        version = device.checkOutput('shell getprop ro.build.version.release')
+        version = version.decode('utf-8')
+        version = version.split('\r\n')[0]
+        print(version)
+
+        if version == '5' or version == '6' or version == '7':
+            versionStr = '5'
+        elif version == '9':
+            versionStr = '9'
+
+        platform = device.checkOutput('shell getprop ro.product.cpu.abi')
+        platform = platform.decode("utf-8")
+        platform = platform.split('\r\n')[0]
+
+        assert(platform == 'x86' or platform == 'x86_64')
+
+        programPath = 'toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
+
+        device.checkOutput('push ' + programPath + ' ' + aScreenCap.s_screenCapPath)
         device.checkOutput('shell chmod 777 ' + aScreenCap.s_screenCapPath + '/ascreencap')
 
     def screenshot_save(self):

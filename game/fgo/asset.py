@@ -11,6 +11,7 @@ class Asset:
     OKBtnImage = cv2.imread('./assets/fgo/battle/ok.png')
     YesBtnImage = cv2.imread('./assets/fgo//etc/yesBtn.png')
     CloseBtnImage = cv2.imread('./assets/fgo/etc/closeBtn.png')
+    BackToLobbyBtnImage = cv2.imread('./assets/fgo/etc/backToLobbyBtn.png')
 
 
 

@@ -1,0 +1,46 @@
+{
+    "current": "MoonlightEpitaph",
+    "button": "./assets/fgo/activity/MoonlightEpitaph/enterBtn.png",
+    "level":[
+        {
+            "name": "trainingRoom",
+            "position": [679, 420]
+        },
+        {
+            "name": "XHome",
+            "position": [840, 789]
+        },
+        {
+            "name": "studio",
+            "position": [261, 857]
+        },
+        {
+            "name": "idolArena",
+            "position": [844, 1150]
+        },
+        {
+            "name": "centerStage",
+            "position": [1155, 1125]
+        },
+        {
+            "name": "park",
+            "position": [387, 1219]
+        },
+        {
+            "name": "centralStreet",
+            "position": [719, 1468]
+        },
+        {
+            "name": "streamingStage",
+            "position": [360, 1511]
+        },
+        {
+            "name": "showSpace",
+            "position": [1313, 1548]
+        },
+        {
+            "name": "beachTraining",
+            "position": [1755, 1527]
+        }
+    ]
+}

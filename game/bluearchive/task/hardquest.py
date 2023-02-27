@@ -58,8 +58,8 @@ class HardQuestTask(Task):
             time.sleep(0.5)
 
         # 按掃蕩開始
-        time.sleep(1)
         self._device.tap(870, 403)
+        time.sleep(1)
 
         # 沒有AP
         if MatchUtil.Having(self._device, Asset.buyAPWindowImage):
@@ -75,7 +75,8 @@ class HardQuestTask(Task):
         # 次數不足
         if MatchUtil.Having(self._device, self.notEnoughInfoImage):
             Logger.warn('[TASK][HardQuest]  已打完')
-            # TODO 執行時間調到明天
+            # 執行時間調到明天
+            self.m_date = datetime.datetime.today().date() + timedelta(days=1)
             return True
 
         # 按確認
@@ -99,7 +100,7 @@ class HardQuestTask(Task):
         # 其實應該不太需要
         # self._stateManager._initState.enter()
 
-        # TODO 調整下次執行的時間
+        # 調整下次執行的時間
         self.m_date = datetime.datetime.today().date() + timedelta(days=1)
         Logger.info('[TASK][HardQuest] Task completed.')
         return True
