@@ -10,6 +10,8 @@ from core.util.serializeutil import SerializeUtil
 from game.fgo.gamefgo import GameFGO
 from game.fgo.battle.battle import Battle
 
+from game.fgo.task.activitytask import ActivityTask
+
 class ConfigUtil:
 
     def GetDefault():
@@ -26,7 +28,8 @@ class ConfigUtil:
                     'script': 'skill 2 1\nskill 2 2\nskill 2 3\nskill 1 1\nskill 1 2 2\nskill 1 3 2\nskill 3 1\nskill 3 2 2\nskill 3 3 2\ncard c2 r r\ncard c2 r r\ncard c2 r r\ncard r r r\n'
 
                 }
-            ]
+            ],
+            'task': []
         }
 
         return configData
@@ -48,8 +51,29 @@ class ConfigUtil:
             battleData['skill'] = battle._skill
             battleData['script'] = battle._script
 
+            data['battle'].append(battleData)
+
 
         data['task'] = []
+        for task in game._taskManager._tasks:
+            taskData = dict()
+            taskData['type'] = task.getName()
+            taskData['date'] = SerializeUtil.GetStringFromDateTime(task.getDate())
+            taskData['enable'] = task.isEnable()
+            if task.getName() == 'ActivityTask':
+                taskData['areaName'] = task._areaName
+                taskData['levelName'] = task._levelName
+                taskData['count'] = task._count
+                taskData['interval'] = task._interval.total_seconds()
+
+                for key in game._battles:
+                    if game._battles[key] == task._battle:
+                        taskData['battleKey'] = key
+                        break
+                # end
+
+            data['task'].append(taskData)
+
         return json.dumps(data)
 
     def Serialize(game: GameFGO, config):
@@ -76,6 +100,27 @@ class ConfigUtil:
             game._battles[battleData['name']] = battle
 
         #taskConfig = config['task']
+        for taskData in config['task']:
+            date = SerializeUtil.GetDatetimeFromString(taskData['date'])
+            enable = taskData['enable']
+            match taskData['type']:
+                case 'ActivityTask':
+                    areaName = taskData['areaName']
+                    levelID = taskData['levelName']
+                    count = taskData['count']
+                    interval = datetime.timedelta(seconds=taskData['interval'])
+
+                    for key in game._battles:
+                        if key == taskData['battleKey']:
+                            battle = game._battles[key]
+                            break
+                    
+                    task = ActivityTask(game._stateManager, game, areaName, levelID, battle, count, interval, date, enable)
+                    game._taskManager.addTask(task)
+
+                case _:
+                    pass
+
 
         return True
 

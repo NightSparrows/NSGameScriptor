@@ -21,6 +21,7 @@ class ActivityState(State):
         self._data = data
         self._device = device
         self._config = activityConfig
+        self._activityName = activityConfig['current']
         self._enterBtnImage = cv2.imread(activityConfig['button'])
 
         assetPath = './assets/fgo/activity/' + activityConfig['current']
@@ -32,6 +33,8 @@ class ActivityState(State):
             levelData = dict()
             levelData['image'] = image
             levelData['position'] = level['position']
+            levelData['appName'] = level['appName']
+            levelData['level'] = level['level']
             self._levels[levelName] = levelData
 
     def gotoLevel(self, levelName: str):

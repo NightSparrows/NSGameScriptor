@@ -21,7 +21,6 @@ class aScreenCap(ScreenCap):
         version = device.checkOutput('shell getprop ro.build.version.release')
         version = version.decode('utf-8')
         version = version.split('\r\n')[0]
-        print(version)
 
         if version == '5' or version == '6' or version == '7':
             versionStr = '5'
@@ -33,6 +32,8 @@ class aScreenCap(ScreenCap):
         platform = platform.split('\r\n')[0]
 
         assert(platform == 'x86' or platform == 'x86_64')
+
+        Logger.trace('Android version: ' + version + ', Platform: ' + platform)
 
         programPath = 'toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
 

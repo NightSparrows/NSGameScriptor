@@ -9,6 +9,10 @@ from game.fgo.gamefgo import GameFGO
 
 from ..configutil import ConfigUtil
 
+from .addtaskui import AddTaskUI
+
+from core.util.stringutil import StringUtil
+from core.util.serializeutil import SerializeUtil
 
 class FGOUI:
 
@@ -46,7 +50,6 @@ class FGOUI:
         finally:
             f.close()
 
-
     def cmdHelp(self):
         print('Fate Grand Order 腳本')
 
@@ -61,6 +64,36 @@ class FGOUI:
             f"{'rm/r':<10}     {'刪除工作'}",'\n'
         )
 
+    def cmdAdd(self, cmdArgs):
+        AddTaskUI.Run(self._game)
+
+    def cmdList(self):
+
+        print(StringUtil.align('ID', 5) + StringUtil.align('工作', 15) + StringUtil.align('內容', 30) + StringUtil.align('是否啟用', 10) + StringUtil.align('執行日期', 30))
+        i = 0
+        for task in self._game._taskManager._tasks:
+            print(StringUtil.align(str(i), 5) + StringUtil.align(task.getName(), 15) + StringUtil.align(task.getInfo(), 30) + StringUtil.align(str(task.isEnable()), 10) + StringUtil.align(SerializeUtil.GetStringFromDateTime(task.getDate()), 30))
+            
+            i += 1
+
+    def cmdRunTask(self, args):
+        if len(args) <= 1:
+            print('無輸入工作')
+            return
+        
+        try:
+            id = int(args[1])
+        except:
+            print('不是數字')
+            return
+        
+        result = self._game._taskManager.runTask(id)
+
+        if result == -1:
+            print('非法工作ID')
+        elif result == -2:
+            print('工作執行失敗')
+        
     def run(self):
 
         self._game.init()
@@ -79,6 +112,12 @@ class FGOUI:
 
             if c == 'h' or c == 'help':
                 self.cmdHelp()
+            elif c == 'a' or c == 'add':
+                self.cmdAdd(cmdArgs)
+            elif c == 'l' or c == 'list':
+                self.cmdList()
+            elif c == 'e' or c == 'exe':
+                self.cmdRunTask(cmdArgs)
             else:
                 print('未知的命令')
             

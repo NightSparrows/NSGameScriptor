@@ -4,43 +4,77 @@
     "level":[
         {
             "name": "trainingRoom",
-            "position": [679, 420]
+            "position": [679, 420],
+            "appName": "練習室",
+            "level":[
+            ]
         },
         {
             "name": "XHome",
-            "position": [840, 789]
+            "position": [840, 789],
+            "appName": "X Alter的家",
+            "level":[
+            ]
         },
         {
             "name": "studio",
-            "position": [261, 857]
+            "position": [261, 857],
+            "appName": "工作室",
+            "level":[
+            ]
         },
         {
             "name": "idolArena",
-            "position": [844, 1150]
+            "position": [844, 1150],
+            "appName": "偶像競技場",
+            "level":[
+            ]
         },
         {
             "name": "centerStage",
-            "position": [1155, 1125]
+            "position": [1155, 1125],
+            "appName": "中央舞台",
+            "level":[
+            ]
         },
         {
             "name": "park",
-            "position": [387, 1219]
+            "position": [387, 1219],
+            "appName": "代代森公園",
+            "level":[
+            ]
         },
         {
             "name": "centralStreet",
-            "position": [719, 1468]
+            "position": [719, 1468],
+            "appName": "中央大街",
+            "level":[
+            ]
         },
         {
             "name": "streamingStage",
-            "position": [360, 1511]
+            "position": [360, 1511],
+            "appName": "直播舞台",
+            "level":[
+            ]
         },
         {
             "name": "showSpace",
-            "position": [1313, 1548]
+            "position": [1313, 1548],
+            "appName": "展演空間",
+            "level":[
+            ]
         },
         {
             "name": "beachTraining",
-            "position": [1755, 1527]
+            "position": [1755, 1527],
+            "appName": "臨海集訓地",
+            "level":[
+                {
+                    "imageName": "D1",
+                    "name": "在沙地進行耐力跑訓練"
+                }
+            ]
         }
     ]
 }
