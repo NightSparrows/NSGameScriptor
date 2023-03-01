@@ -40,9 +40,10 @@ class GameFGO(Game):
                 with open(configFilePath) as f:
                     Logger.info('Open file successfully')
                     activityData = json.load(f)
-            except:
+            except Exception as e:
                 # 沒有檔案
                 Logger.error('Failed to read FGO config data!: ' + configFilePath)
+                Logger.error(e)
                 activityData['current'] = 'None'
 
         self.activityState = ActivityState(self._device, self._data, activityData)
