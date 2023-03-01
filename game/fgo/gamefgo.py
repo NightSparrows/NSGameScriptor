@@ -37,7 +37,7 @@ class GameFGO(Game):
         if self._configData['activityName'] != None:
             try:
                 configFilePath = 'config/fgo/activity/' + self._configData['activityName'] + '.json'
-                with open(configFilePath) as f:
+                with open(configFilePath, encoding='utf-8') as f:
                     Logger.info('Open file successfully')
                     activityData = json.load(f)
             except Exception as e:
