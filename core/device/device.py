@@ -18,15 +18,16 @@ class Device:
         self._connectDevice = connectDevice
         
         try:
-            subprocess.check_output(self._adbExePath + ' devices')
+            subprocess.check_output(self._adbExePath + ' kill-server')
+            subprocess.check_output(self._adbExePath + ' start-server')
         except:
             pass
 
-        match screencapType:
-            case screencapType.aScreenCap:
-                self._screenCap = aScreenCap(self)
-            case _:
-                raise NotImplementedError('unknown screen cap type')
+        if screencapType == screencapType.aScreenCap:
+            self._screenCap = aScreenCap(self)
+        else:
+            raise NotImplementedError('unknown screen cap type')
+
             
     
     def screenshot(self):

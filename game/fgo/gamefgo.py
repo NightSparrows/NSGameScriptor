@@ -53,6 +53,8 @@ class GameFGO(Game):
         
         return self.restart()
 
+    def execute(self):
+        self._taskManager.execute()
 
     def initStates(self):
         # in 大廳
@@ -84,7 +86,9 @@ class GameFGO(Game):
         time.sleep(1)
 
         # TODO 視窗 for closing
-
+        time.sleep(1)
+        while MatchUtil.TapImage(self._device, Asset.CloseBtnImage):
+            time.sleep(1)
 
         safty = False
         for i in range(10):

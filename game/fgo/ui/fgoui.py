@@ -118,6 +118,8 @@ class FGOUI:
                 self.cmdList()
             elif c == 'e' or c == 'exe':
                 self.cmdRunTask(cmdArgs)
+            elif c == 'run':
+                self._game.execute()
             else:
                 print('未知的命令')
             

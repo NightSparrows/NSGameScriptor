@@ -25,7 +25,7 @@ class LobbyState(State):
         if self.detect():
             return True
 
-        Logger.warn('Maybe future will implement this function')
+        Logger.warn('Maybe future will implement this function(Lobby state::enter())')
         return False
 
     def detect(self):
