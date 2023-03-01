@@ -36,12 +36,13 @@ class GameFGO(Game):
         activityData = dict()
         if self._configData['activityName'] != None:
             try:
-                configFilePath = './config/fgo/activity/' + self._configData['activityName'] + '.json'
+                configFilePath = 'config/fgo/activity/' + self._configData['activityName'] + '.json'
                 with open(configFilePath) as f:
+                    Logger.info('Open file successfully')
                     activityData = json.load(f)
             except:
                 # 沒有檔案
-                Logger.error('No FGO config data!: ' + configFilePath)
+                Logger.error('Failed to read FGO config data!: ' + configFilePath)
                 activityData['current'] = 'None'
 
         self.activityState = ActivityState(self._device, self._data, activityData)
