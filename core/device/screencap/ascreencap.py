@@ -22,7 +22,7 @@ class aScreenCap(ScreenCap):
         version = version.decode('utf-8')
         version = version.split('\r\n')[0]
 
-        if version == '5' or version == '6' or version == '7':
+        if version == '5' or version == '6' or version == '7' or version[0] == '7':
             versionStr = '5'
         elif version == '9':
             versionStr = '9'
