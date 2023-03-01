@@ -33,6 +33,7 @@ class GameFGO(Game):
             # 沒有檔案
             Logger.error('No FGO config data!')
 
+        activityData = dict()
         if self._configData['activityName'] != None:
             try:
                 with open('config/fgo/activity/' + self._configData['activityName'] + '.json') as f:
