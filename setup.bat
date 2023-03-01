@@ -1,2 +1,2 @@
 
-pip install -r requirements.txt
+toolkit\python\Scripts\pip.exe install -r requirements.txt
