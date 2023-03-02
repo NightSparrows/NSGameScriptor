@@ -37,8 +37,12 @@ class aScreenCap(ScreenCap):
 
         programPath = 'toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
 
-        device.checkOutput('push ' + programPath + ' ' + aScreenCap.s_screenCapPath)
-        device.checkOutput('shell chmod 777 ' + aScreenCap.s_screenCapPath + '/ascreencap')
+        try:
+            Logger.info('Putting ascreencap to your emulator')
+            device.checkOutput('push ' + programPath + ' ' + aScreenCap.s_screenCapPath)
+            device.checkOutput('shell chmod 777 ' + aScreenCap.s_screenCapPath + '/ascreencap')
+        except:
+            Logger.error('Failed to copy ascreencap to your emulator')
 
     def screenshot_save(self):
         self.screenshot()

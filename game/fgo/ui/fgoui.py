@@ -94,6 +94,22 @@ class FGOUI:
         elif result == -2:
             print('工作執行失敗')
         
+    def cmdEdit(self, args):
+
+        if len(args) <= 1:
+            print('input: edit [type] for editing')
+        
+        typeInput = args[1]
+
+        match typeInput:
+            case 'device':
+                deviceName = input('輸入device: ')
+
+                self._device._connectDevice = deviceName
+                print('修改成功: ' + deviceName)
+            case _:
+                print('未知')
+
     def run(self):
 
         self._game.init()
@@ -120,6 +136,8 @@ class FGOUI:
                 self.cmdRunTask(cmdArgs)
             elif c == 'run':
                 self._game.execute()
+            elif c == 'edit':
+                self.cmdEdit(cmdArgs)
             else:
                 print('未知的命令')
             

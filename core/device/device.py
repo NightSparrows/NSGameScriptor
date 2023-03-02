@@ -17,11 +17,11 @@ class Device:
         self._adbExePath = '.\\toolkit\\adb\\adb.exe'
         self._connectDevice = connectDevice
         
-        try:
-            subprocess.check_output(self._adbExePath + ' kill-server')
-            subprocess.check_output(self._adbExePath + ' start-server')
-        except:
-            pass
+        # try:
+        #     subprocess.check_output(self._adbExePath + ' kill-server')
+        #     subprocess.check_output(self._adbExePath + ' start-server')
+        # except:
+        #     pass
 
         if screencapType == screencapType.aScreenCap:
             self._screenCap = aScreenCap(self)

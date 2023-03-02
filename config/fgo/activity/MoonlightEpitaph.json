@@ -42,6 +42,10 @@
             "position": [387, 1219],
             "appName": "代代森公園",
             "level":[
+                {
+                    "imageName": "D1",
+                    "name": "在野外舞台練習發聲"
+                }
             ]
         },
         {

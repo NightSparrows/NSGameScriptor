@@ -30,6 +30,7 @@ class Battle:
     s_endDicisionImage = cv2.imread('.//assets//fgo//battle//endDicision.png')
     s_refreshBtnImage = cv2.imread('.//assets//fgo//battle//refreshBtn.png')
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
+    s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
 
     # friendInfo= {
             # 'name' : friend,
@@ -180,10 +181,18 @@ class Battle:
 
         time.sleep(1)
         self._data.device.tap(partyBtnX, 50)
+        time.sleep(1)
 
-        time.sleep(2)
-        self._data.device.tap(1165, 675)
-        #ADBDevice.hold(1165, 675, 100)
+        # 按任務開始
+        isPressed = False
+        for i in range(5):
+            if MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtnImage):
+                isPressed = True
+                break
+        
+        if not isPressed:
+            Logger.error('Failed to press mission start button')
+            return False
 
         return True
 
@@ -224,7 +233,7 @@ class Battle:
 
             if (timer >= 60):
                 Logger.error('Failed to wait safty stage')
-                raise NotImplementedError()
+                return False
 
             if (self._data.executePC == len(self._tasks)):
                 # check if it is 

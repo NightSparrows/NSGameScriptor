@@ -92,7 +92,7 @@ class GameFGO(Game):
         # TODO 視窗 for closing
         time.sleep(1)
         while MatchUtil.TapImage(self._device, Asset.CloseBtnImage):
-            time.sleep(1)
+            time.sleep(2)
 
         safty = False
         for i in range(10):

@@ -4,9 +4,9 @@ import datetime
 from core.util.stringutil import StringUtil
 
 from game.fgo.gamefgo import GameFGO
-from game.fgo.ui.util.listutil import ListUtil
 
 from game.fgo.task.activitytask import ActivityTask
+from .battleui import BattleUI
 
 class AddTaskUI:
 
@@ -56,7 +56,7 @@ class AddTaskUI:
 
         # list battle info
 
-        ListUtil.ListBattleInfo(game)
+        BattleUI.CmdList(game)
 
         try:
             battleKey = input('輸入Key: ')

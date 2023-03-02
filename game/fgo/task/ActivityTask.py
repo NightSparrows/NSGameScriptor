@@ -99,5 +99,5 @@ class ActivityTask(Task):
         return True
     
     def getInfo(self):
-        return '打活動副本'
+        return '打活動副本[' + self._areaName + ':' + self._levelName + ']'
 
