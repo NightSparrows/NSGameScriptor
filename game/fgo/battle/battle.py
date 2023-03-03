@@ -134,7 +134,6 @@ class Battle:
                     # Choose it!
                     if (foundServant):
                         Logger.info('Servant ' + self._friendInfo['name'] + ' Found!')
-                        time.sleep(0.5)
                         self._data.device.tap(servantPosition[0], servantPosition[1])
                         time.sleep(1)
                         return True
@@ -261,6 +260,7 @@ class Battle:
 
     def execute(self, count: int = 1):
         self._currentStage = Battle.Stage.ChooseFriend
+        self._skipChooseParty = False
 
         self._endFlags = False
 

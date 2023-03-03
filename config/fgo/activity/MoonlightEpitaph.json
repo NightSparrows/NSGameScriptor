@@ -7,6 +7,10 @@
             "position": [679, 420],
             "appName": "練習室",
             "level":[
+                {
+                    "imageName": "D1",
+                    "name": "在練習室練習編舞"
+                }
             ]
         },
         {
