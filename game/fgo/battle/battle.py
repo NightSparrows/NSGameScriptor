@@ -136,6 +136,7 @@ class Battle:
                         Logger.info('Servant ' + self._friendInfo['name'] + ' Found!')
                         time.sleep(0.5)
                         self._data.device.tap(servantPosition[0], servantPosition[1])
+                        time.sleep(1)
                         return True
 
                 # 沒找到，scroll一個
@@ -171,6 +172,7 @@ class Battle:
 
     def chooseParty(self):
 
+        Logger.info('Choosing party ... ')
         # TODO Make sure you are in choose party
         time.sleep(2)
         self._data.device.tap(527, 50)
@@ -189,6 +191,7 @@ class Battle:
             if MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtnImage):
                 isPressed = True
                 break
+            time.sleep(1)
         
         if not isPressed:
             Logger.error('Failed to press mission start button')

@@ -97,7 +97,7 @@ class ActivityState(State):
             else:
                 swipeY = 0
             
-            self._device.holdScroll(640, 360, 640 + swipeX, 360 + swipeY, 800)
+            self._device.holdScroll(640, 360, 640 + swipeX, 360 + swipeY, 900)
             time.sleep(2)
             currentPosX -= swipeX
             currentPosY -= swipeY

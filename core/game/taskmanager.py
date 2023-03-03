@@ -52,6 +52,7 @@ class TaskManager:
         Logger.info('Have ' + str(len(taskQueue)) + ' tasks to run')
         for task in taskQueue:
             # TODO 標記未正確執行的工作
+            Logger.info('Executing ' + task.getInfo())
             task.execute()
         
 
