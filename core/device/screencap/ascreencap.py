@@ -35,7 +35,7 @@ class aScreenCap(ScreenCap):
 
         Logger.trace('Android version: ' + version + ', Platform: ' + platform)
 
-        programPath = 'toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
+        programPath = '../toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
 
         try:
             Logger.info('Putting ascreencap to your emulator')

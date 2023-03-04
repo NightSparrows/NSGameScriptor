@@ -14,7 +14,7 @@ class Device:
         aScreenCap = 'aScreenCap'           # direct 
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
-        self._adbExePath = '.\\toolkit\\adb\\adb.exe'
+        self._adbExePath = '..\\toolkit\\adb\\adb.exe'
         self._connectDevice = connectDevice
         
         # try:
