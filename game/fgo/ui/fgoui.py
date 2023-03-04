@@ -61,7 +61,9 @@ class FGOUI:
             f"{'exe/e':<10}     {'執行工作'}",'\n',
             f"{'save/s':<10}     {'儲存設定檔'}",'\n',
             f"{'add/a':<10}     {'新增工作'}",'\n',
-            f"{'rm/r':<10}     {'刪除工作'}",'\n'
+            f"{'run':<10}     {'執行過期的工作'}",'\n',
+            f"{'edit':<10}     {'編輯設定'}",'\n',
+            f"{'rm':<10}     {'刪除工作'}",'\n'
         )
 
     def cmdAdd(self, cmdArgs):
@@ -93,7 +95,30 @@ class FGOUI:
             print('非法工作ID')
         elif result == -2:
             print('工作執行失敗')
+    
+    def cmdRemoveTask(self, args):
+        if len(args) <= 1:
+            print('無輸入工作')
+            return
         
+        try:
+            id = int(args[1])
+
+            if id >= len(self._game._taskManager._tasks):
+                print('超出最大工作')
+                return
+
+        except:
+            print('不是數字')
+            return
+        
+        
+        del self._game._taskManager._tasks[id]
+
+        print('刪除成功')
+        return
+
+
     def cmdEdit(self, args):
 
         if len(args) <= 1:
@@ -138,6 +163,8 @@ class FGOUI:
                 self._game.execute()
             elif c == 'edit':
                 self.cmdEdit(cmdArgs)
+            elif c == 'rm':
+                self.cmdRemoveTask(cmdArgs)
             else:
                 print('未知的命令')
             
