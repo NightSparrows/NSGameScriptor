@@ -7,7 +7,7 @@ from .device.device import Device
 
 class MatchUtil:
 
-    s_threshhold = 0.9
+    s_threshhold = 0.95
     s_waitInterval = 1.0
 
     def TapImage(device: Device, template):
