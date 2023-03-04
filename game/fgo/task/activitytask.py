@@ -40,8 +40,10 @@ class ActivityTask(Task):
         for i in range(5):
             # tap
             if MatchUtil.TapImage(self._device, self._btnImage):
-                isPress = True
-                break
+                time.sleep(1)
+                if not MatchUtil.Having(self._device, self._btnImage):
+                    isPress = True
+                    break
 
             self._device.swipe(1000, 500, 1000, 200)
             time.sleep(1)
