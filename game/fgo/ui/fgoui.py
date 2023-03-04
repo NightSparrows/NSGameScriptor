@@ -161,6 +161,8 @@ class FGOUI:
                 self.cmdRunTask(cmdArgs)
             elif c == 'run':
                 self._game.execute()
+            elif c == 'save':
+                self.save()
             elif c == 'edit':
                 self.cmdEdit(cmdArgs)
             elif c == 'rm':
