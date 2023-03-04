@@ -39,6 +39,18 @@
             "position": [1155, 1125],
             "appName": "中央舞台",
             "level":[
+                {
+                    "imageName": "D1",
+                    "name": "合唱練習"
+                },
+                {
+                    "imageName": "D2",
+                    "name": "隊形練習"
+                },
+                {
+                    "imageName": "D3",
+                    "name": "舞台裝置配置練習"
+                }
             ]
         },
         {
