@@ -27,7 +27,7 @@ class GameFGO(Game):
 
         # Data
         try:
-            with open('config/fgo/data.json') as f:
+            with open('config/fgo/data.json', encoding='utf-8') as f:
                 self._configData = json.load(f)
         except:
             # 沒有檔案
