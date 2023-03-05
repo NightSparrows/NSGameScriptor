@@ -14,6 +14,8 @@ from .addtaskui import AddTaskUI
 from core.util.stringutil import StringUtil
 from core.util.serializeutil import SerializeUtil
 
+from .battleui import BattleUI
+
 class FGOUI:
 
     def __init__(self) -> None:
@@ -132,6 +134,8 @@ class FGOUI:
 
                 self._device._connectDevice = deviceName
                 print('修改成功: ' + deviceName)
+            case 'battle':
+                BattleUI.Run(self._game)
             case _:
                 print('未知')
 

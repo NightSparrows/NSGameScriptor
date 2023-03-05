@@ -1,8 +1,12 @@
 
+import cv2
+
+from core.logger import Logger
 
 from core.util.stringutil import StringUtil
 
 from game.fgo.gamefgo import GameFGO
+from game.fgo.battle.battle import Battle
 
 class BattleUI:
 
@@ -74,20 +78,122 @@ class BattleUI:
 
 
         # Editing script
+        scriptList = list()
 
         while True:
 
-            cmdLine = input('>')
+            cmdLine = input('戰鬥腳本>')
 
             if cmdLine == 'q' or cmdLine == 'quit':
                 break
 
             cmdArgs = cmdLine.split(' ')
 
-            
+            cmd = cmdArgs[0]
+
+            if cmd == 'a' or cmd == 'add':
+                operateStr = BattleUI.GetOperateStr()
+                if operateStr != '':
+                    scriptList.append(operateStr)
+            else:
+                print('未知的指令')
+# friendInfo= {
+            # 'name' : friend,
+            # 'class' : 5,            # TODO: 我懶得設定以後再說，預設術職
+            # 'nameImage' : cv2.imread('.//assets//fgo//servant//' + friend + '//name.png'),
+            # 'skill1' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill1.png'),
+            # 'skill2' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill2.png'),
+            # 'skill3' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill3.png')
+            # }
+        friendInfo = {
+            'name': friendServantName,
+            'class': classChoosing,
+            'nameImage': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//name.png'),
+            'skill1': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill1.png'),
+            'skill2': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill2.png'),
+            'skill3': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill3.png'),
+        }
+
+        scriptStr = ''
+        for script in scriptList:
+            scriptStr += script
+
+        battle = Battle(game._device, partyNumber, friendInfo, skill, scriptStr)
+        
+        game._battles[battleName] = battle
+        print('新增成功')
 
         
         return
+
+    def GetOperateStr():
+        print('0: 使用技能')
+        print('1: 使用卡')
+        print('2: 使用禮裝')
+        try:
+            operateType = int(input('動作>'))
+        except:
+            print('非法輸入')
+            return ''
+        
+        if operateType == 0:
+            try:
+                servantNo = int(input('選擇從者(1~3)>'))
+
+                if servantNo < 1 or servantNo > 3:
+                    print('不為1~3')
+                    return ''
+                
+                skillNo = int(input('使用的技能(1~3)>'))
+
+                if skillNo < 1 or skillNo > 3:
+                    print('不為1~3')
+                    return ''
+
+                useCharNo = int(input('被使用的從者(1~3)(沒有:-1)>'))
+
+                if useCharNo != -1 and (useCharNo < 1 or useCharNo > 3):
+                    print('不為1~3或-1')
+                    return ''
+                
+                scriptStr = 'skill ' + str(servantNo) + ' ' + str(skillNo)
+
+                if useCharNo != -1:
+                    scriptStr += ' ' + str(useCharNo)
+                
+                scriptStr += '\n'
+
+                Logger.trace('[SCRIPT] ' + scriptStr)
+
+                return scriptStr
+
+            except:
+                print('非法輸入')
+                return ''
+        elif operateType == 1:
+            try:
+                scriptStr = 'card '
+
+                for i in range(3):
+                    print('c[1~3]: 使用寶具')
+                    print('r:      隨機選卡')
+                    operateStr = input('動作>')
+                    scriptStr += ' ' + operateStr
+
+                scriptStr += '\n'
+
+                Logger.trace('[SCRIPT] ' + scriptStr)
+
+                return scriptStr
+
+            except:
+                print('非法輸入')
+                return ''
+        elif operateType == 2:
+            pass
+        else:
+            print('錯誤: 未知的動作')
+            return ''
 
     def CmdList(game: GameFGO):
 
@@ -115,7 +221,7 @@ class BattleUI:
             cmd = cmdArgs[0]
 
             if cmd == 'add':
-                pass
+                BattleUI.CmdAdd(game)
             elif cmd == 'list':
                 BattleUI.CmdList(game)
             else:
