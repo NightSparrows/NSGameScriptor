@@ -172,7 +172,7 @@ class BattleUI:
                 return ''
         elif operateType == 1:
             try:
-                scriptStr = 'card '
+                scriptStr = 'card'
 
                 for i in range(3):
                     print('c[1~3]: 使用寶具')
