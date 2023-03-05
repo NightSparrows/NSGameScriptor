@@ -1,9 +1,13 @@
 
+import os
+
 from core.base import Base
 import subprocess
 
 if __name__ == '__main__':
 
+    subprocess.check_output(Base.s_toolkitPath + '/adb/adb.exe kill-server')
+    subprocess.check_output(Base.s_toolkitPath + '/adb/adb.exe start-server')
 
     result = subprocess.check_output(Base.s_toolkitPath + '/adb/adb.exe devices')
 
@@ -18,7 +22,11 @@ if __name__ == '__main__':
     configData['device'] = deviceName
 
     try:
-        f = open('config/config.json', 'w')
+        
+        if not os.path.exists('./config'):
+            os.makedirs('./config')
+            
+        f = open('./config/config.json', 'w')
         f.write(configData)
         print('儲存成功')
     except:
