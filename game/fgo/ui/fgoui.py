@@ -52,21 +52,30 @@ class FGOUI:
         finally:
             f.close()
 
-    def cmdHelp(self):
+    def cmdHelp(self, args):
         print('Fate Grand Order 腳本')
 
-        print(
-            f"{'指令':<10}       {'Description'}",'\n',
-            f"{'help/h':<10}     {'顯示此幫助'}",'\n',
-            f"{'quit/q':<10}     {'結束此程式'}",'\n',
-            f"{'list/l':<10}     {'列出所有工作'}",'\n',
-            f"{'exe/e':<10}     {'執行工作'}",'\n',
-            f"{'save/s':<10}     {'儲存設定檔'}",'\n',
-            f"{'add/a':<10}     {'新增工作'}",'\n',
-            f"{'run':<10}     {'執行過期的工作'}",'\n',
-            f"{'edit':<10}     {'編輯設定'}",'\n',
-            f"{'rm':<10}     {'刪除工作'}",'\n'
-        )
+        if len(args) <= 1:
+            print(
+                f"{'指令':<10}       {'Description'}",'\n',
+                f"{'help/h':<10}     {'顯示此幫助'}",'\n',
+                f"{'quit/q':<10}     {'結束此程式'}",'\n',
+                f"{'list/l':<10}     {'列出所有工作'}",'\n',
+                f"{'exe/e':<10}     {'執行工作'}",'\n',
+                f"{'save/s':<10}     {'儲存設定檔'}",'\n',
+                f"{'add/a':<10}     {'新增工作'}",'\n',
+                f"{'run':<10}     {'執行過期的工作'}",'\n',
+                f"{'edit':<10}     {'編輯設定'}",'\n',
+                f"{'rm':<10}     {'刪除工作'}",'\n'
+            )
+            return
+        
+        typeStr = args[1]
+
+        if typeStr == 'exe':
+            print('執行工作')
+            print('Usage: ')
+            print('\texe [工作ID]')
 
     def cmdAdd(self, cmdArgs):
         AddTaskUI.Run(self._game)
@@ -156,7 +165,7 @@ class FGOUI:
             c = cmdArgs[0]
 
             if c == 'h' or c == 'help':
-                self.cmdHelp()
+                self.cmdHelp(cmdArgs)
             elif c == 'a' or c == 'add':
                 self.cmdAdd(cmdArgs)
             elif c == 'l' or c == 'list':
