@@ -4,6 +4,8 @@ import numpy as np
 import lz4.block
 import cv2
 
+from core.base import Base
+
 from .screencap import ScreenCap
 
 from ...logger import Logger
@@ -35,7 +37,7 @@ class aScreenCap(ScreenCap):
 
         Logger.trace('Android version: ' + version + ', Platform: ' + platform)
 
-        programPath = '../toolkit/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
+        programPath = Base.s_toolkitPath + '/ascreencap/' + versionStr + '/' + platform + '/ascreencap'
 
         try:
             Logger.info('Putting ascreencap to your emulator')
