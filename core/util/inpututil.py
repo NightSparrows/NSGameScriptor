@@ -2,6 +2,13 @@
 
 class InputUtil:
 
+    def InputString(inputStr: str):
+        try:
+            text = input(inputStr)
+            return text
+        except:
+            return None
+
 
     def InputNumber(min: int, max: int, inputStr: str):
 

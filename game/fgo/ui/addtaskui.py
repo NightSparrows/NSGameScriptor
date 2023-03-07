@@ -7,6 +7,7 @@ from core.util.inpututil import InputUtil
 from game.fgo.gamefgo import GameFGO
 
 from game.fgo.task.activitytask import ActivityTask
+from game.fgo.task.qptask import QPTask
 from .battleui import BattleUI
 
 
@@ -87,15 +88,45 @@ class AddTaskUI:
         print('Task新增成功')
         return True
 
-    def addDailyTask(self, game: GameFGO):
+    def addDailyTask(game: GameFGO):
         
         print()
         print(StringUtil.align('ID', 5) + StringUtil.align('類型', 20))
         print(StringUtil.align('0', 5) + StringUtil.align('QP每日任務', 20))
         print()
         taskType = InputUtil.InputNumber(0, 0, '任務類型(ID)>')
+        
+        if taskType == None:
+            print('非法輸入')
+            return False
 
-        # TODO 新增每日任務
+        match taskType:
+            case 0:
+                count = InputUtil.InputNumber(1, 100, '次數>')
+                if count == None:
+                    print('非法次數')
+                    return False
+
+                BattleUI.CmdList(game)
+
+                battleKey = InputUtil.InputString('Key>')
+                if battleKey == None:
+                    print('非法輸入')
+                    return False
+                
+                battle = game.getBattleFromKey(battleKey)
+
+                if battle == None:
+                    print('Key輸入錯誤')
+                    return False
+
+                task = QPTask(game, battle, count, datetime.datetime.now().date(), True)
+                game._taskManager.addTask(task)
+                print('QPTask新增成功')
+                return True
+            case _:
+                print('未知的類型')
+                return False
 
         return False
 
@@ -117,7 +148,7 @@ class AddTaskUI:
             case 0:
                 return AddTaskUI.addActivityTask(game)
             case 1:
-                return AddTaskUI.addActivityTask(game)
+                return AddTaskUI.addDailyTask(game)
             case _:
                 print('未知的工作類型')
                 return False
