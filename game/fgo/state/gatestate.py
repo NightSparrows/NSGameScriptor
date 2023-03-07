@@ -24,7 +24,7 @@ class GateState(State):
     def goback(self):
         Logger.info('Try to go back from gate state')
         # assert is in this state
-        if (self.m_data.currentState != self.getName()):
+        if (self._data.currentState != self.getName()):
             Logger.warn('Current state not ' + self.getName() + ' cant go back.')
             return False
         
@@ -56,7 +56,7 @@ class GateState(State):
 
     def enter(self):
         # assert is in lobby state
-        if (self.m_data.currentState != self.getParentName()):
+        if (self._data.currentState != self.getParentName()):
             Logger.warn('Current state not ' + self.getParentName() + ' cant enter.')
             return False
         

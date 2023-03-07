@@ -12,6 +12,9 @@ from game.fgo.asset import Asset
 from game.fgo.battle.battle import Battle
 from game.fgo.state.lobbystate import LobbyState
 from game.fgo.state.activitystate import ActivityState
+from game.fgo.state.gatestate import GateState
+from game.fgo.state.dailystate import DailyState
+
 
 
 class GameFGO(Game):
@@ -22,6 +25,8 @@ class GameFGO(Game):
         self._device = device
         
         self.lobbyState = LobbyState(self._device, self._data)
+        self.gateState = GateState(self._device, self._data)
+        self.dailyState = DailyState(self._device, self._data)
 
         self._battles = dict[Battle]()
 
@@ -34,7 +39,7 @@ class GameFGO(Game):
             Logger.error('No FGO config data!')
 
         activityData = dict()
-        if self._configData['activityName'] != None:
+        if self._configData['activityName'] != 'None':
             try:
                 configFilePath = 'config/fgo/activity/' + self._configData['activityName'] + '.json'
                 with open(configFilePath, encoding='utf-8') as f:
@@ -45,6 +50,10 @@ class GameFGO(Game):
                 Logger.error('Failed to read FGO config data!: ' + configFilePath)
                 Logger.error(e)
                 activityData['current'] = 'None'
+        else:
+            activityData['current'] = 'None'
+            activityData['button'] = ''
+            activityData['level'] = []
 
         self.activityState = ActivityState(self._device, self._data, activityData)
 
@@ -57,6 +66,23 @@ class GameFGO(Game):
         
         return self.restart()
 
+    def getKeyFromBattle(self, battle: Battle) -> str:
+
+        for key in self._battles:
+            if self._battles[key] == battle:
+                return key
+            
+        return None
+
+    def getBattleFromKey(self, keyName: str) -> Battle:
+
+        for key in self._battles:
+            if key == keyName:
+                return self._battles[key]
+        
+        return None
+
+
     def execute(self):
         self._taskManager.execute()
 
@@ -65,6 +91,8 @@ class GameFGO(Game):
         self._stateManager.init(self.lobbyState)
 
         self._stateManager.addState(self.activityState)
+        self._stateManager.addState(self.gateState)
+        self._stateManager.addState(self.dailyState)
         # TODO other states
 
     def restart(self):

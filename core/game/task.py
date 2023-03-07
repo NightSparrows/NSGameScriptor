@@ -1,4 +1,6 @@
 
+from typing import final
+from abc import abstractmethod
 import datetime
 
 class Task:
@@ -11,17 +13,21 @@ class Task:
         self._enable = enable
         pass
 
+    @abstractmethod
     def execute(self):
         raise NotImplementedError('Task ' + self.m_name + ' not impl.')
     
-    def getName(self):
-        return self.m_name
-
     def getInfo(self):
         return ''
 
+    @final
+    def getName(self):
+        return self.m_name
+
+    @final
     def getDate(self):
         return self.m_date
 
+    @final
     def isEnable(self):
         return self._enable

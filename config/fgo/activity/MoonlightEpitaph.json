@@ -25,6 +25,10 @@
             "position": [261, 857],
             "appName": "工作室",
             "level":[
+                {
+                    "imageName": "D1",
+                    "name": "在街角拍攝PV"
+                }
             ]
         },
         {

@@ -270,6 +270,7 @@ class Battle:
             if self._currentStage == Battle.Stage.ChooseFriend:
                 if not self.chooseFriend():
                     Logger.error('Failed to choose friend!')
+                    return False, executeCount
                 else:
                     if self._skipChooseParty:
                         self._currentStage = Battle.Stage.InBattle

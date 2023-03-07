@@ -25,18 +25,20 @@ class SkillBattleTask(BattleTask):
         while True:
             self._data.device.tap(self._skillX, 580)
             time.sleep(1)
-            
+
+            if self._useCharNo != -1:
+                useCharX = 320 * self._useCharNo
+                self._data.device.tap(useCharX, 450)
+                time.sleep(1)
                 
             self._data.device.screenshot()
             screenshot = self._data.device.getScreenshot()
+            
             newColor = screenshot[580, self._skillX]
+
             if not MatchUtil.MatchColor(color, newColor[2], newColor[1], newColor[0]):
                 break
 
-        if self._useCharNo != -1:
-            useCharX = 320 * self._useCharNo
-            self._data.device.tap(useCharX, 450)
-            time.sleep(1)
 
         Logger.info('skill ' + str(self._charNo) + ' ' + str(self._skillNo) + ' executed.')
         return True

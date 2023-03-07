@@ -31,7 +31,7 @@ class BattleUI:
             print('非法輸入')
             return
         
-        print('職階選擇(1~10)(預設5)')
+        print('職階選擇(0~10)(預設5)')
         classChooseStr = input('職階>')
         
         if classChooseStr == '':

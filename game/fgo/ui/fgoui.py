@@ -150,7 +150,9 @@ class FGOUI:
 
     def run(self):
 
-        self._game.init()
+        if not self._game.init():
+            print('無法初始化FGO')
+            return
 
         self._running = True
         while self._running:

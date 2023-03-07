@@ -2,11 +2,13 @@
 import datetime
 
 from core.util.stringutil import StringUtil
+from core.util.inpututil import InputUtil
 
 from game.fgo.gamefgo import GameFGO
 
 from game.fgo.task.activitytask import ActivityTask
 from .battleui import BattleUI
+
 
 class AddTaskUI:
 
@@ -85,6 +87,17 @@ class AddTaskUI:
         print('Task新增成功')
         return True
 
+    def addDailyTask(self, game: GameFGO):
+        
+        print()
+        print(StringUtil.align('ID', 5) + StringUtil.align('類型', 20))
+        print(StringUtil.align('0', 5) + StringUtil.align('QP每日任務', 20))
+        print()
+        taskType = InputUtil.InputNumber(0, 0, '任務類型(ID)>')
+
+        # TODO 新增每日任務
+
+        return False
 
     def Run(game: GameFGO):
 
@@ -92,6 +105,7 @@ class AddTaskUI:
         
         print('類型:')
         print('0: 活動關卡周回')
+        print('1: 每日周回任務')
 
         try:
             taskType = int(input('輸入類型: '))
@@ -101,6 +115,8 @@ class AddTaskUI:
 
         match taskType:
             case 0:
+                return AddTaskUI.addActivityTask(game)
+            case 1:
                 return AddTaskUI.addActivityTask(game)
             case _:
                 print('未知的工作類型')
