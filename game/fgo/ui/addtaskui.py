@@ -121,7 +121,7 @@ class AddTaskUI:
                     print('Key輸入錯誤')
                     return False
 
-                task = QPTask(game, battle, count, datetime.datetime.combine(datetime.datetime.now().date(), time(0)), True)
+                task = QPTask(game, battle, count, datetime.datetime.combine(datetime.datetime.now().date(), datetime.time()), True)
                 game._taskManager.addTask(task)
                 print('QPTask新增成功')
                 return True
