@@ -10,10 +10,10 @@ class MatchUtil:
     s_threshhold = 0.95
     s_waitInterval = 1.0
 
-    def TapImage(device: Device, template):
+    def TapImage(device: Device, template, thresh = 0.9):
         device.screenshot()
         result = MatchUtil.match(device.getScreenshot(), template)
-        if MatchUtil.isMatch(result):
+        if MatchUtil.isMatch(result, thresh):
             point = MatchUtil.calculated(result, template.shape)
             device.tap(point['x']['center'], point['y']['center'])
             time.sleep(1)
@@ -130,8 +130,8 @@ class MatchUtil:
         return matches
 
 
-    def isMatch(result):
-        return result['max_val'] > MatchUtil.s_threshhold
+    def isMatch(result, thresh = 0.9):
+        return result['max_val'] > thresh
 
     def WaitFor(device: Device, template, timeout: float):
 
