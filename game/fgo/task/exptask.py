@@ -11,12 +11,12 @@ from core.matchutil import MatchUtil
 from game.fgo.battle.battle import Battle
 from game.fgo.battle.apple import Apple
 
-class QPTask(Task):
+class EXPTask(Task):
 
-    s_QPQuestBtnImage = cv2.imread('.//assets//fgo//task//dailyQP//QPBtn.png')
+    s_BtnImage = cv2.imread('.//assets//fgo//task//dailyEXP//btn.png')
 
     def __init__(self, game, battle: Battle, count: int, date: datetime, enable: bool = True) -> None:
-        super().__init__('qptask', date, enable)
+        super().__init__('exptask', date, enable)
 
         self._game = game
         self._device = game._device
@@ -25,7 +25,7 @@ class QPTask(Task):
         self._count = count
     
     def detectBtnAndRun(self):
-        if not MatchUtil.TapImage(self._device, QPTask.s_QPQuestBtnImage, 0.98):
+        if not MatchUtil.TapImage(self._device, EXPTask.s_BtnImage, 0.97):
             return False
         
         Apple.checkAppleWindow(self._device)
@@ -45,7 +45,7 @@ class QPTask(Task):
                 return True
             
             # 往下滑
-            self._device.swipe(1100, 500, 1100, 200)
+            self._device.swipe(700, 500, 700, 200)
             time.sleep(1)
         
         return False
@@ -70,4 +70,4 @@ class QPTask(Task):
         return False
     
     def getInfo(self):
-        return 'QP每日任務[' + str(self._count) + ']'
+        return 'EXP每日任務[' + str(self._count) + ']'

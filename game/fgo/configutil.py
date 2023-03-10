@@ -12,6 +12,7 @@ from game.fgo.battle.battle import Battle
 
 from game.fgo.task.activitytask import ActivityTask
 from game.fgo.task.qptask import QPTask
+from game.fgo.task.exptask import EXPTask
 
 class ConfigUtil:
 
@@ -84,6 +85,9 @@ class ConfigUtil:
             elif task.getName() == 'qptask':
                 taskData['count'] = task._count
                 taskData['battleKey'] = game.getKeyFromBattle(task._battle)
+            elif task.getName() == 'exptask':
+                taskData['count'] = task._count
+                taskData['battleKey'] = game.getKeyFromBattle(task._battle)
             else:
                 Logger.error('Unknown FGO task type')
 
@@ -138,6 +142,13 @@ class ConfigUtil:
                     battle = game.getBattleFromKey(taskData['battleKey'])
 
                     task = QPTask(game, battle, count, date, enable)
+                    game._taskManager.addTask(task)
+
+                case 'exptask':
+                    count = taskData['count']
+                    battle = game.getBattleFromKey(taskData['battleKey'])
+
+                    task = EXPTask(game, battle, count, date, enable)
                     game._taskManager.addTask(task)
 
                 case _:

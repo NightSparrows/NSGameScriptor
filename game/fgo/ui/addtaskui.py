@@ -9,6 +9,7 @@ from game.fgo.gamefgo import GameFGO
 
 from game.fgo.task.activitytask import ActivityTask
 from game.fgo.task.qptask import QPTask
+from game.fgo.task.exptask import EXPTask
 from .battleui import BattleUI
 
 
@@ -94,36 +95,42 @@ class AddTaskUI:
         print()
         print(StringUtil.align('ID', 5) + StringUtil.align('類型', 20))
         print(StringUtil.align('0', 5) + StringUtil.align('QP每日任務', 20))
+        print(StringUtil.align('1', 5) + StringUtil.align('EXP每日任務', 20))
         print()
-        taskType = InputUtil.InputNumber(0, 0, '任務類型(ID)>')
+        taskType = InputUtil.InputNumber(0, 1, '任務類型(ID)>')
         
         if taskType == None:
             print('非法輸入')
             return False
 
+        count = InputUtil.InputNumber(1, 100, '次數>')
+        if count == None:
+            print('非法次數')
+            return False
+
+        BattleUI.CmdList(game)
+
+        battleKey = InputUtil.InputString('Key>')
+        if battleKey == None:
+            print('非法輸入')
+            return False
+        
+        battle = game.getBattleFromKey(battleKey)
+
+        if battle == None:
+            print('Key輸入錯誤')
+            return False
+
         match taskType:
             case 0:
-                count = InputUtil.InputNumber(1, 100, '次數>')
-                if count == None:
-                    print('非法次數')
-                    return False
-
-                BattleUI.CmdList(game)
-
-                battleKey = InputUtil.InputString('Key>')
-                if battleKey == None:
-                    print('非法輸入')
-                    return False
-                
-                battle = game.getBattleFromKey(battleKey)
-
-                if battle == None:
-                    print('Key輸入錯誤')
-                    return False
-
                 task = QPTask(game, battle, count, datetime.datetime.combine(datetime.datetime.now().date(), datetime.time()), True)
                 game._taskManager.addTask(task)
                 print('QPTask新增成功')
+                return True
+            case 1:
+                task = EXPTask(game, battle, count, datetime.datetime.combine(datetime.datetime.now().date(), datetime.time()), True)
+                game._taskManager.addTask(task)
+                print('EXPTask新增成功')
                 return True
             case _:
                 print('未知的類型')

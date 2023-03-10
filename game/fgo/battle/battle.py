@@ -259,9 +259,9 @@ class Battle:
         raise NotImplementedError()
 
     def execute(self, count: int = 1):
+
         self._currentStage = Battle.Stage.ChooseFriend
         self._skipChooseParty = False
-
         self._endFlags = False
 
         executeCount = 0
@@ -272,16 +272,19 @@ class Battle:
                     Logger.error('Failed to choose friend!')
                     return False, executeCount
                 else:
+                    Logger.trace('Choosing friend successfully')
                     if self._skipChooseParty:
                         self._currentStage = Battle.Stage.InBattle
                     else:
                         self._currentStage = Battle.Stage.ChooseParty
             elif self._currentStage == Battle.Stage.ChooseParty:
+                Logger.trace('Entering choose party state')
                 if not self.chooseParty():
                     Logger.error('Failed to choose party')
                 else:
                     self._currentStage = Battle.Stage.InBattle
             elif self._currentStage == Battle.Stage.InBattle:
+                Logger.trace('Entering in battle state')
                 if not self.inBattle():
                     Logger.error('Failed to do battle')
                 else:
@@ -310,7 +313,7 @@ class Battle:
                     time.sleep(1)
 
                 Logger.info('戰鬥結束，完成第' + str(executeCount) + '次')
-                result = MatchUtil.WaitFor(self._data.device, Battle.s_endDicisionImage, 5)
+                _, result = MatchUtil.WaitFor(self._data.device, Battle.s_endDicisionImage, 5)
                 time.sleep(1)
 
                 
