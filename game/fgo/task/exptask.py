@@ -14,6 +14,8 @@ from game.fgo.battle.apple import Apple
 class EXPTask(Task):
 
     s_BtnImage = cv2.imread('.//assets//fgo//task//dailyEXP//btn.png')
+    s_BtnIconImage = cv2.imread('.//assets//fgo//task//dailyEXP//btnIcon.png')
+    s_levelImage = cv2.imread('.//assets//fgo//task//dailyEXP//level.png')
 
     def __init__(self, game, battle: Battle, count: int, date: datetime, enable: bool = True) -> None:
         super().__init__('exptask', date, enable)
@@ -25,9 +27,28 @@ class EXPTask(Task):
         self._count = count
     
     def detectBtnAndRun(self):
-        if not MatchUtil.TapImage(self._device, EXPTask.s_BtnImage, 0.97):
+        
+        self._device.screenshot()
+        
+        result = MatchUtil.match(self._device.getScreenshot(), EXPTask.s_BtnIconImage)
+
+        if result['max_val'] < 0.97:
+            return False
+
+        x = result['max_loc'][0]
+        y = result['max_loc'][1]
+
+        levelX = x + 200
+        levelY = y - 35
+
+        result = MatchUtil.match(self._device.getScreenshot()[levelY:(levelY + 85), levelX:(levelX + 200)], EXPTask.s_levelImage)
+
+        if result['max_val'] < 0.97:
             return False
         
+        self._device.tap(x + 100, y + 50)
+        time.sleep(1)
+
         Apple.checkAppleWindow(self._device)
 
         return True

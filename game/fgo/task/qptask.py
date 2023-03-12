@@ -25,7 +25,7 @@ class QPTask(Task):
         self._count = count
     
     def detectBtnAndRun(self):
-        if not MatchUtil.TapImage(self._device, QPTask.s_QPQuestBtnImage, 0.98):
+        if not MatchUtil.TapImage(self._device, QPTask.s_QPQuestBtnImage, 0.97):
             return False
         
         Apple.checkAppleWindow(self._device)
