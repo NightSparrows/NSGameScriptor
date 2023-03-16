@@ -34,6 +34,17 @@
                     "name": "水花湖泊"
                 }
             ]
+        },
+        {
+            "name": "apartment",
+            "position": [1990, 1120],
+            "appName": "公寓",
+            "level":[
+                {
+                    "imageName": "D1",
+                    "name": "休閒公寓"
+                }
+            ]
         }
     ]
 }
