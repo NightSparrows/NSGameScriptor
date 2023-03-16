@@ -1,0 +1,39 @@
+{
+    "current": "SummerCamp",
+    "button": "./assets/fgo/activity/SummerCamp/enterBtn.png",
+    "level":[
+        {
+            "name": "forest",
+            "position": [1163, 565],
+            "appName": "密林",
+            "level":[
+                {
+                    "imageName": "D1",
+                    "name": "遠足森林"
+                }
+            ]
+        },
+        {
+            "name": "house",
+            "position": [1159, 818],
+            "appName": "小屋",
+            "level":[
+                {
+                    "imageName": "D1",
+                    "name": "安全小屋"
+                }
+            ]
+        },
+        {
+            "name": "lake",
+            "position": [1472, 1229],
+            "appName": "湖畔",
+            "level":[
+                {
+                    "imageName": "D1",
+                    "name": "水花湖泊"
+                }
+            ]
+        }
+    ]
+}
