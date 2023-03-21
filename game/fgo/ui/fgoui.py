@@ -66,7 +66,8 @@ class FGOUI:
                 f"{'add/a':<10}     {'新增工作'}",'\n',
                 f"{'run':<10}     {'執行過期的工作'}",'\n',
                 f"{'edit':<10}     {'編輯設定'}",'\n',
-                f"{'rm':<10}     {'刪除工作'}",'\n'
+                f"{'rm':<10}     {'刪除工作'}",'\n',
+                f"{'battle':<10} {'執行battle'}",'\n'
             )
             return
         
@@ -134,6 +135,7 @@ class FGOUI:
 
         if len(args) <= 1:
             print('input: edit [type] for editing')
+            return
         
         typeInput = args[1]
 
@@ -147,6 +149,33 @@ class FGOUI:
                 BattleUI.Run(self._game)
             case _:
                 print('未知')
+
+    def cmdBattle(self, args):
+
+        if len(args) <= 1:
+            print('input: battle [name] [count]')
+            return
+
+        battle = self._game._battles[args[1]]
+
+        if battle == None:
+            print('Unknown battle name')
+            return
+        
+        if len(args) <= 2:
+            battle.execute(1)
+        else:
+
+            try:
+                count = int(args[2])
+
+                battle.execute(count)
+
+            except:
+                print('error count')
+
+
+        
 
     def run(self):
 
@@ -182,6 +211,8 @@ class FGOUI:
                 self.cmdEdit(cmdArgs)
             elif c == 'rm':
                 self.cmdRemoveTask(cmdArgs)
+            elif c == 'battle':
+                self.cmdBattle(cmdArgs)
             else:
                 print('未知的命令')
             
