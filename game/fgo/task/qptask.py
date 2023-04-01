@@ -37,15 +37,16 @@ class QPTask(Task):
         if self.detectBtnAndRun():
             return True
 
-        self._device.tap(1257, 150)
+        self._device.tap(1257, 570)
+        time.sleep(1)
         
         remainTime = self._count
         for i in range(5):
             if self.detectBtnAndRun():
                 return True
             
-            # 往下滑
-            self._device.swipe(1100, 500, 1100, 200)
+            # 往上滑
+            self._device.swipe(1100, 200, 1100, 500)
             time.sleep(1)
         
         return False

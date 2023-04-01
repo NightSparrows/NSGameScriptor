@@ -67,7 +67,9 @@ class FGOUI:
                 f"{'run':<10}     {'執行過期的工作'}",'\n',
                 f"{'edit':<10}     {'編輯設定'}",'\n',
                 f"{'rm':<10}     {'刪除工作'}",'\n',
-                f"{'battle':<10} {'執行battle'}",'\n'
+                f"{'battle':<10} {'執行battle'}",'\n',
+                f"{'enable':<10} {'啟用工作'}",'\n',
+                f"{'disable':<10} {'停用工作'}",'\n'
             )
             return
         
@@ -174,8 +176,52 @@ class FGOUI:
             except:
                 print('error count')
 
+    def cmdEnable(self, args):
+        if len(args) <= 1:
+            print('無輸入工作')
+            return
 
-        
+        try:
+            taskId = int(args[1])
+
+            if taskId >= len(self._game._taskManager._tasks):
+                print('超出最大工作')
+                return
+
+        except:
+            print('非法輸入')
+            return
+
+        task = self._game._taskManager._tasks[taskId]
+
+        task._enable = True
+
+        print('Task[' + task.getName() + ']啟用成功')
+
+
+    def cmdDisable(self, args):
+        if len(args) <= 1:
+            print('無輸入工作')
+            return
+
+        try:
+            taskId = int(args[1])
+
+            if taskId >= len(self._game._taskManager._tasks):
+                print('超出最大工作')
+                return
+
+        except:
+            print('非法輸入')
+            return
+
+        task = self._game._taskManager._tasks[taskId]
+
+        task._enable = False
+
+        print('Task[' + task.getName() + ']停用成功')
+
+
 
     def run(self):
 
@@ -213,6 +259,10 @@ class FGOUI:
                 self.cmdRemoveTask(cmdArgs)
             elif c == 'battle':
                 self.cmdBattle(cmdArgs)
+            elif c == 'enable':
+                self.cmdEnable(cmdArgs)
+            elif c == 'disable':
+                self.cmdDisable(cmdArgs)
             else:
                 print('未知的命令')
             
