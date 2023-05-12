@@ -103,14 +103,68 @@ class GameFGO(Game):
         self._device.killApp('com.xiaomeng.fategrandorder')
         result = self._device.openApp('com.xiaomeng.fategrandorder/jp.delightworks.Fgo.player.AndroidPlugin')
 
+        # load some startup resources
         annImage = cv2.imread('./assets/fgo/stateDetect/announcement.png')
+        startUpdateBtn = cv2.imread('./assets/fgo/etc/updateBtn.png')
+        blankNoTouchScreen = cv2.imread('./assets/fgo/etc/blank.png')
+        loadingImage = cv2.imread('./assets/fgo/etc/loading.png')
+        servantImage = cv2.imread('./assets/fgo/etc/servant.png')
 
         Logger.info('等待公告畫面...')
-        # TODO 下載更新
-        waitResult = MatchUtil.pressUntilAppear(self._device, annImage, 150, 400, 60)
-        if not waitResult:
-            Logger.error('無法等到公告畫面')
-            return False
+
+
+        # 0 = startup
+        # 1 = updating
+        # 2 = waitForTouch
+        # 3 = inLoginScreen
+        # 4 = inLobby
+        currentState = 0
+
+        while not MatchUtil.HavinginRange(self._device, loadingImage, 920, 670, 160, 50):
+            time.sleep(0.5)
+
+        while True:
+
+            time.sleep(1)
+            if currentState == 0:
+                isLoading = MatchUtil.HavinginRange(self._device, loadingImage, 920, 670, 160, 50)
+                isNeedUpdate = MatchUtil.HavinginRange(self._device, startUpdateBtn, 720, 510, 230, 100)
+                if isLoading:
+                    continue
+                else:
+                    if isNeedUpdate:
+                        if MatchUtil.pressUntilDisappear(self._device, startUpdateBtn, 840, 565, 5):
+                            currentState = 1
+                            continue
+                        else:
+                            Logger.error('無法按更新按鈕')
+                            continue
+                    else:
+                        if MatchUtil.HavinginRange(self._device, servantImage, 450, 0, 400, 100): # in wait state
+                            self._device.tap(150, 400)
+                        else:
+                            # 已經不在loading state
+                            currentState = 3
+
+            elif currentState == 1:
+                # TODO 無法連線
+                currentState = 0
+                pass
+            elif currentState == 2:
+                pass
+            elif currentState == 3:
+                waitResult = MatchUtil.pressUntilAppear(self._device, annImage, 150, 400, 60)
+                if not waitResult:
+                    Logger.error('無法等到公告畫面')
+                    return False
+                else:
+                    currentState = 4
+                    continue
+            elif currentState == 4:
+                break
+            else:
+                pass
+
         
         # 等到公告畫面
         # 關閉公告

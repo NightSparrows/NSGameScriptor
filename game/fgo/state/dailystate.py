@@ -51,6 +51,7 @@ class DailyState(State):
         time.sleep(1)
 
         for i in range(5):
+            time.sleep(1)
             if self.detectDailyBtnAndClick():
                 return True
             
