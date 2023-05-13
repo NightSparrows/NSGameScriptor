@@ -14,6 +14,7 @@ from game.fgo.battle.apple import Apple
 class QPTask(Task):
 
     s_QPQuestBtnImage = cv2.imread('.//assets//fgo//task//dailyQP//QPBtn.png')
+    s_UltBtnImage = cv2.imread('.//assets//fgo//task//dailyQP//UltBtn.png')
 
     def __init__(self, game, battle: Battle, count: int, date: datetime, enable: bool = True) -> None:
         super().__init__('qptask', date, enable)
@@ -23,14 +24,18 @@ class QPTask(Task):
         self._stateManager = game._stateManager
         self._battle = battle
         self._count = count
+
     
     def detectBtnAndRun(self):
-        if not MatchUtil.TapImage(self._device, QPTask.s_QPQuestBtnImage, 0.97):
-            return False
+        if MatchUtil.TapImage(self._device, QPTask.s_QPQuestBtnImage, 0.97):
+            Apple.checkAppleWindow(self._device)
+            return True
         
-        Apple.checkAppleWindow(self._device)
-
-        return True
+        if MatchUtil.TapImage(self._device, QPTask.s_UltBtnImage, 0.95):
+            Apple.checkAppleWindow(self._device)
+            return True
+        
+        return False
 
     def searchAndClick(self):
         
