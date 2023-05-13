@@ -13,6 +13,8 @@ from .state.lobbystate import LobbyState
 from .state.queststate import QuestState
 from .state.mainqueststate import MainQuestState
 
+from .asset import Asset
+
 class GameBlueArchive(Game):
 
     def __init__(self, device: Device) -> None:
@@ -64,6 +66,7 @@ class GameBlueArchive(Game):
         
         iconImage = cv2.imread('assets/bluearchive/login/startIcon.png')
         annImage = cv2.imread('assets/bluearchive/login/announcementText.png')
+        updateWin = cv2.imread('assets/bluearchive/login/updateWin.png')
         
         
         foundLobby = False
@@ -88,6 +91,10 @@ class GameBlueArchive(Game):
                     return False
                 time.sleep(0.5)
                 break
+            elif MatchUtil.Having(self._device, updateWin):
+                Logger.trace('有更新通知')
+                self._device.tap(770, 510)
+                time.sleep(1)
             else:
                 self._device.tap(tapX, tapY)
                 time.sleep(0.5)
