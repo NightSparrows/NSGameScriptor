@@ -2,3 +2,7 @@
 bluearchive:
 app: com.nexon.bluearchive
 activity: .MxUnityPlayerActivity
+
+Arknights:
+app: tw.txwy.and.arknights
+activity: com.u8.sdk.U8UnityContext

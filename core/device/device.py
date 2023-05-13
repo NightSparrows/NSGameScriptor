@@ -27,9 +27,10 @@ class Device:
             self._screenCap = aScreenCap(self)
         else:
             raise NotImplementedError('unknown screen cap type')
+        
+        # push the sh files
+        self.checkOutput('push .\\assets\\nscript /sdcard')
 
-            
-    
     def screenshot(self):
         self._screenCap.screenshot()
 
@@ -64,6 +65,10 @@ class Device:
     # time in millisecond
     def holdScroll(self, x0, y0, x1, y1, time):
         return self.checkOutput('shell input swipe %d %d %d %d %d' % (x0, y0, x1, y1, time))
+
+    def zoomOut(self, count: int):
+        for i in range(count):
+            self.checkOutput('shell sh /sdcard/nscript/zoomout.sh')
 
     def connect(self, deviceName: str):
         self._connectDevice = deviceName

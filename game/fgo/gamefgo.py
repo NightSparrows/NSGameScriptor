@@ -120,31 +120,29 @@ class GameFGO(Game):
         # 4 = inLobby
         currentState = 0
 
+        Logger.trace('wait for loading')
         while not MatchUtil.HavinginRange(self._device, loadingImage, 920, 670, 160, 50):
             time.sleep(0.5)
 
+        Logger.trace('loading waited.')
         while True:
 
             time.sleep(1)
             if currentState == 0:
-                isLoading = MatchUtil.HavinginRange(self._device, loadingImage, 920, 670, 160, 50)
-                isNeedUpdate = MatchUtil.HavinginRange(self._device, startUpdateBtn, 720, 510, 230, 100)
-                if isLoading:
-                    continue
-                else:
-                    if isNeedUpdate:
-                        if MatchUtil.pressUntilDisappear(self._device, startUpdateBtn, 840, 565, 5):
-                            currentState = 1
-                            continue
-                        else:
-                            Logger.error('無法按更新按鈕')
-                            continue
+                isNeedUpdate = MatchUtil.Having(self._device, startUpdateBtn)
+                if isNeedUpdate:
+                    if MatchUtil.TapImage(self._device, startUpdateBtn, 0.95):
+                        currentState = 1
+                        continue
                     else:
-                        if MatchUtil.HavinginRange(self._device, servantImage, 450, 0, 400, 100): # in wait state
-                            self._device.tap(150, 400)
-                        else:
-                            # 已經不在loading state
-                            currentState = 3
+                        Logger.error('無法按更新按鈕')
+                        continue
+                else:
+                    if MatchUtil.HavinginRange(self._device, servantImage, 450, 0, 400, 100): # in wait state
+                        self._device.tap(150, 400)
+                    else:
+                        # 已經不在loading state
+                        currentState = 3
 
             elif currentState == 1:
                 # TODO 無法連線

@@ -20,6 +20,7 @@ class GateState(State):
         self._device = device
         self._titleImage = cv2.imread('.//assets//fgo//state//gate//title.png')
         self._enterBtnImage = cv2.imread('.//assets//fgo//state//gate//chaldeaGate.png')
+        self._enterBtn01Image = cv2.imread('.//assets//fgo//state//gate//chaldeaGate01.png')
 
     def goback(self):
         Logger.info('Try to go back from gate state')
@@ -42,6 +43,9 @@ class GateState(State):
         return False
 
     def detectGateBtnAndClick(self):
+
+        if MatchUtil.TapImage(self._device, self._enterBtn01Image):
+            return True
 
         self._device.screenshot()
         result = MatchUtil.match(self._device.getScreenshot(), self._enterBtnImage)

@@ -50,7 +50,7 @@ class DailyState(State):
         self._device.tap(1258, 150)
         time.sleep(1)
 
-        for i in range(5):
+        for i in range(10):
             time.sleep(1)
             if self.detectDailyBtnAndClick():
                 return True

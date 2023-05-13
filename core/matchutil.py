@@ -186,7 +186,7 @@ class MatchUtil:
         
         return False
     
-    def HavinginRange(device: Device, template, x, y, width, height):
+    def HavinginRange(device: Device, template: cv2.Mat, x, y, width, height):
         device.screenshot()
         screenshot = device.getScreenshot()
         result = MatchUtil.match(screenshot[y:(y+height), x:(x+width)], template=template, method=cv2.TM_CCOEFF_NORMED)
