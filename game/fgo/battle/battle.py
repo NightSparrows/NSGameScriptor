@@ -237,7 +237,7 @@ class Battle:
                 Logger.error('Failed to wait safty stage')
                 return False
 
-            if (self._data.executePC == len(self._tasks)):
+            if (self._data.executePC == len(self._tasks) + 1):
                 # check if it is 
                 _, result = MatchUtil.WaitFor(self._data.device, Battle.s_touchImage, 5)
                 if (result != None):
@@ -245,7 +245,8 @@ class Battle:
                     isWin = True
                     break
                 else:
-                    raise NotImplementedError()
+                    Logger.error('Your script is at the end, but the battle is not end!')
+                    return False
 
             self._tasks[self._data.executePC].execute()
             self._data.executePC += 1

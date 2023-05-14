@@ -171,11 +171,13 @@ class FGOUI:
             try:
                 count = int(args[2])
 
-                battle.execute(count)
+                result, currentCount = battle.execute(count)
+
+                Logger.trace('Execute success: ', result, ', count: ', currentCount)
 
             except Exception as e:
                 print('error count')
-                print(e)
+                print(e.__class__)
 
     def cmdEnable(self, args):
         if len(args) <= 1:
