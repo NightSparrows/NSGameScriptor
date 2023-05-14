@@ -237,7 +237,7 @@ class Battle:
                 Logger.error('Failed to wait safty stage')
                 return False
 
-            if (self._data.executePC == len(self._tasks) + 1):
+            if (self._data.executePC == len(self._tasks)):
                 # check if it is 
                 _, result = MatchUtil.WaitFor(self._data.device, Battle.s_touchImage, 5)
                 if (result != None):

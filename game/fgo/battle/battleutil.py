@@ -44,6 +44,7 @@ class BattleUtil:
                 assert(len(cmdArgs) >= 2)
                 task = JumpBattleTask(data, int(cmdArgs[1]))
                 tasks.append(task)
+                Logger.trace('jump cmd append.')
             else:
                 Logger.error("Unknown script command.")
 
