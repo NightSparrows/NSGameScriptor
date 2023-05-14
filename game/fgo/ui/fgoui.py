@@ -173,8 +173,9 @@ class FGOUI:
 
                 battle.execute(count)
 
-            except:
+            except Exception as e:
                 print('error count')
+                print(e)
 
     def cmdEnable(self, args):
         if len(args) <= 1:

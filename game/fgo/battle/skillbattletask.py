@@ -24,12 +24,18 @@ class SkillBattleTask(BattleTask):
 
         while True:
             self._data.device.tap(self._skillX, 580)
-            time.sleep(1)
+            time.sleep(0.2)
 
             if self._useCharNo != -1:
                 useCharX = 320 * self._useCharNo
                 self._data.device.tap(useCharX, 450)
+                time.sleep(0.2)     # 加速
+                self._data.device.tap(useCharX, 450)            # 按第2次加速
                 time.sleep(1)
+            else:
+                self._data.device.tap(self._skillX, 580)        # 按第2次加速
+                time.sleep(1)
+
                 
             self._data.device.screenshot()
             screenshot = self._data.device.getScreenshot()
