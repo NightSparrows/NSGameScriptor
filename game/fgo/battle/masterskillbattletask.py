@@ -24,8 +24,8 @@ class MasterSkillBattleTask(BattleTask):
         time.sleep(1)
 
         if self._anotherCharNo != -1:           # 換人
-            firstCharX = 140 + 200 * self._useCharNo
-            secondCharX = 140 + 200 * self._anotherCharNo
+            firstCharX = 140 + 200 * (self._useCharNo - 1)
+            secondCharX = 140 + 200 * (self._anotherCharNo - 1)
             self._data.device.tap(firstCharX, 340)
             time.sleep(1)
             self._data.device.tap(secondCharX, 340)
