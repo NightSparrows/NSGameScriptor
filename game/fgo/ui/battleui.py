@@ -93,6 +93,7 @@ class BattleUI:
 
             if cmd == 'a' or cmd == 'add':
                 operateStr = BattleUI.GetOperateStr()
+                Logger.trace('[SCRIPT] ' + scriptStr)
                 if operateStr != '':
                     scriptList.append(operateStr)
             else:
@@ -163,8 +164,6 @@ class BattleUI:
                 
                 scriptStr += '\n'
 
-                Logger.trace('[SCRIPT] ' + scriptStr)
-
                 return scriptStr
 
             except:
@@ -182,14 +181,36 @@ class BattleUI:
 
                 scriptStr += '\n'
 
-                Logger.trace('[SCRIPT] ' + scriptStr)
-
                 return scriptStr
 
             except:
                 print('非法輸入')
                 return ''
         elif operateType == 2:
+            try:
+                scriptStr = 'ms'
+
+                skillNo = int(input('使用的技能(1~3)>'))
+
+                if skillNo < 1 or skillNo > 3:
+                    print('不為1~3')
+                    return ''
+
+                useCharNo = int(input('被使用的從者(1~6)(沒有:-1)>'))
+                useCharNo2 = int(input('被使用的從者2(1~6)(沒有:-1)>'))
+
+                scriptStr += ' ' + skillNo
+
+                if useCharNo != -1:
+                    scriptStr += ' ' + useCharNo
+
+                    if useCharNo2 != -1:
+                        scriptStr += ' ' + useCharNo2
+
+                return scriptStr
+            except Exception as e:
+                print('Error:', e)
+                return ''
             pass
         else:
             print('錯誤: 未知的動作')

@@ -14,7 +14,7 @@ class JumpBattleTask(BattleTask):
         self._data = data
 
     def execute(self):
-        self._data.executePC = self._jumpCmdNo
+        self._data.executePC = self._jumpCmdNo - 2
         Logger.info('Jump to cmd: ' + str(self._jumpCmdNo))
         return True
 
