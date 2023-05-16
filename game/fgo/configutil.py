@@ -93,7 +93,7 @@ class ConfigUtil:
 
             data['task'].append(taskData)
 
-        return json.dumps(data)
+        return json.dumps(data, indent=4, ensure_ascii=False)
 
     def Serialize(game: GameFGO, config):
 
