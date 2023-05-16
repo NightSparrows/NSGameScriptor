@@ -32,7 +32,6 @@ class MasterSkillBattleTask(BattleTask):
             time.sleep(1)
             self._data.device.tap(640, 625)
             time.sleep(1)
-            pass
         elif self._useCharNo != -1:
             useCharX = 320 * self._useCharNo
             self._data.device.tap(useCharX, 450)
