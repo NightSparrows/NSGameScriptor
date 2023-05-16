@@ -36,6 +36,8 @@ class BattleUtil:
                     task = MasterSkillBattleTask(data, int(cmdArgs[1]), -1)
                 elif len(cmdArgs) == 3:
                     task = MasterSkillBattleTask(data, int(cmdArgs[1]), int(cmdArgs[2]))
+                elif len(cmdArgs) == 4:
+                    task = MasterSkillBattleTask(data, int(cmdArgs[1]), int(cmdArgs[2]), int(cmdArgs[3]))
                 else:
                     Logger.error('skill command syntax error')
                     return None
