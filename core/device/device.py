@@ -31,8 +31,8 @@ class Device:
         # push the sh files
         self.checkOutput('push .\\assets\\nscript /sdcard')
 
-    def screenshot(self):
-        self._screenCap.screenshot()
+    def screenshot(self) -> bool:
+        return self._screenCap.screenshot()
 
     def getScreenshot(self):
         return self._screenCap.getScreenshot()

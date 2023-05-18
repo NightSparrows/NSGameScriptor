@@ -3,7 +3,7 @@
 class ScreenCap:
 
 
-    def screenshot(self):
+    def screenshot(self) -> bool:
         raise NotImplementedError()
     
     def getScreenshot(self):

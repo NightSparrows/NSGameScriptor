@@ -53,11 +53,15 @@ class aScreenCap(ScreenCap):
 
         return
 
-    def screenshot(self):
-        pipe = self._device.Popen('exec-out ' + aScreenCap.s_screenCapPath + '/ascreencap --pack 2 --stdout')
+    def screenshot(self) -> bool:
+        try:
+            pipe = self._device.Popen('exec-out ' + aScreenCap.s_screenCapPath + '/ascreencap --pack 2 --stdout')
 
-        data = pipe.stdout.read()
-        pipe.terminate()
+            data = pipe.stdout.read()
+            pipe.terminate()
+        except Exception as e:
+            Logger.error('Screenshot error: ' + e)
+            return False
 
         # See headers in:
         # https://github.com/ClnViewer/Android-fast-screen-capture#streamimage-compressed---header-format-using
@@ -91,6 +95,8 @@ class aScreenCap(ScreenCap):
         #cv2.imshow('', image)
         #cv2.waitKey(0)
         self._screenshot = image
+
+        return True
     
     def getScreenshot(self):
         return self._screenshot
