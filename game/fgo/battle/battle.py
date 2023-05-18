@@ -297,6 +297,7 @@ class Battle:
                 timer = Timer(5)
 
                 havingDisionWindow = False
+                timer.restart()
                 while not timer.timeout():
                     if MatchUtil.Having(self._data.device, Battle.s_nextStepBtnImage):
                         Logger.info('Encounter 下一步')
@@ -325,6 +326,7 @@ class Battle:
                             self._currentStage = Battle.Stage.ChooseFriend
                         break
 
+                Logger.trace('if not having DisionWindow')
                 if not havingDisionWindow:
                     Logger.error('無法找到結束確認視窗')
                     return False, executeCount
