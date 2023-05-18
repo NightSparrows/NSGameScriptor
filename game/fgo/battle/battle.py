@@ -293,6 +293,7 @@ class Battle:
                     self._currentStage = Battle.Stage.End
             elif self._currentStage == Battle.Stage.End:  # 戰鬥結束
                 executeCount += 1
+                Logger.info('完成第' + str(executeCount) + '次戰鬥')
 
                 timer = Timer(5)
 

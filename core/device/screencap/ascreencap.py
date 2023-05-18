@@ -57,6 +57,9 @@ class aScreenCap(ScreenCap):
         try:
             pipe = self._device.Popen('exec-out ' + aScreenCap.s_screenCapPath + '/ascreencap --pack 2 --stdout')
 
+            if pipe == None:
+                return False
+
             data = pipe.stdout.read()
             pipe.terminate()
         except Exception as e:

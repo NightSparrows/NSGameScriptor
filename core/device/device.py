@@ -41,7 +41,15 @@ class Device:
         return subprocess.check_output(self._adbExePath + ' -s ' + self._connectDevice  + ' ' + cmd, shell=True)
 
     def Popen(self, cmd):
-        return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        try:
+            return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
+        except subprocess.CalledProcessError as e:
+            Logger.error('Error: ', e)
+            return None
+        except OSError as e:
+            Logger.error('存取被拒: ', e)
+            return None
+        #return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
     def openApp(self, appName):
         return self.checkOutput('shell am start -n ' + appName)
