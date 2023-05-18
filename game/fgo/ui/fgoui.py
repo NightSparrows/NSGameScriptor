@@ -173,7 +173,7 @@ class FGOUI:
 
                 result, currentCount = battle.execute(count)
 
-                Logger.trace('Execute success: ', result, ', count: ', currentCount)
+                Logger.trace('Execute success: ' + str(result) + ', count: ' + str(currentCount))
 
             except Exception as e:
                 print('error count')

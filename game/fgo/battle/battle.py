@@ -260,7 +260,7 @@ class Battle:
             # tap the next step btn ...
         raise NotImplementedError()
 
-    def execute(self, count: int = 1):
+    def execute(self, count: int = 1) -> bool | int:
 
         self._currentStage = Battle.Stage.ChooseFriend
         self._skipChooseParty = False
@@ -330,48 +330,6 @@ class Battle:
                 if not havingDisionWindow:
                     Logger.error('無法找到結束確認視窗')
                     return False, executeCount
-
-                # Logger.info('確認活動視窗')
-                # while True:
-                #     result, _ = MatchUtil.WaitFor(self._data.device, Battle.s_nextStepBtnImage, 2)
-                #     if not result:
-                #         break
-                #     else:
-                #         self._data.device.tap(1110, 647)
-                #         time.sleep(1)
-                
-                # # TODO 好友申請
-                # time.sleep(1)
-                # Logger.info('確認好友申請')
-                # result, _ = MatchUtil.WaitFor(self._data.device, Battle.s_friendConfirmImage, 2)
-                # if result:
-                #     #直接拒絕
-                #     Logger.info('好友申請，直接拒絕')
-                #     self._data.device.tap(329, 616)
-                #     time.sleep(1)
-
-                # Logger.info('戰鬥結束，完成第' + str(executeCount) + '次')
-                # _, result = MatchUtil.WaitFor(self._data.device, Battle.s_endDicisionImage, 5)
-                # time.sleep(1)
-
-                
-
-                # if result == None:
-                #     Logger.error('無法找到結束確認視窗')
-                #     return False, executeCount
-                # else:
-                #     if (executeCount == count):
-                #         self._endFlags = True
-                #         self._data.device.tap(444, 567)
-                #         time.sleep(1)
-                #     else:
-                #         self._skipChooseParty = True
-                #         self._data.device.tap(840, 565)
-                #         time.sleep(1)
-
-                #         # checking apple
-                #         Apple.checkAppleWindow(self._data.device)
-                #         self._currentStage = Battle.Stage.ChooseFriend
 
             else:
                 Logger.error('Unknown battle stage')
