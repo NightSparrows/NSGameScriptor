@@ -283,12 +283,14 @@ class Battle:
                 Logger.trace('Entering choose party state')
                 if not self.chooseParty():
                     Logger.error('Failed to choose party')
+                    return False, executeCount
                 else:
                     self._currentStage = Battle.Stage.InBattle
             elif self._currentStage == Battle.Stage.InBattle:
                 Logger.trace('Entering in battle state')
                 if not self.inBattle():
                     Logger.error('Failed to do battle')
+                    return False, executeCount
                 else:
                     self._currentStage = Battle.Stage.End
             elif self._currentStage == Battle.Stage.End:  # 戰鬥結束

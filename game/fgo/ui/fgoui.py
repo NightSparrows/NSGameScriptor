@@ -176,8 +176,8 @@ class FGOUI:
                 Logger.trace('Execute success: ' + str(result) + ', count: ' + str(currentCount))
 
             except Exception as e:
-                print('error count')
-                print(e.__class__)
+                print('執行失敗:')
+                print('Error: ', e)
 
     def cmdEnable(self, args):
         if len(args) <= 1:
