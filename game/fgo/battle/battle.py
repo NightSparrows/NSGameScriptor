@@ -225,6 +225,9 @@ class Battle:
                 if MatchUtil.isMatch(result):
                     isWin = True
                     break
+                # 點空白的地方
+                self._data.device.tap(900, 55)
+                time.sleep(0.2)
                 self._data.device.tap(900, 55)
                 time.sleep(1)
                 timer += 1
