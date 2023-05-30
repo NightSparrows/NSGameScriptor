@@ -170,6 +170,7 @@ class GameFGO(Game):
         time.sleep(1)
 
         # TODO 視窗 for closing
+        
         time.sleep(1)
         while MatchUtil.TapImage(self._device, Asset.CloseBtnImage):
             time.sleep(2)
@@ -179,7 +180,7 @@ class GameFGO(Game):
             if self.lobbyState.detect():
                 safty = True
                 break
-            time.sleep(1)
+            time.sleep(0.25)
 
         if not safty:
             Logger.error('無法確認穩定狀態')

@@ -14,6 +14,7 @@ from game.fgo.task.activitytask import ActivityTask
 from game.fgo.task.qptask import QPTask
 from game.fgo.task.exptask import EXPTask
 
+# Searialize settings file
 class ConfigUtil:
 
     def GetDefault():
@@ -61,6 +62,7 @@ class ConfigUtil:
             battleData['friendServantName'] = battle._friendInfo['name']
             battleData['skill'] = battle._skill
             battleData['script'] = battle._script
+            battleData['craftEssenceNo'] = battle._craftEssenceNo
 
             data['battle'].append(battleData)
 
@@ -109,12 +111,19 @@ class ConfigUtil:
                 'skill2' : cv2.imread('./assets/fgo/servant/' + friend + '/skill2.png'),
                 'skill3' : cv2.imread('./assets/fgo/servant/' + friend + '/skill3.png')
             }
+            craftEssenceNo = -1
+            try:
+                if battleData['craftEssenceNo'] != None:
+                    craftEssenceNo = battleData['craftEssenceNo']
+            except Exception as e:
+                Logger.warn('無禮裝設定')
             battle = Battle(
                 game._device,
                 battleData['partyNumber'],
                 friendInfo,
                 battleData['skill'],
-                battleData['script']
+                battleData['script'],
+                craftEssenceNo
             )
             game._battles[battleData['name']] = battle
 

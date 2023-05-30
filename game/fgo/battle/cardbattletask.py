@@ -33,7 +33,6 @@ class CardBattleTask(BattleTask):
 
         chosenCard = [False, False, False, False, False]
         for i in range(3):
-            time.sleep(1)
             cardCmd = self._cards[i]
 
             if cardCmd[0] == 'c':   # 寶具
@@ -53,6 +52,8 @@ class CardBattleTask(BattleTask):
             else:
                 Logger.error('Card script syntax error')
                 return False
+            
+            time.sleep(0.3)
 
         return True
 

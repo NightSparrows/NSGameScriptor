@@ -186,12 +186,12 @@ class MatchUtil:
         
         return False
     
-    def HavinginRange(device: Device, template: cv2.Mat, x, y, width, height):
+    def HavinginRange(device: Device, template: cv2.Mat, x, y, width, height, thresh: float = 0.9):
         device.screenshot()
         screenshot = device.getScreenshot()
         result = MatchUtil.match(screenshot[y:(y+height), x:(x+width)], template=template, method=cv2.TM_CCOEFF_NORMED)
 
-        if MatchUtil.isMatch(result):
+        if MatchUtil.isMatch(result, thresh):
             return True
         
         return False

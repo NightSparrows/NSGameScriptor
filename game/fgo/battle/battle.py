@@ -41,7 +41,8 @@ class Battle:
             # 'skill2' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill2.png'),
             # 'skill3' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill3.png')
             # }
-    def __init__(self, device: Device, partyNumber: int, friendInfo, skill, script: str) -> None:
+    # craftEssenceNo: 禮裝No
+    def __init__(self, device: Device, partyNumber: int, friendInfo, skill, script: str, craftEssenceNo: int = -1) -> None:
         self._partyNumber = partyNumber
         self._friendInfo = friendInfo
         self._skill = skill
@@ -54,6 +55,13 @@ class Battle:
         Logger.info('Implement ' + str(len(self._tasks)) + ' tasks.')
 
         self._skipChooseParty = False
+
+        self._craftEssenceNo = craftEssenceNo
+        if craftEssenceNo != -1:
+            self._craftEssenceImg = cv2.imread('./assets/fgo/craftEssence/' + str(craftEssenceNo) + '.png')
+            self._haveCraftEssence = True
+        else:
+            self._haveCraftEssence = False
 
 
     # 選擇好友的method
@@ -87,12 +95,15 @@ class Battle:
                 foundServant = False
                 time.sleep(1)
                 self._data.device.screenshot()
-                result = MatchUtil.match(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
-                if MatchUtil.isMatch(result):                        # found servant
+                #result = MatchUtil.match(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
+                matchResults = MatchUtil.matchMultiple(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
+
+                for servantPosition in matchResults:
+                #if MatchUtil.isMatch(result):                        # found servant
                     Logger.info('Found servant!')
                     foundServant = True
                     # check the skill 
-                    servantPosition = [result['max_loc'][0], result['max_loc'][1]]
+                    #servantPosition = [result['max_loc'][0], result['max_loc'][1]]
                     skillLeft = servantPosition[0] + 460
                     skillTop = servantPosition[1]
                     skillImage = self._data.device.getScreenshot()[skillTop:(skillTop + 105), skillLeft:(skillLeft + 300)]
@@ -135,9 +146,21 @@ class Battle:
                     # Choose it!
                     if (foundServant):
                         Logger.info('Servant ' + self._friendInfo['name'] + ' Found!')
-                        self._data.device.tap(servantPosition[0], servantPosition[1])
-                        time.sleep(1)
-                        return True
+
+                        if self._haveCraftEssence:
+                            # Match 裡裝!
+                            #cv2.imshow("", self._data.device.getScreenshot()[servantPosition[1]:servantPosition[1]+115, 50:210])
+                            #cv2.waitKey(0)
+                            if MatchUtil.HavinginRange(self._data.device, self._craftEssenceImg, 50, servantPosition[1], 160, 115, 0.95):
+                                Logger.info('禮裝 match!')
+                                self._data.device.tap(servantPosition[0], servantPosition[1])
+                                time.sleep(1)
+                                return True
+                            Logger.info('禮裝 not match')
+                        else:
+                            self._data.device.tap(servantPosition[0], servantPosition[1])
+                            time.sleep(1)
+                            return True
 
                 # 沒找到，scroll一個
                 self._data.device.holdScroll(128, 610, 128, 450, 500)
@@ -202,6 +225,8 @@ class Battle:
 
     def inBattle(self):
 
+        battleStartTime = time.time()
+
         # init battle variables
         self._data.executePC = 0
         
@@ -230,6 +255,7 @@ class Battle:
                 time.sleep(0.2)
                 self._data.device.tap(900, 55)
                 time.sleep(1)
+                
                 timer += 1
 
             # assert in stable battle state
@@ -257,6 +283,8 @@ class Battle:
         
         if isWin:
             Logger.info('Battle win')
+            battleTime = time.time() - battleStartTime
+            Logger.info('Battle time: ' + str(battleTime) + 'secs')
             self._data.device.tap(1100, 640)
             time.sleep(1)
             return True

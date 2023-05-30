@@ -15,6 +15,7 @@ class LobbyState(State):
         self._data = gameData
         self._device = device
         self._annImage = cv2.imread('.//assets//fgo//stateDetect//lobby.png')
+        self._stoneImg = cv2.imread('./assets/fgo/state/lobby/stone.png')
 
     def goback(self):
         Logger.warn('The lobby state is the init state, cant go back')
@@ -35,7 +36,9 @@ class LobbyState(State):
 
         result = MatchUtil.match(screenshot[0:100, 0:400], self._annImage)
 
-        if MatchUtil.isMatch(result):
+        havingStone = MatchUtil.HavinginRange(self._device, self._stoneImg, 217, 565, 40, 40)
+
+        if MatchUtil.isMatch(result) and havingStone:
             Logger.trace('Is in lobby')
             return True
 
