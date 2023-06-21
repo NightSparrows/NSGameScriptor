@@ -21,9 +21,10 @@ class GameFGO(Game):
 
     def __init__(self, device: Device) -> None:
         super().__init__('fgo')
+        self._appleType = 'gold'
 
         self._device = device
-        
+
         self.lobbyState = LobbyState(self._device, self._data)
         self.gateState = GateState(self._device, self._data)
         self.dailyState = DailyState(self._device, self._data)

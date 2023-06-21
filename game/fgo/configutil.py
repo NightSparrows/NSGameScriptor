@@ -14,6 +14,8 @@ from game.fgo.task.activitytask import ActivityTask
 from game.fgo.task.qptask import QPTask
 from game.fgo.task.exptask import EXPTask
 
+from game.fgo.battle.apple import Apple
+
 # Searialize settings file
 class ConfigUtil:
 
@@ -41,7 +43,8 @@ class ConfigUtil:
 
                 }
             ],
-            'task': []
+            'task': [],
+            'apple': 'gold'
         }
 
         return configData
@@ -94,12 +97,19 @@ class ConfigUtil:
                 Logger.error('Unknown FGO task type')
 
             data['task'].append(taskData)
+        
+        data['apple'] = Apple.s_appleTypeName
+        
 
         return json.dumps(data, indent=4, ensure_ascii=False)
 
     def Serialize(game: GameFGO, config):
 
         game._device._connectDevice = config['device']
+        try:
+            Apple.s_appleTypeName = config['apple']
+        except Exception as e:
+            Apple.s_appleTypeName = 'gold'
 
         for battleData in config['battle']:
             friend = battleData['friendServantName']

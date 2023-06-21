@@ -14,6 +14,8 @@ class Apple:
     s_goldAppleImage = cv2.imread('.//assets//fgo//battle//goldApple.png')
     s_OKBtnImage = cv2.imread('.//assets//fgo//battle//ok.png')
 
+    s_appleTypeName = 'gold'
+
     def checkAppleWindow(device: Device):
 
         Logger.info('Checking apple window...')
@@ -24,7 +26,7 @@ class Apple:
             return False
         else:
             Logger.info('Having apple window, Eat apple')
-            if not Apple.eatApple(device):
+            if not Apple.eatApple(device, Apple.s_appleTypeName):
                 Logger.error('Failed to eat apple')
                 return False
             return True
