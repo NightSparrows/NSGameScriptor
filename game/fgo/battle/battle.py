@@ -167,28 +167,21 @@ class Battle:
                 time.sleep(1)
             
             # 沒找到，refresh
-            _, result = MatchUtil.WaitFor(self._data.device, Battle.s_refreshBtnImage, 3)
-            if result == None:
-                return False
-            else:
-                refreshCount += 1
-                point = MatchUtil.calculated(result, Battle.s_refreshBtnImage.shape)
-                self._data.device.tap(point['x']['center'], point['y']['center'])
+            result = MatchUtil.TapImage(self._data.device, Battle.s_refreshBtnImage)
 
-                # TODO OK button press, 他是'是'
-                _, result = MatchUtil.WaitFor(self._data.device, Asset.YesBtnImage, 3)
-                time.sleep(1)
-                if result != None:
-                    point = MatchUtil.calculated(result, Asset.YesBtnImage.shape)
-                    self._data.device.tap(point['x']['center'], point['y']['center'])
-                    Logger.info('click ok button')
-                    time.sleep(1) 
-                else:
-                    Logger.error('Press refresh dont have window.')
-                    return False       
-                if (refreshCount >= 5):
+            if result:
+                refreshCount += 1
+                time.sleep(0.5)
+                if not MatchUtil.TapImage(self._data.device, Asset.YesBtnImage):
+                    Logger.error('無法按下 是 按鈕')
+                    return False
+                
+                if refreshCount == 5:
                     Logger.error('Do you dont have friends?')
                     return False
+            else:
+                Logger.error('無法按列表更新按鈕')
+                return False
             
 
         return False
