@@ -32,6 +32,7 @@ class Battle:
     s_refreshBtnImage = cv2.imread('.//assets//fgo//battle//refreshBtn.png')
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
     s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
+    s_missionStartBtn2Image = cv2.imread('./assets/fgo/battle/missionStartBtn2.png')
 
     # friendInfo= {
             # 'name' : friend,
@@ -205,6 +206,9 @@ class Battle:
         isPressed = False
         for i in range(5):
             if MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtnImage):
+                isPressed = True
+                break
+            elif MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtn2Image):
                 isPressed = True
                 break
             time.sleep(1)
