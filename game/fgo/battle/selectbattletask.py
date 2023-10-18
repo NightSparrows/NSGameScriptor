@@ -17,11 +17,12 @@ class SelectBattleTask(BattleTask):
 
     def execute(self):
         
-        if (self._selectNo == 1):           # 最左邊 (Not match Yet TODO)
+        Logger.info('Select ' + str(self._selectNo))
+        if (self._selectNo == 1):           # 最左邊
             self._data.device.tap(45, 45)
-        elif (self._selectNo == 2):         # 中間 (Not match Yet TODO)
+        elif (self._selectNo == 2):         # 中間
             self._data.device.tap(295, 45)
-        elif (self._selectNo == 3):         # 右邊 (Not match Yet TODO)
+        elif (self._selectNo == 3):         # 右邊
             self._data.device.tap(545, 45)
         elif (self._selectNo == 4):         # 最大之
             self._data.device.tap(41, 45)

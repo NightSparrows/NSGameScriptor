@@ -1,6 +1,7 @@
 
 import os
 import cv2
+from datetime import datetime
 from enum import Enum
 import time
 
@@ -245,6 +246,7 @@ class Battle:
 
             Logger.info('Wait for battle safty stage...')
             timer = 0
+            lastTime = datetime.now()
             while timer < 60.0:
                 self._data.device.screenshot()
                 screenshot = self._data.device.getScreenshot()
@@ -263,7 +265,10 @@ class Battle:
                 self._data.device.tap(900, 55)
                 time.sleep(1)
                 
-                timer += 1
+                currentTime = datetime.now()
+                deltaTime = currentTime - lastTime
+                lastTime = currentTime
+                timer += deltaTime.total_seconds()
 
             # assert in stable battle state
             time.sleep(1)

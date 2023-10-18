@@ -61,8 +61,9 @@ class CardBattleTask(BattleTask):
                         continue
                     if len(cardCmd) == 1:
                         cardX = 140 + (j * 255)
-                        if (MatchUtil.HavinginRange(self._data.device, self._data._thugImage, cardX - 90, 400, 140, 220)):
+                        if (MatchUtil.HavinginRange(self._data.device, self._data._thugImage, cardX - 100, 380, 170, 240)):
                             self._data.device.tap(cardX, 500)
+                            Logger.info('Choose thug card ' + str(j))
                             chosenCard[j] = True
                             numberOfCardChoosed += 1
                             break
