@@ -129,6 +129,7 @@ class ConfigUtil:
                 Logger.warn('無禮裝設定')
             battle = Battle(
                 game._device,
+                battleData['name'],
                 battleData['partyNumber'],
                 friendInfo,
                 battleData['skill'],

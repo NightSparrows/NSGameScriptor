@@ -13,10 +13,12 @@ from core.matchutil import MatchUtil
 class CardBattleTask(BattleTask):
 
     s_atkBtnImage = cv2.imread('.//assets//fgo//battle//attackBtn.png')
-    def __init__(self, data: BattleData, cards) -> None:
-        self._cards = cards
+    def __init__(self, data: BattleData, cmdArgs: list) -> None:
+        self._cards = list()
+        for i in range(1, len(cmdArgs)):
+            self._cards.append(cmdArgs[i])
+
         self._data = data
-        assert(len(cards) == 3)
 
     def execute(self):
         
@@ -32,7 +34,9 @@ class CardBattleTask(BattleTask):
         time.sleep(1)
 
         chosenCard = [False, False, False, False, False]
-        for i in range(3):
+        numberOfCardChoosed = 0
+        i = 0
+        while numberOfCardChoosed < 3:
             cardCmd = self._cards[i]
 
             if cardCmd[0] == 'c':   # 寶具
@@ -40,6 +44,7 @@ class CardBattleTask(BattleTask):
                 cardX = 140 + (charNo * 250)
                 self._data.device.tap(cardX, 220)
                 Logger.info('Choose 寶具' + str(charNo))
+                numberOfCardChoosed += 1
             elif cardCmd[0] == 'r':           # 隨便選
                 for j in range(5):
                     if (chosenCard[j]):
@@ -48,12 +53,25 @@ class CardBattleTask(BattleTask):
                     self._data.device.tap(cardX, 500)
                     Logger.info('Choose random ' + str(j))
                     chosenCard[j] = True
+                    numberOfCardChoosed += 1
                     break
+            elif cardCmd[0] == 't':         # 打手卡
+                for j in range(5):
+                    if (chosenCard[j]):
+                        continue
+                    if len(cardCmd) == 1:
+                        cardX = 140 + (j * 255)
+                        if (MatchUtil.HavinginRange(self._data.device, self._data._thugImage, cardX - 90, 400, 140, 220)):
+                            self._data.device.tap(cardX, 500)
+                            chosenCard[j] = True
+                            numberOfCardChoosed += 1
+                            break
             else:
                 Logger.error('Card script syntax error')
                 return False
             
             time.sleep(0.3)
+            i += 1
 
         return True
 

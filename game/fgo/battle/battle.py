@@ -1,4 +1,5 @@
 
+import os
 import cv2
 from enum import Enum
 import time
@@ -43,7 +44,8 @@ class Battle:
             # 'skill3' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill3.png')
             # }
     # craftEssenceNo: 禮裝No
-    def __init__(self, device: Device, partyNumber: int, friendInfo, skill, script: str, craftEssenceNo: int = -1) -> None:
+    def __init__(self, device: Device, name: str, partyNumber: int, friendInfo, skill, script: str, craftEssenceNo: int = -1) -> None:
+        self._name = name
         self._partyNumber = partyNumber
         self._friendInfo = friendInfo
         self._skill = skill
@@ -51,6 +53,12 @@ class Battle:
 
         # serialize script
         self._data = BattleData()
+
+        thugImageFilePath = './settings/fgo/battle/' + self._name + '/thugImage.png'
+        if os.path.exists(thugImageFilePath):
+            self._data._thugImage = cv2.imread(thugImageFilePath)
+        else:
+            Logger.warn('Warning: This script[' + self._name + '] dont have thugImage.png script maybe run error') 
         self._data.device = device
         self._tasks = BattleUtil.SerializeTask(self._data, script)
         Logger.info('Implement ' + str(len(self._tasks)) + ' tasks.')
@@ -224,11 +232,13 @@ class Battle:
 
         battleStartTime = time.time()
 
+        time.sleep(1)
         # init battle variables
         self._data.executePC = 0
         
-        _, result = MatchUtil.WaitFor(self._data.device, Battle.s_inBattleFlagImage, 60)
-        _, result = MatchUtil.WaitFor(self._data.device, Battle.s_attackBtnImage, 60)
+        # for 跳過開場動畫
+        #_, result = MatchUtil.WaitFor(self._data.device, Battle.s_inBattleFlagImage, 60)
+        #_, result = MatchUtil.WaitFor(self._data.device, Battle.s_attackBtnImage, 60)
 
         isWin = False
         while not isWin:

@@ -6,6 +6,7 @@ from .skillbattletask import SkillBattleTask
 from .cardbattletask import CardBattleTask
 from .jumpbattletask import JumpBattleTask
 from .masterskillbattletask import MasterSkillBattleTask
+from .selectbattletask import SelectBattleTask
 
 class BattleUtil:
 
@@ -28,8 +29,7 @@ class BattleUtil:
                     return None
                 tasks.append(task)
             elif cmdArgs[0] == 'card':
-                assert(len(cmdArgs) == 4)
-                task = CardBattleTask(data, [cmdArgs[1], cmdArgs[2], cmdArgs[3]])
+                task = CardBattleTask(data, cmdArgs)
                 tasks.append(task)
             elif cmdArgs[0] == 'ms':
                 if len(cmdArgs) == 2:
@@ -41,6 +41,9 @@ class BattleUtil:
                 else:
                     Logger.error('skill command syntax error')
                     return None
+                tasks.append(task)
+            elif cmdArgs[0] == 'select':
+                task = SelectBattleTask(data, int(cmdArgs[1]))
                 tasks.append(task)
             elif cmdArgs[0] == 'jump':
                 assert(len(cmdArgs) >= 2)
