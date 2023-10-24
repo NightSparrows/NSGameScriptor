@@ -31,6 +31,7 @@ class Battle:
     s_winConditionImage = cv2.imread('.//assets//fgo//battle//winCondition.png')
     s_nextStepBtnImage = cv2.imread('.//assets//fgo//battle//nextStepBtn.png')
     s_endDicisionImage = cv2.imread('.//assets//fgo//battle//endDicision.png')
+    s_continueBtnImage = cv2.imread('.//assets//fgo//battle//continueBtn.png')
     s_refreshBtnImage = cv2.imread('.//assets//fgo//battle//refreshBtn.png')
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
     s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
@@ -354,8 +355,25 @@ class Battle:
                         Logger.info('好友申請，直接拒絕')
                         self._data.device.tap(329, 616)
                         timer.restart()
+                    elif MatchUtil.Having(self._data.device, Battle.s_continueBtnImage):
+                        Logger.info('(新) Encounter 重複刷關的視窗')
+                        havingDisionWindow = True
+                        if (executeCount == count):
+                            Logger.info('刷完了，點離開')
+                            self._endFlags = True
+                            self._data.device.tap(444, 567)
+                            time.sleep(1)
+                        else:
+                            self._skipChooseParty = True
+                            self._data.device.tap(840, 565)
+                            time.sleep(1)
+
+                            # checking apple
+                            Apple.checkAppleWindow(self._data.device)
+                            self._currentStage = Battle.Stage.ChooseFriend
+                        break
                     elif MatchUtil.Having(self._data.device, Battle.s_endDicisionImage):
-                        Logger.info('Encounter 重複刷關的視窗')
+                        Logger.info('(Old) Encounter 重複刷關的視窗')
                         havingDisionWindow = True
                         if (executeCount == count):
                             Logger.info('刷完了，點離開')

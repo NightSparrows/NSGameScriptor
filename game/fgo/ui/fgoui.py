@@ -158,7 +158,11 @@ class FGOUI:
             print('input: battle [name] [count]')
             return
 
-        battle = self._game._battles[args[1]]
+        try:
+            battle = self._game._battles[args[1]]
+        except:
+            Logger.warn('Unknown battle script')
+            return
 
         if battle == None:
             print('Unknown battle name')
