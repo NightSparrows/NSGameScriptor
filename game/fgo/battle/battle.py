@@ -33,6 +33,7 @@ class Battle:
     s_endDicisionImage = cv2.imread('.//assets//fgo//battle//endDicision.png')
     s_continueBtnImage = cv2.imread('.//assets//fgo//battle//continueBtn.png')
     s_refreshBtnImage = cv2.imread('.//assets//fgo//battle//refreshBtn.png')
+    s_closeBtnImage = cv2.imread('.//assets//fgo//battle//closeBtn.png')
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
     s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
     s_missionStartBtn2Image = cv2.imread('./assets/fgo/battle/missionStartBtn2.png')
@@ -243,16 +244,25 @@ class Battle:
         #_, result = MatchUtil.WaitFor(self._data.device, Battle.s_attackBtnImage, 60)
 
         isWin = False
+
+        timer = Timer(60)
+
         while not isWin:
 
             Logger.info('Wait for battle safty stage...')
-            timer = 0
-            lastTime = datetime.now()
-            while timer < 60.0:
+            
+            timer.restart()
+            while not timer.timeout():
                 self._data.device.screenshot()
                 screenshot = self._data.device.getScreenshot()
                 result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
                 result2 = MatchUtil.match(screenshot, Battle.s_attackBtnImage)
+
+                if MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 72, 60):
+                    Logger.info('Detect a new 禮裝')
+                    self._data.device.tap(45, 42)
+                    time.sleep(0.2)
+
                 if (MatchUtil.isMatch(result1) and MatchUtil.isMatch(result2)):
                     break       # is safty
                 #check win condition
@@ -265,18 +275,13 @@ class Battle:
                 time.sleep(0.2)
                 self._data.device.tap(900, 55)
                 time.sleep(1)
-                
-                currentTime = datetime.now()
-                deltaTime = currentTime - lastTime
-                lastTime = currentTime
-                timer += deltaTime.total_seconds()
 
             # assert in stable battle state
             time.sleep(1)
             if isWin:
                 break
 
-            if (timer >= 60):
+            if (timer.timeout()):
                 Logger.error('Failed to wait safty stage')
                 return False
 
