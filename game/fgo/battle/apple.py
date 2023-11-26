@@ -5,6 +5,7 @@ import cv2
 from core.logger import Logger
 from core.device.device import Device
 from core.matchutil import MatchUtil
+from core.util.timer import Timer
 
 class Apple:
 
@@ -33,8 +34,6 @@ class Apple:
 
 
     def eatApple(device: Device, appleType: str = 'gold'):
-        device.swipe(640, 400, 640, 200)
-        time.sleep(1)
 
         if appleType == 'gold':
             apple = Apple.s_goldAppleImage
@@ -46,24 +45,29 @@ class Apple:
             Logger.error('Unknown apple type')
             return False
 
-        if not MatchUtil.TapImage(device, apple):
-            Logger.error('Failed to identify apple')
-            return False
-        timer = 0
         Tapped = False
-        while timer < 5:
-            time.sleep(0.5)
-            device.screenshot()
-            result = MatchUtil.match(device.getScreenshot(), Apple.s_OKBtnImage)
-            if MatchUtil.isMatch(result):
-                Logger.info('OK window is not close')
-                if MatchUtil.TapImage(device, Apple.s_OKBtnImage):
-                    Tapped = True
+        timer = Timer(5)
+        timer.restart()
+        while not timer.timeout():
+            
+            if not MatchUtil.TapImage(device, apple):
+                # Logger.error('Failed to identify apple')
+                device.swipe(640, 400, 640, 200)
+                time.sleep(1)
             else:
-                if Tapped:
-                    Logger.info('apple eaten.')
-                    return True
-            timer += 1
-            time.sleep(1)
+                time.sleep(0.5)
+                device.screenshot()
+                result = MatchUtil.match(device.getScreenshot(), Apple.s_OKBtnImage)
+                if MatchUtil.isMatch(result):
+                    Logger.info('OK window is not close')
+                    if MatchUtil.TapImage(device, Apple.s_OKBtnImage):
+                        Tapped = True
+                else:
+                    if Tapped:
+                        Logger.info('apple eaten.')
+                        return True
+
+        
+        return False
 
         
