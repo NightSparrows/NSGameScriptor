@@ -45,7 +45,6 @@ class Apple:
             Logger.error('Unknown apple type')
             return False
 
-        Tapped = False
         timer = Timer(5)
         timer.restart()
         while not timer.timeout():
@@ -61,11 +60,9 @@ class Apple:
                 if MatchUtil.isMatch(result):
                     Logger.info('OK window is not close')
                     if MatchUtil.TapImage(device, Apple.s_OKBtnImage):
-                        Tapped = True
-                else:
-                    if Tapped:
-                        Logger.info('apple eaten.')
                         return True
+                else:
+                    Logger.warn('No OK window while tap apple')
 
         
         return False

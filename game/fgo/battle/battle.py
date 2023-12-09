@@ -354,11 +354,13 @@ class Battle:
                     if MatchUtil.Having(self._data.device, Battle.s_nextStepBtnImage):
                         Logger.info('Encounter 下一步')
                         self._data.device.tap(1110, 647)
+                        time.sleep(0.5)
                         timer.restart()
                     elif MatchUtil.Having(self._data.device, Battle.s_friendConfirmImage):
                         Logger.info('Encounter 好友視窗')
                         Logger.info('好友申請，直接拒絕')
                         self._data.device.tap(329, 616)
+                        time.sleep(0.5)
                         timer.restart()
                     elif MatchUtil.Having(self._data.device, Battle.s_continueBtnImage) or MatchUtil.Having(self._data.device, Battle.s_endDicisionImage):
                         Logger.info('(新) Encounter 重複刷關的視窗')
@@ -377,6 +379,11 @@ class Battle:
                             Apple.checkAppleWindow(self._data.device)
                             self._currentStage = Battle.Stage.ChooseFriend
                         break
+                    else:
+                        # 按角落
+                        self._data.device.tap(1270, 5)
+                        time.sleep(0.1)
+                    # TODO 加入關閉功能(取得新禮裝時)
 
                     Logger.trace('還沒找到結束確認視窗')
 
