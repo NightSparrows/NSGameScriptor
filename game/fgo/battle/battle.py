@@ -360,7 +360,7 @@ class Battle:
                         Logger.info('好友申請，直接拒絕')
                         self._data.device.tap(329, 616)
                         timer.restart()
-                    elif MatchUtil.Having(self._data.device, Battle.s_continueBtnImage):
+                    elif MatchUtil.Having(self._data.device, Battle.s_continueBtnImage) or MatchUtil.Having(self._data.device, Battle.s_endDicisionImage):
                         Logger.info('(新) Encounter 重複刷關的視窗')
                         havingDisionWindow = True
                         if (executeCount == count):
@@ -377,25 +377,9 @@ class Battle:
                             Apple.checkAppleWindow(self._data.device)
                             self._currentStage = Battle.Stage.ChooseFriend
                         break
-                    elif MatchUtil.Having(self._data.device, Battle.s_endDicisionImage):
-                        Logger.info('(Old) Encounter 重複刷關的視窗')
-                        havingDisionWindow = True
-                        if (executeCount == count):
-                            Logger.info('刷完了，點離開')
-                            self._endFlags = True
-                            self._data.device.tap(444, 567)
-                            time.sleep(1)
-                        else:
-                            self._skipChooseParty = True
-                            self._data.device.tap(840, 565)
-                            time.sleep(1)
 
-                            # checking apple
-                            Apple.checkAppleWindow(self._data.device)
-                            self._currentStage = Battle.Stage.ChooseFriend
-                        break
+                    Logger.trace('還沒找到結束確認視窗')
 
-                Logger.trace('if not having DisionWindow')
                 if not havingDisionWindow:
                     Logger.error('無法找到結束確認視窗')
                     return False, executeCount

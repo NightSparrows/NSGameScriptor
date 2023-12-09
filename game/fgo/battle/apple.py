@@ -51,7 +51,7 @@ class Apple:
         while not timer.timeout():
             
             if not MatchUtil.TapImage(device, apple):
-                # Logger.error('Failed to identify apple')
+                Logger.info('Apple ' + appleType + ' not found, swipe.')
                 device.swipe(640, 400, 640, 200)
                 time.sleep(1)
             else:
