@@ -58,7 +58,7 @@ class Apple:
                 device.screenshot()
                 result = MatchUtil.match(device.getScreenshot(), Apple.s_OKBtnImage)
                 if MatchUtil.isMatch(result):
-                    Logger.info('OK window is not close')
+                    Logger.info('Has OK window')
                     if MatchUtil.TapImage(device, Apple.s_OKBtnImage):
                         return True
                 else:
