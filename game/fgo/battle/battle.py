@@ -379,6 +379,10 @@ class Battle:
                             Apple.checkAppleWindow(self._data.device)
                             self._currentStage = Battle.Stage.ChooseFriend
                         break
+                    elif MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 80, 80):
+                        Logger.info('Encounter 關閉按鈕')
+                        self._data.device.tap(45, 40)
+                        time.sleep(0.5)
                     else:
                         # 按角落
                         self._data.device.tap(1270, 5)
