@@ -15,7 +15,8 @@ class Device:
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '\\adb\\adb.exe\"'
-        self.connect(connectDevice)
+        self._connectDevice = connectDevice
+        self.restart()
         # try:
         #     subprocess.check_output(self._adbExePath + ' kill-server')
         #     subprocess.check_output(self._adbExePath + ' start-server')
@@ -80,3 +81,12 @@ class Device:
     def connect(self, deviceName: str):
         self._connectDevice = deviceName
         return self.checkOutput('connect %s' % (deviceName))
+    
+    def restart(self):
+        try:
+            self.checkOutput('kill-server')
+        except Exception as e:
+            None
+        self.checkOutput('start-server')
+        self.connect(self._connectDevice)
+

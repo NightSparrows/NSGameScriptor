@@ -171,17 +171,28 @@ class FGOUI:
         if len(args) <= 2:
             battle.execute(1)
         else:
-
             try:
                 count = int(args[2])
-
-                result, currentCount = battle.execute(count)
-
-                Logger.trace('Execute success: ' + str(result) + ', count: ' + str(currentCount))
-
             except Exception as e:
-                print('執行失敗:')
-                print('Error: ', e)
+                Logger.warn('Your parameter is not a number')
+                return
+            
+            for i in range(5):
+                try:
+                    result, currentCount = battle.execute(count)
+                    count -= currentCount
+
+                    Logger.info('Execute success: ' + str(result) + ', count: ' + str(currentCount))
+                    
+                    if count == 0:
+                        break
+
+                except Exception as e:
+                    Logger.error('執行失敗:')
+                    Logger.error('Error[', e.__name__, ']: ', e)
+                    Logger.info('Try to reconnect it')
+                    self._device.restart()
+                    Logger.info('Try to restart')
 
     def cmdEnable(self, args):
         if len(args) <= 1:
