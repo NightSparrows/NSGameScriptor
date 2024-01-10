@@ -385,7 +385,7 @@ class Battle:
                         time.sleep(0.5)
                     else:
                         # 按角落
-                        self._data.device.tap(1270, 5)
+                        self._data.device.tap(1020, 5)
                         time.sleep(0.1)
                     # TODO 加入關閉功能(取得新禮裝時)
 
