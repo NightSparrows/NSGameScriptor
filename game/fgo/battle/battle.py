@@ -346,7 +346,7 @@ class Battle:
                 executeCount += 1
                 Logger.info('完成第' + str(executeCount) + '次戰鬥')
 
-                timer = Timer(30)
+                timer = Timer(10)
 
                 havingDisionWindow = False
                 timer.restart()
