@@ -60,12 +60,14 @@ class GameFGO(Game):
 
 
     def init(self):
+        self.initStates()
+        return True
 
-        if self.lobbyState.enter():
-            self.initStates()
-            return True
+        #if self.lobbyState.enter():
+        #    self.initStates()
+        #    return True
         
-        return self.restart()
+        #return self.restart()
 
     def getKeyFromBattle(self, battle: Battle) -> str:
 
