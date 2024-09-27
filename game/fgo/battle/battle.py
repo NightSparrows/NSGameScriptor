@@ -127,7 +127,7 @@ class Battle:
                         Logger.info('Checking skill 1 ... ')
                         try:
                             result = MatchUtil.match(skillImage, self._friendInfo['skill1'])
-                            if (not MatchUtil.isMatch(result)):
+                            if (not MatchUtil.isMatch(result, 0.85)):
                                 foundServant = False
                             else:
                                 Logger.info('Skill 1 match!')
@@ -137,7 +137,7 @@ class Battle:
                         Logger.info('Checking skill 2 ... ')
                         try:
                             result = MatchUtil.match(skillImage, self._friendInfo['skill2'])
-                            if (not MatchUtil.isMatch(result)):
+                            if (not MatchUtil.isMatch(result, 0.85)):
                                 foundServant = False    # 不符合找下一個
                             else:
                                 Logger.info('Skill 2 match!')
@@ -147,7 +147,7 @@ class Battle:
                         Logger.info('Checking skill 3 ... ')
                         try:
                             result = MatchUtil.match(skillImage, self._friendInfo['skill3'])
-                            if (not MatchUtil.isMatch(result)):
+                            if (not MatchUtil.isMatch(result, 0.85)):
                                 foundServant = False    # 不符合找下一個
                             else:
                                 Logger.info('Skill 3 match!')
