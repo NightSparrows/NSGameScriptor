@@ -118,7 +118,7 @@ class Battle:
                     #servantPosition = [result['max_loc'][0], result['max_loc'][1]]
                     skillLeft = servantPosition[0] + 460
                     skillTop = servantPosition[1]
-                    skillImage = self._data.device.getScreenshot()[skillTop:(skillTop + 105), skillLeft:(skillLeft + 300)]
+                    skillImage = self._data.device.getScreenshot()[skillTop:(skillTop + 105), skillLeft:(skillLeft + 150)]
                     #cv2.imshow('', skillImage)
                     #cv2.waitKey(0)
 
@@ -147,7 +147,7 @@ class Battle:
                         Logger.info('Checking skill 3 ... ')
                         try:
                             result = MatchUtil.match(skillImage, self._friendInfo['skill3'])
-                            if (not MatchUtil.isMatch(result, 0.85)):
+                            if (not MatchUtil.isMatch(result, 0.8)):
                                 foundServant = False    # 不符合找下一個
                             else:
                                 Logger.info('Skill 3 match!')
