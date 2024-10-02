@@ -6,15 +6,17 @@ from enum import Enum
 from core.logger import Logger
 
 from .screencap.ascreencap import aScreenCap
+from .screencap.droidCast import droidCast
 from core.base import Base
 
 class Device:
 
     class ScreenCapType(Enum):
-        aScreenCap = 'aScreenCap'           # direct 
+        aScreenCap = 0           # direct 
+        droidCast = 1
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
-        self._adbExePath = '\"' + Base.s_toolkitPath + '\\adb\\adb.exe\"'
+        self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
         self._connectDevice = connectDevice
         self.restart()
         # try:
@@ -25,6 +27,8 @@ class Device:
 
         if screencapType == screencapType.aScreenCap:
             self._screenCap = aScreenCap(self)
+        elif screencapType == screencapType.droidCast:
+            self._screenCap = droidCast(self)
         else:
             raise NotImplementedError('unknown screen cap type')
         
@@ -50,6 +54,27 @@ class Device:
             Logger.error('存取被拒: ', e)
             return None
         #return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
+
+    def run_adb(self, args, pipeOutput=True):
+        args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
+
+        # print('exec cmd : %s' % args)
+        out = None
+        if (pipeOutput):
+            out = subprocess.PIPE
+
+        print([str(arg) for arg in args])
+
+        try:
+            p = subprocess.Popen([str(arg) for arg in args], stdout=out, encoding='utf-8')
+            stdout, stderr = p.communicate()
+            return (p.returncode, stdout, stderr)
+        except subprocess.CalledProcessError as e:
+            Logger.error('Error: ' + e.output)
+            return None
+        except OSError as e:
+            Logger.error('存取被拒: ' + str(e.winerror))
+            return None
 
     def openApp(self, appName):
         return self.checkOutput('shell am start -n ' + appName)

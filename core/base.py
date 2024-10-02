@@ -2,4 +2,4 @@
 
 class Base:
 
-    s_toolkitPath = '..\\toolkit'
+    s_toolkitPath = '../toolkit'

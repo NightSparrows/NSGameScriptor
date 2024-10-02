@@ -4,6 +4,6 @@ import cv2
 
 # use to cap screen for file
 if __name__ == '__main__':
-    device = Device(connectDevice="127.0.0.1:5558")
+    device = Device(connectDevice="127.0.0.1:16416", screencapType=Device.ScreenCapType.droidCast)
 
     device._screenCap.screenshot_save()

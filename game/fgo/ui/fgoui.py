@@ -30,9 +30,10 @@ class FGOUI:
                 configData = json.load(f)
         except:
             # 沒有檔案
+            Logger.warn('No config file get a default')
             configData = ConfigUtil.GetDefault()
         
-        self._device = Device(configData['device'])
+        self._device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
         self._game = GameFGO(self._device)
         ConfigUtil.Serialize(self._game, configData)
 

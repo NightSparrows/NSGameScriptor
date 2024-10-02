@@ -24,10 +24,14 @@ class aScreenCap(ScreenCap):
         version = version.decode('utf-8')
         version = version.split('\r\n')[0]
 
+        print ("Android version: " + version)
+
         if version == '5' or version == '6' or version == '7' or version[0] == '7':
             versionStr = '5'
         elif version == '9':
             versionStr = '9'
+        elif version == '12':
+            versionStr = '12'
 
         platform = device.checkOutput('shell getprop ro.product.cpu.abi')
         platform = platform.decode("utf-8")
