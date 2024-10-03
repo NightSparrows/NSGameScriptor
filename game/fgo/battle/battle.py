@@ -256,14 +256,15 @@ class Battle:
                 self._data.device.screenshot()
                 screenshot = self._data.device.getScreenshot()
                 result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
-                result2 = MatchUtil.match(screenshot, Battle.s_attackBtnImage)
+                #result2 = MatchUtil.match(screenshot, Battle.s_attackBtnImage)
 
                 if MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 72, 60):
                     Logger.info('Detect a new 禮裝')
                     self._data.device.tap(45, 42)
                     time.sleep(0.2)
 
-                if (MatchUtil.isMatch(result1) and MatchUtil.isMatch(result2)):
+                #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
+                if (MatchUtil.isMatch(result1)):
                     break       # is safty
                 #check win condition
                 result = MatchUtil.match(screenshot, Battle.s_nextStepBtnImage)
@@ -274,10 +275,9 @@ class Battle:
                 self._data.device.tap(900, 55)
                 time.sleep(0.2)
                 self._data.device.tap(900, 55)
-                time.sleep(1)
 
             # assert in stable battle state
-            time.sleep(1)
+            time.sleep(0.3)
             if isWin:
                 break
 

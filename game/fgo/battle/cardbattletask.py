@@ -20,6 +20,18 @@ class CardBattleTask(BattleTask):
 
         self._data = data
 
+    def randomChoose(self, chosenCard) -> bool:
+        for j in range(5):
+            if (chosenCard[j]):
+                continue
+            cardX = 140 + (j * 250)
+            self._data.device.tap(cardX, 500)
+            Logger.info('Choose random ' + str(j))
+            chosenCard[j] = True
+            return True
+        return False
+
+
     def execute(self):
         
         # 按attack進入選卡
@@ -29,7 +41,7 @@ class CardBattleTask(BattleTask):
             Logger.info('Failed to check attack button')
             return False
         
-        time.sleep(1)
+        #time.sleep(1)
         MatchUtil.PressUntilColorChange(self._data.device, result['max_loc'][0], result['max_loc'][1], 3)
         time.sleep(1)
 
@@ -46,22 +58,15 @@ class CardBattleTask(BattleTask):
                 Logger.info('Choose 寶具' + str(charNo))
                 numberOfCardChoosed += 1
             elif cardCmd[0] == 'r':           # 隨便選
-                for j in range(5):
-                    if (chosenCard[j]):
-                        continue
-                    cardX = 140 + (j * 250)
-                    self._data.device.tap(cardX, 500)
-                    Logger.info('Choose random ' + str(j))
-                    chosenCard[j] = True
+                if (self.randomChoose(chosenCard=chosenCard)):
                     numberOfCardChoosed += 1
-                    break
             elif cardCmd[0] == 't':         # 打手卡
                 for j in range(5):
                     if (chosenCard[j]):
                         continue
                     if len(cardCmd) == 1:
                         cardX = 140 + (j * 255)
-                        if (MatchUtil.HavinginRange(self._data.device, self._data._thugImage, cardX - 100, 380, 170, 240)):
+                        if (MatchUtil.HavinginRange(self._data.device, self._data._thugImage, cardX - 100, 380, 170, 240, thresh=0.8)):
                             self._data.device.tap(cardX, 500)
                             Logger.info('Choose thug card ' + str(j))
                             chosenCard[j] = True

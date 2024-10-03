@@ -28,6 +28,10 @@ class FGOUI:
         try:
             with open(self._configPath + '/config.json') as f:
                 configData = json.load(f)
+
+                if not configData['screencap']:
+                    configData['screencap'] = 0                     # make ascreencap default for version issue
+
         except:
             # 沒有檔案
             Logger.warn('No config file get a default')
@@ -190,7 +194,7 @@ class FGOUI:
 
                 except Exception as e:
                     Logger.error('執行失敗:')
-                    Logger.error('Error[', e.__name__, ']: ', e)
+                    Logger.error('Error[' + str(e) + ']: ')
                     Logger.info('Try to reconnect it')
                     self._device.restart()
                     Logger.info('Try to restart')

@@ -130,10 +130,10 @@ class MatchUtil:
         return matches
 
 
-    def isMatch(result, thresh = 0.9):
+    def isMatch(result, thresh = 0.8):
         return result['max_val'] > thresh
 
-    def WaitFor(device: Device, template, timeout: float):
+    def WaitFor(device: Device, template, timeout: float, thresh: float = 0.8):
 
         timer = 0
 
@@ -145,7 +145,7 @@ class MatchUtil:
 
             result = MatchUtil.match(screenshot, template=template, method=cv2.TM_CCOEFF_NORMED)
 
-            if result['max_val'] > 0.9:
+            if result['max_val'] > thresh:
                 return True, result
             
             time.sleep(MatchUtil.s_waitInterval)

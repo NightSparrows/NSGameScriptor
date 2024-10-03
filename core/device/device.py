@@ -55,15 +55,28 @@ class Device:
             return None
         #return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
+    def run_adb_dontcare(self, args):
+        args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
+
+        try:
+            p = subprocess.Popen([str(arg) for arg in args], stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, encoding='utf-8')
+            return p
+        except subprocess.CalledProcessError as e:
+            Logger.error('Error: ' + e.output)
+            return None
+        except OSError as e:
+            Logger.error('存取被拒: ' + str(e.winerror))
+            return None
+
     def run_adb(self, args, pipeOutput=True):
         args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
 
         # print('exec cmd : %s' % args)
-        out = None
+        out = subprocess.DEVNULL
         if (pipeOutput):
             out = subprocess.PIPE
 
-        print([str(arg) for arg in args])
+        #print([str(arg) for arg in args])
 
         try:
             p = subprocess.Popen([str(arg) for arg in args], stdout=out, encoding='utf-8')
