@@ -55,12 +55,18 @@ class Device:
             return None
         #return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
+    # completely kill the process will executing something
     def run_adb_dontcare(self, args):
         args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
 
         try:
             p = subprocess.Popen([str(arg) for arg in args], stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, encoding='utf-8')
+            p.communicate(timeout=1) # 1 second to run
             return p
+        except subprocess.TimeoutExpired:
+            p.kill()
+            p.communicate()
+            return None
         except subprocess.CalledProcessError as e:
             Logger.error('Error: ' + e.output)
             return None

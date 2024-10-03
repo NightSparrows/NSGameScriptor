@@ -13,35 +13,71 @@ from ...logger import Logger
 
 class droidCast(ScreenCap):
     
+    DROIDCAST_FILEPATH_LOCAL = './bin/DroidCast/droidCast_raw.apk'
+    DROIDCAST_FILEPATH_REMOTE = '/data/local/tmp/DroidCast_raw.apk'
+
     def __init__(self, device) -> None:
         # install ascreencap into emulator
         self._device = device
         self._port = 53517                  # the port of the droidcast
 
         # locate droidcast apk path
-        (rc, out, _) = self._device.run_adb(["shell", "pm",
-                                "path",
-                                "com.rayworks.droidcast"])
-        if rc or out == "":
-            raise RuntimeError(
-                "Locating apk failure, have you installed the app successfully?")
+        # (rc, out, _) = self._device.run_adb(["shell", "pm",
+        #                         "path",
+        #                         "com.rayworks.droidcast"])
+        # if rc or out == "":
+        #     raise RuntimeError(
+        #         "Locating apk failure, have you installed the app successfully?")
 
-        prefix = "package:"
-        postfix = ".apk"
-        beg = out.index(prefix, 0)
-        end = out.rfind(postfix)
+        # prefix = "package:"
+        # postfix = ".apk"
+        # beg = out.index(prefix, 0)
+        # end = out.rfind(postfix)
 
-        self._class_path = out[beg + len(prefix):(end + len(postfix))].strip()
+        # self._class_path = out[beg + len(prefix):(end + len(postfix))].strip()
 
-        class_path = "CLASSPATH=" + self._class_path
+        # class_path = "CLASSPATH=" + self._class_path
+        # print(class_path)
 
+        # # forward tcp the adb to host
+        # (code, _, err) = self._device.run_adb(["forward", "tcp:%d" % self._port, "tcp:%d" % self._port])
+        # Logger.trace(">>> adb forward tcp:%d %s" % (self._port, code))
+
+
+        # # run the droidcast
+        # self.droidCastFun(class_path=class_path)
+
+
+        # push droidcast to the emulator
+        Logger.info('Pushing droidCast apk')
+        self._device.run_adb(['push', droidCast.DROIDCAST_FILEPATH_LOCAL, droidCast.DROIDCAST_FILEPATH_REMOTE])
+
+        # run droid cast in emulator
+        args = ["shell",
+                "nohup",
+                "app_process",
+                '-Djava.class.path=%s' % droidCast.DROIDCAST_FILEPATH_REMOTE,
+                '/',
+                "com.rayworks.droidcast.Main",
+                "--port=%d" % self._port,
+                ">",
+                "/dev/null",
+                "&"]
+                
+        # args = ["shell",
+        #         class_path,
+        #         "app_process",
+        #         "/",  # unused
+        #         "com.rayworks.droidcast.Main",
+        #         "--port=%d" % self._port]
+        p = self._device.run_adb_dontcare(args)
+        Logger.trace('Run droidcast in background')
         # forward tcp the adb to host
         (code, _, err) = self._device.run_adb(["forward", "tcp:%d" % self._port, "tcp:%d" % self._port])
         Logger.trace(">>> adb forward tcp:%d %s" % (self._port, code))
 
 
-        # run the droidcast
-        self.droidCastFun(class_path=class_path)
+
         #thread = threading.Thread(target=self.droidCastFun, args=(class_path,))
         #thread.start()
         self._session = requests.Session()
@@ -98,8 +134,6 @@ class droidCast(ScreenCap):
         #         "--port=%d" % self._port]
         p = self._device.run_adb_dontcare(args)
         Logger.trace('Run droidcast in background')
-        if p.returncode is 0:
-            p.terminate()
         return
 
 
