@@ -21,32 +21,8 @@ class droidCast(ScreenCap):
         self._device = device
         self._port = 53517                  # the port of the droidcast
 
-        # locate droidcast apk path
-        # (rc, out, _) = self._device.run_adb(["shell", "pm",
-        #                         "path",
-        #                         "com.rayworks.droidcast"])
-        # if rc or out == "":
-        #     raise RuntimeError(
-        #         "Locating apk failure, have you installed the app successfully?")
-
-        # prefix = "package:"
-        # postfix = ".apk"
-        # beg = out.index(prefix, 0)
-        # end = out.rfind(postfix)
-
-        # self._class_path = out[beg + len(prefix):(end + len(postfix))].strip()
-
-        # class_path = "CLASSPATH=" + self._class_path
-        # print(class_path)
-
-        # # forward tcp the adb to host
-        # (code, _, err) = self._device.run_adb(["forward", "tcp:%d" % self._port, "tcp:%d" % self._port])
-        # Logger.trace(">>> adb forward tcp:%d %s" % (self._port, code))
-
-
-        # # run the droidcast
-        # self.droidCastFun(class_path=class_path)
-
+        # stop droidcast
+        self.stop()
 
         # push droidcast to the emulator
         Logger.info('Pushing droidCast apk')
@@ -70,7 +46,7 @@ class droidCast(ScreenCap):
         #         "/",  # unused
         #         "com.rayworks.droidcast.Main",
         #         "--port=%d" % self._port]
-        p = self._device.run_adb_dontcare(args)
+        self._device.run_adb_dontcare(args)
         Logger.trace('Run droidcast in background')
         # forward tcp the adb to host
         (code, _, err) = self._device.run_adb(["forward", "tcp:%d" % self._port, "tcp:%d" % self._port])
@@ -112,28 +88,23 @@ class droidCast(ScreenCap):
 
         return
 
+    def stop(self):
+        # find droidcast process
+        (returncode, stdout, stderr) = self._device.run_adb(['shell', 'ps', '-ef'])
 
-    def droidCastFun(self, class_path):
-        
-        args = ["shell",
-                "nohup",
-                "app_process",
-                '-Djava.class.path=%s' % self._class_path,
-                '/',
-                "com.rayworks.droidcast.Main",
-                "--port=%d" % self._port,
-                ">",
-                "/dev/null",
-                "&"]
-                
-        # args = ["shell",
-        #         class_path,
-        #         "app_process",
-        #         "/",  # unused
-        #         "com.rayworks.droidcast.Main",
-        #         "--port=%d" % self._port]
-        p = self._device.run_adb_dontcare(args)
-        Logger.trace('Run droidcast in background')
+        if (returncode != 0):
+            return
+
+        splitStr = stdout.split('\n')
+
+        for line in splitStr:
+            processInfo = list(filter(None, line.split(' ')))
+            if len(processInfo) < 1:
+                continue
+            #print('pid: ' + processInfo[1])
+            #print('name: ' + processInfo[7])
+
+            if processInfo[7] == 'app_process' and processInfo[8] == ('-Djava.class.path=%s' % droidCast.DROIDCAST_FILEPATH_REMOTE):
+                self._device.run_adb(['shell', 'kill', processInfo[1]])
+                print('process ' + processInfo[1] + ' killed')
         return
-
-
