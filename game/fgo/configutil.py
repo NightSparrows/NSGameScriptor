@@ -29,10 +29,10 @@ class ConfigUtil:
             Logger.error('No core config file!')
             coreData = dict()
             coreData['device'] = 'emulator-5554'
-            coreData['screencap'] = 1
 
         configData = {
             'device': coreData['device'],
+            'screencap': 1,
             'battle': [
                 {
                     'name': 'ArtParty',
