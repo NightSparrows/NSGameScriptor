@@ -40,9 +40,15 @@ class FGOUI:
         except PermissionError as e:
             Logger.warn('You don\'t have permission to access config file.')
             configData = ConfigUtil.GetDefault()
+        except json.JSONDecodeError as e:
+            Logger.error('Json decoding error: {e}')
+            configData = ConfigUtil.GetDefault()
+        except TypeError as e:
+            Logger.error('Json Type error: {e}')
+            configData = ConfigUtil.GetDefault()
         except Exception as e:
             # 沒有檔案
-            Logger.warn('Unknown error')
+            Logger.warn('Unknown error: {e}')
             configData = ConfigUtil.GetDefault()
         
         self._device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
