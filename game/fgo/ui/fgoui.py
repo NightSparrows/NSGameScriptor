@@ -21,20 +21,28 @@ class FGOUI:
     def __init__(self) -> None:
         self._running = False
         
-        self._configPath = './settings/fgo'
+        self._configPath = 'settings/fgo'
 
         # 讀取資料
         configData = ''
         try:
-            with open(self._configPath + '/config.json') as f:
+            with open(self._configPath + '/config.json', encoding='utf-8') as f:
                 configData = json.load(f)
 
                 if not configData['screencap']:
                     configData['screencap'] = 0                     # make ascreencap default for version issue
-
-        except:
+        except FileNotFoundError as e:
+            Logger.warn('No config file found')
+            configData = ConfigUtil.GetDefault()
+        except IsADirectoryError as e:
+            Logger.warn('wired. Is a directory file')
+            configData = ConfigUtil.GetDefault()
+        except PermissionError as e:
+            Logger.warn('You don\'t have permission to access config file.')
+            configData = ConfigUtil.GetDefault()
+        except Exception as e:
             # 沒有檔案
-            Logger.warn('No config file get a default')
+            Logger.warn('Unknown error')
             configData = ConfigUtil.GetDefault()
         
         self._device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))

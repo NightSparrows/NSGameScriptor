@@ -21,17 +21,8 @@ class ConfigUtil:
 
     def GetDefault():
 
-        try:
-            with open('config/config.json', encoding='utf-8') as f:
-                coreData = json.load(f)
-        except:
-            # 沒有檔案
-            Logger.error('No core config file!')
-            coreData = dict()
-            coreData['device'] = 'emulator-5554'
-
         configData = {
-            'device': coreData['device'],
+            'device': 'emulator-5554',
             'screencap': 1,
             'battle': [
                 {
