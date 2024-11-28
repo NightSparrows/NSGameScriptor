@@ -25,6 +25,8 @@ class Device:
         # except:
         #     pass
 
+        self._screenCapType = screencapType
+
         if screencapType == screencapType.aScreenCap:
             self._screenCap = aScreenCap(self)
         elif screencapType == screencapType.droidCast:

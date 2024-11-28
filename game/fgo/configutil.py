@@ -46,6 +46,7 @@ class ConfigUtil:
 
         data['device'] = game._device._connectDevice
 
+        data['screencap'] = game._device._screenCapType
 
         data['battle'] = []
         for key in game._battles:
