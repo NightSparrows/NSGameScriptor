@@ -48,7 +48,7 @@ class FGOUI:
             configData = ConfigUtil.GetDefault()
         except Exception as e:
             # 沒有檔案
-            Logger.warn('Unknown error: {e}')
+            Logger.warn('Unknown error: ' + str(e))
             configData = ConfigUtil.GetDefault()
         
         self._device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
