@@ -76,7 +76,7 @@ class CardBattleTask(BattleTask):
                 Logger.error('Card script syntax error')
                 return False
             
-            time.sleep(0.3)
+            time.sleep(0.35)
             i += 1
 
         return True

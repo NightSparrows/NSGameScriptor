@@ -37,6 +37,7 @@ class Battle:
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
     s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
     s_missionStartBtn2Image = cv2.imread('./assets/fgo/battle/missionStartBtn2.png')
+    s_chooseFriendSkillSwitchBtn = cv2.imread('./assets/fgo/battle/chooseFriendSkillSwitchBtn.png')
 
     # friendInfo= {
             # 'name' : friend,
@@ -83,7 +84,7 @@ class Battle:
         for i in range(3):      # retry 3 time for checking it is in choose friend stage
             time.sleep(1)
             self._data.device.screenshot()
-            result = MatchUtil.match(self._data.device.getScreenshot(), Asset.chooseFriendIcon)
+            result = MatchUtil.match(self._data.device.getScreenshot(), Battle.s_chooseFriendSkillSwitchBtn)
             if MatchUtil.isMatch(result):
                 inStage = True
                 break
