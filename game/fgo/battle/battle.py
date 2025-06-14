@@ -278,7 +278,7 @@ class Battle:
                 self._data.device.tap(900, 55)
 
             # assert in stable battle state
-            time.sleep(0.3)
+            time.sleep(0.8)
             if isWin:
                 break
 

@@ -18,11 +18,11 @@ class SkillBattleTask(BattleTask):
 
     def execute(self):
 
-        self._data.device.screenshot()
-        screenshot = self._data.device.getScreenshot()
-        color = screenshot[580, self._skillX]
-
         while True:
+            self._data.device.screenshot()
+            screenshot = self._data.device.getScreenshot()
+            color = screenshot[580, self._skillX]
+
             self._data.device.tap(self._skillX, 580)
 
             if self._useCharNo != -1:
@@ -37,7 +37,6 @@ class SkillBattleTask(BattleTask):
                 self._data.device.tap(900, 55)             # 加速
                 time.sleep(1)
 
-                
             self._data.device.screenshot()
             screenshot = self._data.device.getScreenshot()
             
