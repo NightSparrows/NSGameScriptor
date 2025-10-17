@@ -271,8 +271,8 @@ class Battle:
                     isWin = True
                     break
                 
-                if not MatchUtil.MatchColor(screenshot[573, 1130], 0, 209, 242):
-                    continue # 沒有藍色按鈕
+                # if not MatchUtil.MatchColor(screenshot[573, 1130], 0, 209, 242):
+                #     continue # 沒有藍色按鈕
 
                 #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
                 if (MatchUtil.isMatch(result1)):

@@ -7,6 +7,7 @@ from core.logger import Logger
 
 from .screencap.ascreencap import aScreenCap
 from .screencap.droidCast import droidCast
+from .screencap.adbScreencap import AdbScreenCap
 from core.base import Base
 
 class Device:
@@ -14,6 +15,7 @@ class Device:
     class ScreenCapType(Enum):
         aScreenCap = 0           # direct 
         droidCast = 1
+        ADB = 2
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
@@ -32,6 +34,8 @@ class Device:
             self._screenCap = aScreenCap(self)
         elif screencapType == screencapType.droidCast:
             self._screenCap = droidCast(self)
+        elif screencapType == screencapType.ADB:
+            self._screenCap = AdbScreenCap(self)
         else:
             raise NotImplementedError('unknown screen cap type')
         
