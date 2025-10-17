@@ -18,7 +18,8 @@ class Device:
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
         self._connectDevice = connectDevice
-        self.restart()
+        self.connect(connectDevice)
+        #self.restart()
         # try:
         #     subprocess.check_output(self._adbExePath + ' kill-server')
         #     subprocess.check_output(self._adbExePath + ' start-server')
@@ -46,7 +47,7 @@ class Device:
     def checkOutput(self, cmd: str):
         return subprocess.check_output(self._adbExePath + ' -s ' + self._connectDevice  + ' ' + cmd, shell=True)
 
-    def Popen(self, cmd):
+    def Popen(self, cmd: str):
         try:
             return subprocess.Popen(self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
         except subprocess.CalledProcessError as e:
@@ -76,7 +77,7 @@ class Device:
             Logger.error('存取被拒: ' + str(e.winerror))
             return None
 
-    def run_adb(self, args, pipeOutput=True):
+    def run_adb(self, args, pipeOutput=True, timeout=5.0):
         args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
 
         # print('exec cmd : %s' % args)
@@ -88,7 +89,7 @@ class Device:
 
         try:
             p = subprocess.Popen([str(arg) for arg in args], stdout=out, encoding='utf-8')
-            stdout, stderr = p.communicate()
+            stdout, stderr = p.communicate(timeout=timeout)
             return (p.returncode, stdout, stderr)
         except subprocess.CalledProcessError as e:
             Logger.error('Error: ' + e.output)
@@ -102,6 +103,11 @@ class Device:
 
     def killApp(self, appName):
         return self.checkOutput('shell am force-stop ' + appName)
+
+    def goHome(self):
+        return self.checkOutput('shell input keyevent 3')   # Mumu 
+    
+
 
     def tap(self, x: int, y: int):
         return self.checkOutput('shell input tap %d %d' % (x, y))
@@ -126,6 +132,7 @@ class Device:
 
     def connect(self, deviceName: str):
         self._connectDevice = deviceName
+        Logger.trace(F'連接{deviceName} ...')
         return self.checkOutput('connect %s' % (deviceName))
     
     def restart(self):

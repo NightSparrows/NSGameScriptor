@@ -2,7 +2,6 @@
 import numpy as np
 import cv2
 import requests
-import threading
 import time
 
 from core.base import Base
@@ -60,8 +59,6 @@ class droidCast(ScreenCap):
         self._session.trust_env = False
 
 
-
-
     def screenshot(self) -> bool:
         
         startTime = time.time()
@@ -75,7 +72,7 @@ class droidCast(ScreenCap):
         image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
         self._screenshot = image
-    
+
     def getScreenshot(self):
         return self._screenshot
 
@@ -90,7 +87,7 @@ class droidCast(ScreenCap):
 
     def stop(self):
         # find droidcast process
-        (returncode, stdout, stderr) = self._device.run_adb(['shell', 'ps', '-ef'])
+        (returncode, stdout, _) = self._device.run_adb(['shell', 'ps', '-ef'])
 
         if (returncode != 0):
             return

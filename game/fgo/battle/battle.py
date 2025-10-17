@@ -254,6 +254,7 @@ class Battle:
             
             timer.restart()
             while not timer.timeout():
+                time.sleep(0.3)
                 self._data.device.screenshot()
                 screenshot = self._data.device.getScreenshot()
                 result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
@@ -264,17 +265,20 @@ class Battle:
                     self._data.device.tap(45, 42)
                     time.sleep(0.2)
 
-                #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
-                if (MatchUtil.isMatch(result1)):
-                    break       # is safty
                 #check win condition
                 result = MatchUtil.match(screenshot, Battle.s_nextStepBtnImage)
                 if MatchUtil.isMatch(result):
                     isWin = True
                     break
+                
+                if not MatchUtil.MatchColor(screenshot[573, 1130], 0, 209, 242):
+                    continue # 沒有藍色按鈕
+
+                #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
+                if (MatchUtil.isMatch(result1)):
+                    break       # is safty
+
                 # 點空白的地方
-                self._data.device.tap(900, 55)
-                time.sleep(0.2)
                 self._data.device.tap(900, 55)
 
             # assert in stable battle state
@@ -285,6 +289,9 @@ class Battle:
             if (timer.timeout()):
                 Logger.error('Failed to wait safty stage')
                 return False
+
+
+            # 確定在選擇階段
 
             if (self._data.executePC == len(self._tasks)):
                 # check if it is 

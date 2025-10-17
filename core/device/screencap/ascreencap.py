@@ -1,7 +1,6 @@
 
 import subprocess
 import numpy as np
-import lz4.block
 import cv2
 
 from core.base import Base
