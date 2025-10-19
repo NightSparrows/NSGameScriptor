@@ -58,6 +58,7 @@ class NemuIPCScreenCap(ScreenCap):
         self.m_height = 0
         self.m_display_id = 0       # 應該只會是0
         self._update_resolution()
+        Logger.info('Nemu IPC 截圖初始化成功')
     
     def _update_resolution(self):
         # 取得模擬器螢幕解析度
