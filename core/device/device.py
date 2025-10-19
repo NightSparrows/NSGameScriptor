@@ -8,6 +8,7 @@ from core.logger import Logger
 from .screencap.ascreencap import aScreenCap
 from .screencap.droidCast import droidCast
 from .screencap.adbScreencap import AdbScreenCap
+from .screencap.nemuScreencap import NemuIPCScreenCap
 from core.base import Base
 
 class Device:
@@ -16,6 +17,7 @@ class Device:
         aScreenCap = 0           # direct 
         droidCast = 1
         ADB = 2
+        NEMUIPC = 3
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
@@ -36,11 +38,13 @@ class Device:
             self._screenCap = droidCast(self)
         elif screencapType == screencapType.ADB:
             self._screenCap = AdbScreenCap(self)
+        elif screencapType == Device.ScreenCapType.NEMUIPC:
+            self._screenCap = NemuIPCScreenCap(self)
         else:
             raise NotImplementedError('unknown screen cap type')
         
         # push the sh files
-        self.checkOutput('push .\\assets\\nscript /sdcard')
+        # self.checkOutput('push .\\assets\\nscript /sdcard')
 
     def screenshot(self) -> bool:
         return self._screenCap.screenshot()
