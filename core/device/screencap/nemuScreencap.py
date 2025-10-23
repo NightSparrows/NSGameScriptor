@@ -11,11 +11,12 @@ from core.logger import Logger
 
 class NemuIPCScreenCap(ScreenCap):
 
+    # 每個人電腦不一定同個路徑
     EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayerGlobal-12.0'
 
     def __init__(self, device):
         
-        ip, port = device._connectDevice.rsplit(':', 1)
+        _, port = device._connectDevice.rsplit(':', 1)
 
         result = subprocess.check_output([
             f'{NemuIPCScreenCap.EMULATOR_PATH}\\nx_main\\MumuManager',
@@ -41,7 +42,7 @@ class NemuIPCScreenCap(ScreenCap):
         if self.m_instance_id == -1:
             raise RuntimeError('Emulator index not found from serial port')
         
-        Logger.info(f'emulator index {self.m_instance_id}')
+        Logger.info(f'emulator index {self.m_instance_id} fetch from serial {device._connectDevice}')
 
         # 載入DLL
         ipc_dll = f'{NemuIPCScreenCap.EMULATOR_PATH}/nx_device/12.0/shell/sdk/external_renderer_ipc.dll'
