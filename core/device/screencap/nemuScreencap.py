@@ -12,7 +12,7 @@ from core.logger import Logger
 class NemuIPCScreenCap(ScreenCap):
 
     # 每個人電腦不一定同個路徑
-    EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayerGlobal-12.0'
+    EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayer'
 
     def __init__(self, device):
         
