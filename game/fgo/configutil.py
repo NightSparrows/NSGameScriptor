@@ -6,6 +6,7 @@ import cv2
 
 from core.logger import Logger
 from core.util.serializeutil import SerializeUtil
+from core.device.device import Device
 
 from game.fgo.gamefgo import GameFGO
 from game.fgo.battle.battle import Battle
@@ -46,7 +47,7 @@ class ConfigUtil:
 
         data['device'] = game._device._connectDevice
 
-        data['screencap'] = game._device._screenCapType
+        data['screencap'] = game._device._screenCapType.value
 
         data['battle'] = []
         for key in game._battles:
@@ -99,6 +100,7 @@ class ConfigUtil:
     def Serialize(game: GameFGO, config):
 
         game._device._connectDevice = config['device']
+        game._device._screenCapType = Device.ScreenCapType(config['screencap'])
         try:
             Apple.s_appleTypeName = config['apple']
         except Exception as e:
