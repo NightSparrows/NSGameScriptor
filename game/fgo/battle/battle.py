@@ -204,11 +204,11 @@ class Battle:
         Logger.info('Choosing party ... ')
         # TODO Make sure you are in choose party
         time.sleep(2)
-        self._data.device.tap(527, 50)
+        self._data.device.tap(465, 50)
         time.sleep(1)
         
         
-        partyBtnX = 527 + (self._partyNumber - 1) * 25
+        partyBtnX = 465 + (self._partyNumber - 1) * 25
 
         time.sleep(1)
         self._data.device.tap(partyBtnX, 50)
