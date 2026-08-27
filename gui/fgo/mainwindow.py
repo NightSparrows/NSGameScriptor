@@ -41,5 +41,7 @@ class FGOMainWindow(QMainWindow):
         self._statusLabel.setText('執行中...' if self._pool.isBusy() else '就緒')
 
     def closeEvent(self, event):
+        # matches FGOUI (CLI)'s save-on-quit behavior
+        self._controller.save()
         self._monitorView.shutdown()
         super().closeEvent(event)

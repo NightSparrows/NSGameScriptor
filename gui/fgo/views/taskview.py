@@ -127,10 +127,10 @@ class TaskView(QWidget):
 
         self._setRunningButtonsEnabled(False)
         self._pool.submit(
-            self._controller.game._taskManager.runTask, row,
+            self._controller.game.runTask, row,
             on_result=self._onRunFinishedResult,
             on_error=self._onWorkerError,
-            on_finished=lambda: (self._setRunningButtonsEnabled(True), self._model.refresh()),
+            on_finished=self._onRunFinished,
         )
 
     def _onRunFinishedResult(self, result):
@@ -138,13 +138,24 @@ class TaskView(QWidget):
             Logger.error('非法工作ID')
         elif result == -2:
             Logger.error('工作執行失敗')
+        elif result == -3:
+            Logger.error('無法確保遊戲穩定 (重新啟動遊戲失敗)')
+
+    def _onRunFinished(self):
+        # a task run mutates state in memory (e.g. QPTask/EXPTask advance
+        # their own next-run date on success) - save immediately rather
+        # than leaving that only in memory until 儲存設定 is clicked, since
+        # it's easy to think "it ran" already means "it's saved".
+        self._controller.save()
+        self._setRunningButtonsEnabled(True)
+        self._model.refresh()
 
     def _onRunDue(self):
         self._setRunningButtonsEnabled(False)
         self._pool.submit(
             self._controller.game.execute,
             on_error=self._onWorkerError,
-            on_finished=lambda: (self._setRunningButtonsEnabled(True), self._model.refresh()),
+            on_finished=self._onRunFinished,
         )
 
     def _onWorkerError(self, message: str):

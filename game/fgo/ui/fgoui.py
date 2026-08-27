@@ -91,12 +91,14 @@ class FGOUI:
             print('不是數字')
             return
         
-        result = self._game._taskManager.runTask(id)
+        result = self._game.runTask(id)
 
         if result == -1:
             print('非法工作ID')
         elif result == -2:
             print('工作執行失敗')
+        elif result == -3:
+            print('無法確保遊戲穩定 (重新啟動遊戲失敗)')
     
     def cmdRemoveTask(self, args):
         if len(args) <= 1:

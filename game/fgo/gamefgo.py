@@ -86,8 +86,35 @@ class GameFGO(Game):
         return None
 
 
+    # confirm the game is actually up and in a known-good state before
+    # running anything - if it's not (app closed, crashed, or stuck
+    # somewhere uncertain from a previous run), restart it. This is what
+    # init()'s commented-out lobbyState.enter()/restart() fallback was
+    # originally meant to do; re-enabled here as its own method so both
+    # execute() and runTask() (the GUI's single-task "立即執行" bypasses
+    # execute() entirely) go through it.
+    def ensureReady(self) -> bool:
+        if self.lobbyState.detect():
+            return True
+
+        Logger.warn('未偵測到穩定畫面 (遊戲可能已關閉或卡住)，嘗試重新啟動遊戲')
+        return self.restart()
+
     def execute(self):
+        if not self.ensureReady():
+            Logger.error('無法確保遊戲穩定，跳過本次執行')
+            return
         self._taskManager.execute()
+
+    # return
+    # -1: 非法ID
+    # -2: 執行失敗
+    # -3: 無法確保遊戲穩定 (重啟失敗)
+    def runTask(self, id: int) -> int:
+        if not self.ensureReady():
+            Logger.error('無法確保遊戲穩定，跳過本次執行')
+            return -3
+        return self._taskManager.runTask(id)
 
     def initStates(self):
         # in 大廳

@@ -1,6 +1,7 @@
 
 import subprocess
 import threading
+import time
 
 from enum import Enum
 
@@ -54,9 +55,23 @@ class Device:
         # push the sh files
         # self.checkOutput('push .\\assets\\nscript /sdcard')
 
-    def screenshot(self) -> bool:
+    # capture can transiently raise (e.g. NemuIPC's nemu_capture_display
+    # failing right after the foreground app is killed/relaunched, while
+    # the emulator's render surface is momentarily in flux) - retry a few
+    # times rather than letting one bad frame crash whatever's polling the
+    # screen (this is exactly what ensureReady()'s auto-restart hits).
+    def screenshot(self, retries: int = 3) -> bool:
         with self._screenshotLock:
-            return self._screenCap.screenshot()
+            lastError = None
+            for attempt in range(retries):
+                try:
+                    return self._screenCap.screenshot()
+                except Exception as e:
+                    lastError = e
+                    time.sleep(0.3)
+
+            Logger.error('screenshot() failed after ' + str(retries) + ' retries: ' + str(lastError))
+            return False
 
     def getScreenshot(self):
         return self._screenCap.getScreenshot()
