@@ -94,11 +94,24 @@ class GameFGO(Game):
     # execute() and runTask() (the GUI's single-task "立即執行" bypasses
     # execute() entirely) go through it.
     def ensureReady(self) -> bool:
+        if not self._device.ensureEmulatorRunning():
+            Logger.error('模擬器無法啟動')
+            return False
+
         if self.lobbyState.detect():
             return True
 
         Logger.warn('未偵測到穩定畫面 (遊戲可能已關閉或卡住)，嘗試重新啟動遊戲')
-        return self.restart()
+        try:
+            return self.restart()
+        except Exception as e:
+            # restart() isn't defensive internally (e.g. a killApp/openApp
+            # adb call failing outright) - ensureReady()'s contract is to
+            # return a bool, never raise, so callers (execute()/runTask())
+            # can handle "couldn't get ready" as a normal failure instead
+            # of an uncaught exception blowing up the whole task run.
+            Logger.error('重新啟動遊戲時發生例外: ' + str(e))
+            return False
 
     def execute(self):
         if not self.ensureReady():

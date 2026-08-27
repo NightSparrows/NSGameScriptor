@@ -18,6 +18,11 @@ SCREENCAP_LABELS = {
     Device.ScreenCapType.NEMUIPC: 'NemuIPC (MuMu)',
 }
 
+EMULATOR_LABELS = {
+    Device.EmulatorType.NONE: '無 (不管理模擬器)',
+    Device.EmulatorType.MUMU: 'MuMu',
+}
+
 APPLE_LABELS = [
     ('金蘋果', 'gold'),
     ('銀蘋果', 'silver'),
@@ -74,6 +79,15 @@ class SettingsView(QWidget):
         screencapHint = QLabel('變更截圖模式需按「儲存設定」後重新啟動程式才會生效', captureGroup)
         screencapHint.setStyleSheet('color: gray;')
 
+        self._emulatorCombo = QComboBox(captureGroup)
+        for emulatorType, label in EMULATOR_LABELS.items():
+            self._emulatorCombo.addItem(label, emulatorType)
+        idx = self._emulatorCombo.findData(self._controller.game._device._emulatorType)
+        self._emulatorCombo.setCurrentIndex(idx if idx >= 0 else 0)
+
+        emulatorHint = QLabel('選MuMu的話，啟動時會自動確認/開啟模擬器，需按「儲存設定」後重新啟動程式才會生效', captureGroup)
+        emulatorHint.setStyleSheet('color: gray;')
+
         self._appleCombo = QComboBox(captureGroup)
         for label, value in APPLE_LABELS:
             self._appleCombo.addItem(label, value)
@@ -82,6 +96,8 @@ class SettingsView(QWidget):
 
         captureForm.addRow('截圖模式:', self._screencapCombo)
         captureForm.addRow('', screencapHint)
+        captureForm.addRow('模擬器類型:', self._emulatorCombo)
+        captureForm.addRow('', emulatorHint)
         captureForm.addRow('自動吃蘋果類型:', self._appleCombo)
 
         self._saveBtn = QPushButton('儲存設定', self)
@@ -139,5 +155,6 @@ class SettingsView(QWidget):
 
     def _onSave(self):
         self._controller.game._device._screenCapType = self._screencapCombo.currentData()
+        self._controller.game._device._emulatorType = self._emulatorCombo.currentData()
         Apple.s_appleTypeName = self._appleCombo.currentData()
         self._controller.save()

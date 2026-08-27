@@ -22,12 +22,15 @@ class TaskManager:
     def runTask(self, id: int):
         if id < 0 or id >= len(self._tasks):
             return -1
-        
-        result = self._tasks[id].execute()
+
+        task = self._tasks[id]
+        result = task.execute()
 
         if not result:
+            Logger.error('工作[' + task.getInfo() + ']執行失敗')
             return -2
-        
+
+        Logger.info('工作[' + task.getInfo() + ']執行成功')
         return 0
 
 
@@ -51,9 +54,11 @@ class TaskManager:
 
         Logger.info('Have ' + str(len(taskQueue)) + ' tasks to run')
         for task in taskQueue:
-            # TODO 標記未正確執行的工作
             Logger.info('Executing ' + task.getInfo())
-            task.execute()
+            if task.execute():
+                Logger.info('工作[' + task.getInfo() + ']執行成功')
+            else:
+                Logger.error('工作[' + task.getInfo() + ']執行失敗')
         
 
 

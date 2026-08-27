@@ -50,7 +50,16 @@ class ConfigUtil:
             Logger.warn('Unknown error: ' + str(e))
             configData = ConfigUtil.GetDefault()
 
-        device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
+        screencapType = Device.ScreenCapType(configData['screencap'])
+
+        if 'emulator' in configData:
+            emulatorType = Device.EmulatorType(configData['emulator'])
+        else:
+            # 舊設定檔沒有這個欄位 - 沿用以前的推測邏輯做一次性遷移預設值,
+            # 下次儲存後就會變成明確欄位
+            emulatorType = Device.EmulatorType.MUMU if screencapType == Device.ScreenCapType.NEMUIPC else Device.EmulatorType.NONE
+
+        device = Device(configData['device'], screencapType, emulatorType)
         game = GameFGO(device)
         ConfigUtil.Serialize(game, configData)
 
@@ -61,6 +70,7 @@ class ConfigUtil:
         configData = {
             'device': 'emulator-5554',
             'screencap': 1,
+            'emulator': 0,
             'battle': [
                 {
                     'name': 'ArtParty',
@@ -84,6 +94,7 @@ class ConfigUtil:
         data['device'] = game._device._connectDevice
 
         data['screencap'] = game._device._screenCapType.value
+        data['emulator'] = game._device._emulatorType.value
 
         data['battle'] = []
         for key in game._battles:

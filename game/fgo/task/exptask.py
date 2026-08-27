@@ -86,6 +86,7 @@ class EXPTask(Task):
                 remainCount -= count
                 if remainCount == 0:
                     self.m_date = datetime.datetime.combine(datetime.datetime.today().date(), datetime.time())
+                    Logger.info('EXP每日任務完成')
                     return True
 
         return False

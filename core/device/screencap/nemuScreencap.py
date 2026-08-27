@@ -1,47 +1,28 @@
 
 import cv2
-import subprocess
 import numpy as np
-import json
 import ctypes
 from .screencap import ScreenCap
 
 from core.logger import Logger
+from core.device.emulator.mumuEmulator import MumuEmulator
 
 
 class NemuIPCScreenCap(ScreenCap):
 
-    # 每個人電腦不一定同個路徑
-    EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayer'
+    # 每個人電腦不一定同個路徑 - canonical value lives on MumuEmulator,
+    # aliased here since NemuIPC only ever talks to MuMu anyway
+    EMULATOR_PATH = MumuEmulator.EMULATOR_PATH
 
     def __init__(self, device):
-        
+
         _, port = device._connectDevice.rsplit(':', 1)
 
-        result = subprocess.check_output([
-            f'{NemuIPCScreenCap.EMULATOR_PATH}\\nx_main\\MumuManager',
-            'info',
-            '--vmindex',
-            'all'
-        ])
-
-        self.m_instance_id = -1
-
-        emulator_info_list = json.loads(result.decode('utf-8').strip())
-        for index, emulator_info in emulator_info_list.items():
-            print(emulator_info)
-            # exit(-1)
-            adb_port = emulator_info.get('adb_port')
-            if adb_port is None:
-                continue            # 模擬器沒開
-
-            if adb_port == int(port):
-                self.m_instance_id = int(index)
-                break
+        self.m_instance_id = MumuEmulator.findVmIndex(int(port))
 
         if self.m_instance_id == -1:
             raise RuntimeError('Emulator index not found from serial port')
-        
+
         Logger.info(f'emulator index {self.m_instance_id} fetch from serial {device._connectDevice}')
 
         # 載入DLL

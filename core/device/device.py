@@ -11,17 +11,22 @@ from .screencap.ascreencap import aScreenCap
 from .screencap.droidCast import droidCast
 from .screencap.adbScreencap import AdbScreenCap
 from .screencap.nemuScreencap import NemuIPCScreenCap
+from .emulator.mumuEmulator import MumuEmulator
 from core.base import Base
 
 class Device:
 
     class ScreenCapType(Enum):
-        aScreenCap = 0           # direct 
+        aScreenCap = 0           # direct
         droidCast = 1
         ADB = 2
         NEMUIPC = 3
 
-    def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
+    class EmulatorType(Enum):
+        NONE = 0   # no lifecycle management - assume it's already running
+        MUMU = 1
+
+    def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap, emulatorType: EmulatorType = EmulatorType.NONE) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
         self._connectDevice = connectDevice
         # Screencap backends (esp. NemuIPC, which calls straight into a
@@ -31,29 +36,105 @@ class Device:
         # while automation may be doing the same on another. This lock
         # serializes those calls; it's a no-op for the CLI's single thread.
         self._screenshotLock = threading.Lock()
-        self.connect(connectDevice)
-        #self.restart()
-        # try:
-        #     subprocess.check_output(self._adbExePath + ' kill-server')
-        #     subprocess.check_output(self._adbExePath + ' start-server')
-        # except:
-        #     pass
+
+        self._emulatorType = emulatorType
+        self._emulator = self._buildEmulator(emulatorType, connectDevice)
 
         self._screenCapType = screencapType
+        self._screenCap = None
 
-        if screencapType == screencapType.aScreenCap:
-            self._screenCap = aScreenCap(self)
-        elif screencapType == screencapType.droidCast:
-            self._screenCap = droidCast(self)
-        elif screencapType == screencapType.ADB:
-            self._screenCap = AdbScreenCap(self)
-        elif screencapType == Device.ScreenCapType.NEMUIPC:
-            self._screenCap = NemuIPCScreenCap(self)
+        # If the emulator's already up (or nothing's being managed, e.g.
+        # non-MuMu setups - the overwhelmingly common case) build the
+        # connection now, exactly like before. Only defer when we
+        # positively know the emulator isn't running yet, so just
+        # constructing Device/opening the GUI or CLI doesn't require the
+        # emulator to already be open - browsing/editing tasks or battles
+        # shouldn't need it running at all. It gets built lazily the
+        # moment something actually needs the device, via
+        # ensureEmulatorRunning() (which GameFGO.ensureReady() already
+        # calls before running any task) or screenshot() below.
+        if self._emulator is None or self._emulator.isRunning():
+            self._screenCap = self._connectAndBuildScreenCap(screencapType, connectDevice)
         else:
-            raise NotImplementedError('unknown screen cap type')
-        
+            Logger.info('模擬器目前未開啟，延後建立裝置連線 (執行工作時會自動確認/啟動模擬器)')
+
         # push the sh files
         # self.checkOutput('push .\\assets\\nscript /sdcard')
+
+    def _buildEmulator(self, emulatorType: EmulatorType, connectDevice: str):
+        if emulatorType == Device.EmulatorType.NONE:
+            return None
+        if emulatorType == Device.EmulatorType.MUMU:
+            # MumuManager (the multi-instance CLI) only exists/behaves this
+            # way when the user actually has MuMu's multi-instance manager
+            # set up - a single-instance MuMu install (or none at all)
+            # won't have it at this path, or findVmIndex() just won't find
+            # a match. Don't let that crash Device construction entirely -
+            # fall back to no emulator lifecycle management, same as if
+            # EmulatorType.NONE had been configured.
+            try:
+                return MumuEmulator(connectDevice)
+            except (OSError, RuntimeError) as e:
+                Logger.warn('無法初始化模擬器管理 (可能沒有安裝/啟用MuMu多開管理器): ' + str(e))
+                return None
+        raise NotImplementedError('unknown emulator type')
+
+    def _buildScreenCap(self, screencapType: ScreenCapType):
+        if screencapType == Device.ScreenCapType.aScreenCap:
+            return aScreenCap(self)
+        elif screencapType == Device.ScreenCapType.droidCast:
+            return droidCast(self)
+        elif screencapType == Device.ScreenCapType.ADB:
+            return AdbScreenCap(self)
+        elif screencapType == Device.ScreenCapType.NEMUIPC:
+            return NemuIPCScreenCap(self)
+        else:
+            raise NotImplementedError('unknown screen cap type')
+
+    # actually connects adb + builds the screencap backend. Callers are
+    # responsible for confirming the emulator is already up first (either
+    # __init__'s check above, or ensureEmulatorRunning() below) - this
+    # method doesn't call ensureEmulatorRunning() itself to avoid a
+    # circular call (ensureEmulatorRunning() calls this when deferred).
+    # If it fails despite that and an emulator is under management,
+    # restart it once and retry - a "running but not actually reachable"
+    # emulator is a different failure mode than "not running at all",
+    # and a plain isRunning() check can't catch it.
+    def _connectAndBuildScreenCap(self, screencapType: ScreenCapType, connectDevice: str):
+        maxAttempts = 2 if self._emulator is not None else 1
+
+        for attempt in range(1, maxAttempts + 1):
+            try:
+                self.connect(connectDevice)
+                return self._buildScreenCap(screencapType)
+            except Exception as e:
+                if attempt >= maxAttempts:
+                    raise
+                Logger.warn(f'連線/截圖初始化失敗 (第{attempt}次): {e}，重新啟動模擬器後重試')
+                self._emulator.shutdown()
+                self._emulator.waitUntilReady()
+                time.sleep(1)
+
+    # the single entry point task execution should call before touching
+    # the device: confirms the emulator (if managed) is up, launching it
+    # if needed, THEN lazily builds the adb/screencap connection if
+    # __init__ deferred it (emulator wasn't running at construction time).
+    # No-op-ish (returns True immediately once connected) when no
+    # EmulatorType was configured - existing setups are unaffected unless
+    # they opt in.
+    def ensureEmulatorRunning(self, timeout: float = 90) -> bool:
+        if self._emulator is not None:
+            if not self._emulator.waitUntilReady(timeout):
+                return False
+
+        if self._screenCap is None:
+            try:
+                self._screenCap = self._connectAndBuildScreenCap(self._screenCapType, self._connectDevice)
+            except Exception as e:
+                Logger.error('無法建立裝置連線: ' + str(e))
+                return False
+
+        return True
 
     # capture can transiently raise (e.g. NemuIPC's nemu_capture_display
     # failing right after the foreground app is killed/relaunched, while
@@ -62,6 +143,10 @@ class Device:
     # screen (this is exactly what ensureReady()'s auto-restart hits).
     def screenshot(self, retries: int = 3) -> bool:
         with self._screenshotLock:
+            if self._screenCap is None and not self.ensureEmulatorRunning():
+                Logger.error('裝置尚未就緒 (模擬器未啟動或連線失敗)，無法截圖')
+                return False
+
             lastError = None
             for attempt in range(retries):
                 try:
@@ -76,8 +161,24 @@ class Device:
     def getScreenshot(self):
         return self._screenCap.getScreenshot()
 
-    def checkOutput(self, cmd: str):
-        return subprocess.check_output(self._adbExePath + ' -s ' + self._connectDevice  + ' ' + cmd, shell=True)
+    # adb's connection to the device can transiently drop ("device
+    # offline") independent of whether the emulator/app is actually fine
+    # - observed live: emulator running, screencap connected fine, but a
+    # subsequent adb shell command (killApp, during GameFGO.restart())
+    # failed outright with no recovery anywhere in the call chain. Retry
+    # once via an adb server bounce + reconnect (the same thing restart()
+    # already does) before giving up. retries=0 is used internally by
+    # restart()/connect() themselves so this can't recurse.
+    def checkOutput(self, cmd: str, retries: int = 1):
+        fullCmd = self._adbExePath + ' -s ' + self._connectDevice + ' ' + cmd
+        try:
+            return subprocess.check_output(fullCmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            if retries <= 0:
+                raise
+            Logger.warn('adb 指令失敗，嘗試重新連線 adb 後重試: ' + cmd)
+            self.restart()
+            return self.checkOutput(cmd, retries - 1)
 
     def Popen(self, cmd: str):
         try:
@@ -162,16 +263,19 @@ class Device:
         for i in range(count):
             self.checkOutput('shell sh /sdcard/nscript/zoomout.sh')
 
+    # part of the adb-level recovery machinery itself (checkOutput()'s
+    # retry calls this) - retries=0 so a failure here surfaces directly
+    # instead of recursing back into checkOutput()'s own retry.
     def connect(self, deviceName: str):
         self._connectDevice = deviceName
         Logger.trace(F'連接{deviceName} ...')
-        return self.checkOutput('connect %s' % (deviceName))
-    
+        return self.checkOutput('connect %s' % (deviceName), retries=0)
+
     def restart(self):
         try:
-            self.checkOutput('kill-server')
+            self.checkOutput('kill-server', retries=0)
         except Exception as e:
             None
-        self.checkOutput('start-server')
+        self.checkOutput('start-server', retries=0)
         self.connect(self._connectDevice)
 
