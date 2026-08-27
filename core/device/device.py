@@ -26,7 +26,7 @@ class Device:
         NONE = 0   # no lifecycle management - assume it's already running
         MUMU = 1
 
-    def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap, emulatorType: EmulatorType = EmulatorType.NONE) -> None:
+    def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap, emulatorType: EmulatorType = EmulatorType.NONE, emulatorPath: str = None) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
         self._connectDevice = connectDevice
         # Screencap backends (esp. NemuIPC, which calls straight into a
@@ -38,23 +38,36 @@ class Device:
         self._screenshotLock = threading.Lock()
 
         self._emulatorType = emulatorType
+        self._emulatorPath = emulatorPath
         self._emulator = self._buildEmulator(emulatorType, connectDevice)
 
         self._screenCapType = screencapType
         self._screenCap = None
 
         # If the emulator's already up (or nothing's being managed, e.g.
-        # non-MuMu setups - the overwhelmingly common case) build the
-        # connection now, exactly like before. Only defer when we
-        # positively know the emulator isn't running yet, so just
+        # non-MuMu setups - the overwhelmingly common case) try to build
+        # the connection now, same as before. Only defer intentionally
+        # when we positively know the emulator isn't running yet, so just
         # constructing Device/opening the GUI or CLI doesn't require the
         # emulator to already be open - browsing/editing tasks or battles
-        # shouldn't need it running at all. It gets built lazily the
-        # moment something actually needs the device, via
-        # ensureEmulatorRunning() (which GameFGO.ensureReady() already
-        # calls before running any task) or screenshot() below.
+        # shouldn't need it running at all. Either way, construction must
+        # never crash the whole app - a bad setting (wrong device serial,
+        # wrong emulator install path, ...) should surface as a log
+        # message pointing at what to check in 設定, not an uncaught
+        # exception from Device()/GameFGO()/the GUI's own __init__. It
+        # gets (re)tried lazily the moment something actually needs the
+        # device, via ensureEmulatorRunning() (which GameFGO.ensureReady()
+        # already calls before running any task) or screenshot() below -
+        # that's where the real error should actually stop the task.
         if self._emulator is None or self._emulator.isRunning():
-            self._screenCap = self._connectAndBuildScreenCap(screencapType, connectDevice)
+            try:
+                self._screenCap = self._connectAndBuildScreenCap(screencapType, connectDevice)
+            except Exception as e:
+                Logger.error(
+                    '裝置連線初始化失敗，請至設定確認裝置位址/截圖模式/模擬器安裝路徑是否正確 '
+                    f'(device={connectDevice}, screencap={screencapType.name}, '
+                    f'emulatorPath={emulatorPath or "(預設)"}): {e}'
+                )
         else:
             Logger.info('模擬器目前未開啟，延後建立裝置連線 (執行工作時會自動確認/啟動模擬器)')
 
@@ -73,7 +86,7 @@ class Device:
             # fall back to no emulator lifecycle management, same as if
             # EmulatorType.NONE had been configured.
             try:
-                return MumuEmulator(connectDevice)
+                return MumuEmulator(connectDevice, self._emulatorPath)
             except (OSError, RuntimeError) as e:
                 Logger.warn('無法初始化模擬器管理 (可能沒有安裝/啟用MuMu多開管理器): ' + str(e))
                 return None

@@ -10,15 +10,18 @@ from core.device.emulator.mumuEmulator import MumuEmulator
 
 class NemuIPCScreenCap(ScreenCap):
 
-    # 每個人電腦不一定同個路徑 - canonical value lives on MumuEmulator,
-    # aliased here since NemuIPC only ever talks to MuMu anyway
+    # fallback default path - canonical value lives on MumuEmulator.
+    # 每個人電腦不一定同個路徑, so prefer device._emulatorPath (config's
+    # "emulatorPath" field) over this when it's set.
     EMULATOR_PATH = MumuEmulator.EMULATOR_PATH
 
     def __init__(self, device):
 
+        self._installPath = getattr(device, '_emulatorPath', None) or NemuIPCScreenCap.EMULATOR_PATH
+
         _, port = device._connectDevice.rsplit(':', 1)
 
-        self.m_instance_id = MumuEmulator.findVmIndex(int(port))
+        self.m_instance_id = MumuEmulator.findVmIndex(int(port), self._installPath)
 
         if self.m_instance_id == -1:
             raise RuntimeError('Emulator index not found from serial port')
@@ -26,12 +29,12 @@ class NemuIPCScreenCap(ScreenCap):
         Logger.info(f'emulator index {self.m_instance_id} fetch from serial {device._connectDevice}')
 
         # 載入DLL
-        ipc_dll = f'{NemuIPCScreenCap.EMULATOR_PATH}/nx_device/12.0/shell/sdk/external_renderer_ipc.dll'
+        ipc_dll = f'{self._installPath}/nx_device/12.0/shell/sdk/external_renderer_ipc.dll'
         self.m_lib = ctypes.CDLL(ipc_dll)
 
         # 建立 IPC 連線
         self.m_connect_id = 0
-        self.m_connect_id = self.m_lib.nemu_connect(NemuIPCScreenCap.EMULATOR_PATH, self.m_instance_id)
+        self.m_connect_id = self.m_lib.nemu_connect(self._installPath, self.m_instance_id)
 
         if (self.m_connect_id == 0):
             raise RuntimeError(f'Failed to connect to Nemu IPC, instance id: {self.m_instance_id}')

@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
 
 from core.logger import Logger
 from core.device.device import Device
+from core.device.emulator.mumuEmulator import MumuEmulator
 
 from game.fgo.battle.apple import Apple
 
@@ -88,6 +89,13 @@ class SettingsView(QWidget):
         emulatorHint = QLabel('選MuMu的話，啟動時會自動確認/開啟模擬器，需按「儲存設定」後重新啟動程式才會生效', captureGroup)
         emulatorHint.setStyleSheet('color: gray;')
 
+        self._emulatorPathEdit = QLineEdit(captureGroup)
+        self._emulatorPathEdit.setPlaceholderText(MumuEmulator.EMULATOR_PATH)
+        self._emulatorPathEdit.setText(self._controller.game._device._emulatorPath or '')
+
+        emulatorPathHint = QLabel('MuMu安裝路徑 (留空使用預設路徑)，需按「儲存設定」後重新啟動程式才會生效', captureGroup)
+        emulatorPathHint.setStyleSheet('color: gray;')
+
         self._appleCombo = QComboBox(captureGroup)
         for label, value in APPLE_LABELS:
             self._appleCombo.addItem(label, value)
@@ -98,6 +106,8 @@ class SettingsView(QWidget):
         captureForm.addRow('', screencapHint)
         captureForm.addRow('模擬器類型:', self._emulatorCombo)
         captureForm.addRow('', emulatorHint)
+        captureForm.addRow('模擬器安裝路徑:', self._emulatorPathEdit)
+        captureForm.addRow('', emulatorPathHint)
         captureForm.addRow('自動吃蘋果類型:', self._appleCombo)
 
         self._saveBtn = QPushButton('儲存設定', self)
@@ -156,5 +166,6 @@ class SettingsView(QWidget):
     def _onSave(self):
         self._controller.game._device._screenCapType = self._screencapCombo.currentData()
         self._controller.game._device._emulatorType = self._emulatorCombo.currentData()
+        self._controller.game._device._emulatorPath = self._emulatorPathEdit.text().strip() or None
         Apple.s_appleTypeName = self._appleCombo.currentData()
         self._controller.save()

@@ -59,7 +59,9 @@ class ConfigUtil:
             # 下次儲存後就會變成明確欄位
             emulatorType = Device.EmulatorType.MUMU if screencapType == Device.ScreenCapType.NEMUIPC else Device.EmulatorType.NONE
 
-        device = Device(configData['device'], screencapType, emulatorType)
+        emulatorPath = configData.get('emulatorPath') or None
+
+        device = Device(configData['device'], screencapType, emulatorType, emulatorPath)
         game = GameFGO(device)
         ConfigUtil.Serialize(game, configData)
 
@@ -71,6 +73,7 @@ class ConfigUtil:
             'device': 'emulator-5554',
             'screencap': 1,
             'emulator': 0,
+            'emulatorPath': '',
             'battle': [
                 {
                     'name': 'ArtParty',
@@ -95,6 +98,7 @@ class ConfigUtil:
 
         data['screencap'] = game._device._screenCapType.value
         data['emulator'] = game._device._emulatorType.value
+        data['emulatorPath'] = game._device._emulatorPath or ''
 
         data['battle'] = []
         for key in game._battles:
@@ -148,6 +152,7 @@ class ConfigUtil:
 
         game._device._connectDevice = config['device']
         game._device._screenCapType = Device.ScreenCapType(config['screencap'])
+        game._device._emulatorPath = config.get('emulatorPath') or None
         try:
             Apple.s_appleTypeName = config['apple']
         except Exception as e:

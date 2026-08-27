@@ -93,18 +93,22 @@ class DeviceEmulatorBootstrapTests(unittest.TestCase):
         self.assertEqual(calls['n'], 1)
         self.assertEqual(device._screenCap, 'FAKE_SCREENCAP')
 
-    def test_raises_after_exhausting_retry(self):
+    def test_construction_never_raises_after_exhausting_retry(self):
+        # a bad setting (wrong device/emulator path/...) must never crash
+        # Device()/the GUI's __init__ outright - it should log which
+        # setting to check and defer, so the app still opens and the real
+        # error surfaces later at execution time (ensureEmulatorRunning()).
         emulator = FakeEmulator()
 
         def alwaysFails(self, screencapType):
             raise RuntimeError('simulated: never reachable')
 
-        with self.assertRaises(RuntimeError):
-            self._buildDevice(alwaysFails, emulator)
+        device = self._buildDevice(alwaysFails, emulator)
 
         self.assertEqual(emulator.shutdownCalls, 1)
+        self.assertIsNone(device._screenCap)
 
-    def test_no_retry_when_no_emulator_configured(self):
+    def test_construction_never_raises_when_no_emulator_configured(self):
         calls = {'n': 0}
 
         def alwaysFails(self, screencapType):
@@ -114,10 +118,23 @@ class DeviceEmulatorBootstrapTests(unittest.TestCase):
         with mock.patch.object(Device, '_buildScreenCap', alwaysFails):
             with mock.patch.object(Device, '_buildEmulator', lambda self, t, c: None):
                 with mock.patch.object(Device, 'connect', lambda self, d: None):
-                    with self.assertRaises(RuntimeError):
-                        Device('127.0.0.1:16480', Device.ScreenCapType.ADB, Device.EmulatorType.NONE)
+                    device = Device('127.0.0.1:16480', Device.ScreenCapType.ADB, Device.EmulatorType.NONE)
 
         self.assertEqual(calls['n'], 1)
+        self.assertIsNone(device._screenCap)
+
+    def test_construction_survives_missing_manager_exe_with_no_emulator_lifecycle(self):
+        # reproduces the live crash: emulator lifecycle isn't configured
+        # (EmulatorType.NONE) but the screencap backend (NEMUIPC) still
+        # needs MumuManager to resolve the vmindex, and the configured
+        # install path doesn't exist on this machine - FileNotFoundError
+        # from the real _buildScreenCap, not a mocked one.
+        with mock.patch.object(Device, '_buildEmulator', lambda self, t, c: None):
+            with mock.patch.object(Device, 'connect', lambda self, d: None):
+                with mock.patch('subprocess.check_output', side_effect=FileNotFoundError()):
+                    device = Device('127.0.0.1:16480', Device.ScreenCapType.NEMUIPC, Device.EmulatorType.NONE, 'C:\\Nonexistent\\Path')
+
+        self.assertIsNone(device._screenCap)
 
 
 if __name__ == '__main__':

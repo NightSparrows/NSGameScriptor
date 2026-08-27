@@ -100,6 +100,19 @@ class MumuEmulatorTests(unittest.TestCase):
             with mock.patch('time.sleep'):
                 self.assertFalse(emulator.waitUntilReady(timeout=3))
 
+    def test_custom_install_path_used_for_manager_exe(self):
+        customPath = 'D:\\Games\\MuMuPlayer'
+        with mock.patch('subprocess.check_output', return_value=ALL_INSTANCES) as m:
+            emulator = MumuEmulator('127.0.0.1:16480', customPath)
+            self.assertEqual(emulator._managerExe, customPath + '\\nx_main\\MumuManager')
+            calledExe = m.call_args[0][0][0]
+            self.assertEqual(calledExe, customPath + '\\nx_main\\MumuManager')
+
+    def test_find_vm_index_missing_manager_exe_raises_runtime_error(self):
+        with mock.patch('subprocess.check_output', side_effect=FileNotFoundError()):
+            with self.assertRaises(RuntimeError):
+                MumuEmulator.findVmIndex(16480, 'C:\\Nonexistent\\Path')
+
 
 if __name__ == '__main__':
     unittest.main()

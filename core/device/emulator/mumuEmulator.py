@@ -21,15 +21,25 @@ class MumuEmulator(Emulator):
     machines without MuMu's manager at this path at all), rather than
     crashing."""
 
+    # default install path - not everyone's MuMu lives here (portable
+    # installs, non-default drive, etc), so it's overridable per-instance
+    # via installPath (wired from config's "emulatorPath" field)
     EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayer'
     MANAGER_EXE = EMULATOR_PATH + '\\nx_main\\MumuManager'
 
-    def __init__(self, connectDevice: str) -> None:
+    def __init__(self, connectDevice: str, installPath: str = None) -> None:
+        self._installPath = installPath or MumuEmulator.EMULATOR_PATH
+        self._managerExe = MumuEmulator._managerExe(self._installPath)
+
         _, port = connectDevice.rsplit(':', 1)
-        self._vmIndex = MumuEmulator.findVmIndex(int(port))
+        self._vmIndex = MumuEmulator.findVmIndex(int(port), self._installPath)
 
         if self._vmIndex == -1:
             raise RuntimeError('Emulator index not found from serial port: ' + connectDevice)
+
+    @staticmethod
+    def _managerExe(installPath: str = None) -> str:
+        return (installPath or MumuEmulator.EMULATOR_PATH) + '\\nx_main\\MumuManager'
 
     # a stopped instance's info doesn't report adb_port at all (confirmed
     # live), so a live port match is impossible while it's off - exactly
@@ -41,10 +51,14 @@ class MumuEmulator(Emulator):
     # is actually a registered instance (whether running or not) - never
     # trust the formula alone.
     @staticmethod
-    def findVmIndex(adbPort: int) -> int:
-        result = subprocess.check_output([
-            MumuEmulator.MANAGER_EXE, 'info', '--vmindex', 'all',
-        ])
+    def findVmIndex(adbPort: int, installPath: str = None) -> int:
+        managerExe = MumuEmulator._managerExe(installPath)
+        try:
+            result = subprocess.check_output([
+                managerExe, 'info', '--vmindex', 'all',
+            ])
+        except OSError as e:
+            raise RuntimeError('找不到 MuMuManager (' + managerExe + ')，請至設定確認模擬器安裝路徑: ' + str(e)) from e
 
         emulatorInfoList = json.loads(result.decode('utf-8').strip())
         for index, emulatorInfo in emulatorInfoList.items():
@@ -60,7 +74,7 @@ class MumuEmulator(Emulator):
 
     def _info(self) -> dict:
         result = subprocess.check_output([
-            MumuEmulator.MANAGER_EXE, 'info', '--vmindex', str(self._vmIndex),
+            self._managerExe, 'info', '--vmindex', str(self._vmIndex),
         ])
         return json.loads(result.decode('utf-8').strip())
 
@@ -77,7 +91,7 @@ class MumuEmulator(Emulator):
         Logger.info('啟動模擬器 (vmindex ' + str(self._vmIndex) + ') ...')
         try:
             subprocess.check_output([
-                MumuEmulator.MANAGER_EXE, 'control', '--vmindex', str(self._vmIndex), 'launch',
+                self._managerExe, 'control', '--vmindex', str(self._vmIndex), 'launch',
             ])
             return True
         except subprocess.CalledProcessError as e:
@@ -87,7 +101,7 @@ class MumuEmulator(Emulator):
     def shutdown(self) -> bool:
         try:
             subprocess.check_output([
-                MumuEmulator.MANAGER_EXE, 'control', '--vmindex', str(self._vmIndex), 'shutdown',
+                self._managerExe, 'control', '--vmindex', str(self._vmIndex), 'shutdown',
             ])
             return True
         except subprocess.CalledProcessError as e:
