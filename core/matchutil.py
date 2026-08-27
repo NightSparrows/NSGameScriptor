@@ -193,10 +193,59 @@ class MatchUtil:
 
         if MatchUtil.isMatch(result, thresh):
             return True
-        
+
         return False
 
-    
+    # --- edge-based matching --------------------------------------------
+    #
+    # Raw pixel template matching (match/Having.../WaitFor...) assumes the
+    # template's background pixels stay constant. That's false for UI text
+    # rendered with a semi-transparent background over Lobby's animated
+    # backdrop (e.g. the "迦勒底之門"/"每日任務" screen titles) - the
+    # background behind the text keeps changing even when nothing is
+    # tapped or scrolled, so raw matching against a single captured
+    # template is unreliable there. Comparing Canny edge structure via IoU
+    # at a fixed (non-scrolling) region is robust to that, since the text
+    # strokes always produce strong edges regardless of what's behind them,
+    # while the animated background contributes edges elsewhere in the
+    # region rather than in the same pixels as the strokes.
+
+    def ComputeEdgeMask(image: cv2.Mat) -> cv2.Mat:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (3, 3), 0)
+        return cv2.Canny(gray, 60, 150)
+
+    def EdgeIoU(edgeMaskA: cv2.Mat, edgeMaskB: cv2.Mat) -> float:
+        a = edgeMaskA > 0
+        b = edgeMaskB > 0
+        union = (a | b).sum()
+        if union == 0:
+            return 0.0
+        return (a & b).sum() / union
+
+    # edgeMaskTemplate: a pre-computed reference edge mask (ComputeEdgeMask
+    # output, e.g. loaded via cv2.imread(path, cv2.IMREAD_GRAYSCALE)),
+    # captured once from a real screenshot of the same fixed region.
+    def HavingEdgeInRange(device: Device, edgeMaskTemplate: cv2.Mat, x, y, width, height, thresh: float = 0.3) -> bool:
+        device.screenshot()
+        screenshot = device.getScreenshot()
+        liveEdges = MatchUtil.ComputeEdgeMask(screenshot[y:(y+height), x:(x+width)])
+
+        return MatchUtil.EdgeIoU(liveEdges, edgeMaskTemplate) > thresh
+
+    def WaitForEdgeInRange(device: Device, edgeMaskTemplate: cv2.Mat, timeout: float, x, y, width, height, thresh: float = 0.3) -> bool:
+        timer = 0
+
+        while timer <= timeout:
+            if MatchUtil.HavingEdgeInRange(device, edgeMaskTemplate, x, y, width, height, thresh):
+                return True
+
+            time.sleep(MatchUtil.s_waitInterval)
+            timer += MatchUtil.s_waitInterval
+
+        return False
+
+
     def calculated(result, shape):
         mat_top, mat_left = result['max_loc']
         prepared_height, prepared_width, prepared_channels = shape

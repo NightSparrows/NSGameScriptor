@@ -1,4 +1,5 @@
 
 
 class GameData:
-    currentState = str()
+    def __init__(self) -> None:
+        self.currentState = ''

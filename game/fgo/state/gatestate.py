@@ -14,11 +14,20 @@ from game.fgo.asset import Asset
 
 class GateState(State):
 
+    # top-right screen title ("迦勒底之門 Chaldea Gate") is rendered with a
+    # semi-transparent background over Lobby's animated backdrop, so raw
+    # pixel template matching against it is unreliable (the background
+    # behind the text keeps changing on its own). Detected via edge-IoU
+    # instead - see MatchUtil.HavingEdgeInRange/WaitForEdgeInRange. The
+    # title's position is fixed (not part of any scrollable area), so no
+    # sliding search is needed, just a fixed region check.
+    s_titleRegion = (930, 5, 350, 55)  # x, y, width, height
+
     def __init__(self, device: Device, gameData: GameData) -> None:
         super().__init__('Gate')
         self._data = gameData
         self._device = device
-        self._titleImage = cv2.imread('.//assets//fgo//state//gate//title.png')
+        self._titleEdgeMask = cv2.imread('.//assets//fgo//state//gate//titleEdgeMask.png', cv2.IMREAD_GRAYSCALE)
         self._enterBtnImage = cv2.imread('.//assets//fgo//state//gate//chaldeaGate.png')
         self._enterBtn01Image = cv2.imread('.//assets//fgo//state//gate//chaldeaGate01.png')
 
@@ -83,22 +92,18 @@ class GateState(State):
                     self._device.swipe(1000, 500, 1000, 200)
                     time.sleep(1)
         
-        result,_ = MatchUtil.WaitFor(self._device, self._titleImage, 5)
+        result = MatchUtil.WaitForEdgeInRange(self._device, self._titleEdgeMask, 5, *GateState.s_titleRegion)
 
         if not result:
             Logger.error('無法偵測已進入Gate')
             return False
         else:
-            self._data.currentState = self.getName()
             Logger.info('entered Gate state')
             return True
 
 
     def detect(self):
-
-        result, _ = MatchUtil.WaitForInRange(self._device, self._titleImage, 3, 500, 0, 780, 65)
-
-        return result
+        return MatchUtil.HavingEdgeInRange(self._device, self._titleEdgeMask, *GateState.s_titleRegion)
 
 
     def getParentName(self):

@@ -20,6 +20,42 @@ from game.fgo.battle.apple import Apple
 # Searialize settings file
 class ConfigUtil:
 
+    # 讀取設定檔, 建立 Device/GameFGO 並套用設定 (供 CLI 與 GUI 共用)
+    def LoadGame(configPath: str = 'settings/fgo') -> GameFGO:
+
+        configData = ''
+        try:
+            with open(configPath + '/config.json', encoding='utf-8') as f:
+                configData = json.load(f)
+
+                if not configData['screencap']:
+                    configData['screencap'] = 0                     # make ascreencap default for version issue
+        except FileNotFoundError as e:
+            Logger.warn('No config file found')
+            configData = ConfigUtil.GetDefault()
+        except IsADirectoryError as e:
+            Logger.warn('wired. Is a directory file')
+            configData = ConfigUtil.GetDefault()
+        except PermissionError as e:
+            Logger.warn('You don\'t have permission to access config file.')
+            configData = ConfigUtil.GetDefault()
+        except json.JSONDecodeError as e:
+            Logger.error('Json decoding error: {e}')
+            configData = ConfigUtil.GetDefault()
+        except TypeError as e:
+            Logger.error('Json Type error: {e}')
+            configData = ConfigUtil.GetDefault()
+        except Exception as e:
+            # 沒有檔案
+            Logger.warn('Unknown error: ' + str(e))
+            configData = ConfigUtil.GetDefault()
+
+        device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
+        game = GameFGO(device)
+        ConfigUtil.Serialize(game, configData)
+
+        return game
+
     def GetDefault():
 
         configData = {

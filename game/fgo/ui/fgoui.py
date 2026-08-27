@@ -1,9 +1,7 @@
 
 import os
-import json
 
 from core.logger import Logger
-from core.device.device import Device
 
 from game.fgo.gamefgo import GameFGO
 
@@ -23,37 +21,8 @@ class FGOUI:
         
         self._configPath = 'settings/fgo'
 
-        # 讀取資料
-        configData = ''
-        try:
-            with open(self._configPath + '/config.json', encoding='utf-8') as f:
-                configData = json.load(f)
-
-                if not configData['screencap']:
-                    configData['screencap'] = 0                     # make ascreencap default for version issue
-        except FileNotFoundError as e:
-            Logger.warn('No config file found')
-            configData = ConfigUtil.GetDefault()
-        except IsADirectoryError as e:
-            Logger.warn('wired. Is a directory file')
-            configData = ConfigUtil.GetDefault()
-        except PermissionError as e:
-            Logger.warn('You don\'t have permission to access config file.')
-            configData = ConfigUtil.GetDefault()
-        except json.JSONDecodeError as e:
-            Logger.error('Json decoding error: {e}')
-            configData = ConfigUtil.GetDefault()
-        except TypeError as e:
-            Logger.error('Json Type error: {e}')
-            configData = ConfigUtil.GetDefault()
-        except Exception as e:
-            # 沒有檔案
-            Logger.warn('Unknown error: ' + str(e))
-            configData = ConfigUtil.GetDefault()
-        
-        self._device = Device(configData['device'], Device.ScreenCapType(configData['screencap']))
-        self._game = GameFGO(self._device)
-        ConfigUtil.Serialize(self._game, configData)
+        self._game = ConfigUtil.LoadGame(self._configPath)
+        self._device = self._game._device
 
     def save(self):
         Logger.info('儲存中...')

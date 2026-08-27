@@ -3,3 +3,4 @@ opencv-python==4.7.0.68
 colorama==0.4.6
 requests
 adbutils
+PySide6

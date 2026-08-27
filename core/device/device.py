@@ -1,5 +1,6 @@
 
 import subprocess
+import threading
 
 from enum import Enum
 
@@ -22,6 +23,13 @@ class Device:
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap) -> None:
         self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
         self._connectDevice = connectDevice
+        # Screencap backends (esp. NemuIPC, which calls straight into a
+        # native DLL over a shared IPC handle) aren't safe to call
+        # concurrently from multiple threads - the GUI's live preview
+        # calls screenshot() on this same Device from a background thread
+        # while automation may be doing the same on another. This lock
+        # serializes those calls; it's a no-op for the CLI's single thread.
+        self._screenshotLock = threading.Lock()
         self.connect(connectDevice)
         #self.restart()
         # try:
@@ -47,7 +55,8 @@ class Device:
         # self.checkOutput('push .\\assets\\nscript /sdcard')
 
     def screenshot(self) -> bool:
-        return self._screenCap.screenshot()
+        with self._screenshotLock:
+            return self._screenCap.screenshot()
 
     def getScreenshot(self):
         return self._screenCap.getScreenshot()

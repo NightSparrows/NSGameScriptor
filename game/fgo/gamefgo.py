@@ -104,7 +104,10 @@ class GameFGO(Game):
 
         # TODO mycard版本的切換
         self._device.killApp('com.xiaomeng.fategrandorder')
-        result = self._device.openApp('com.xiaomeng.fategrandorder/jp.delightworks.Fgo.player.AndroidPlugin')
+        # was 'jp.delightworks.Fgo.player.AndroidPlugin' - a client update
+        # switched the launcher activity to Unity's own, confirmed live via
+        # `adb shell cmd package resolve-activity --brief com.xiaomeng.fategrandorder`
+        result = self._device.openApp('com.xiaomeng.fategrandorder/com.unity3d.player.UnityPlayerActivity')
 
         # load some startup resources
         annImage = cv2.imread('./assets/fgo/stateDetect/announcement.png')

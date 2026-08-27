@@ -16,8 +16,10 @@ class State:
     def detect(self):
         raise NotImplementedError('state detect() not impl.')
 
+    # None means this is a root state (no parent to navigate back to).
+    # Only override this for non-root states.
     def getParentName(self):
-        raise NotImplementedError('state getParentName() not impl.')
+        return None
 
 
     def getName(self):

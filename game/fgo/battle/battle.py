@@ -231,6 +231,43 @@ class Battle:
 
         return True
 
+    def waitSaftyStageInBattle(self, timer: Timer):
+        '''
+        Return: True: is win
+                False: is safty
+        '''
+    
+        Logger.info('Wait for battle safty stage...')
+        
+        timer.restart()
+        while not timer.timeout():
+            time.sleep(0.3)
+            self._data.device.screenshot()
+            screenshot = self._data.device.getScreenshot()
+            result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
+            #result2 = MatchUtil.match(screenshot, Battle.s_attackBtnImage)
+
+            if MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 72, 60):
+                Logger.info('Detect a new 禮裝')
+                self._data.device.tap(45, 42)
+                time.sleep(0.2)
+
+            #check win condition
+            result = MatchUtil.match(screenshot, Battle.s_nextStepBtnImage)
+            if MatchUtil.isMatch(result):
+                return True
+            
+            # if not MatchUtil.MatchColor(screenshot[573, 1130], 0, 209, 242):
+            #     continue # 沒有藍色按鈕
+
+            #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
+            if (MatchUtil.isMatch(result1)):
+                return False
+
+            # 點空白的地方
+            self._data.device.tap(900, 55)
+
+        pass
 
     def inBattle(self):
 
@@ -248,38 +285,15 @@ class Battle:
 
         timer = Timer(60)
 
+        self.waitSaftyStageInBattle(timer)
+
+        # first time sleep more
+        time.sleep(1)
+
         while not isWin:
-
-            Logger.info('Wait for battle safty stage...')
-            
-            timer.restart()
-            while not timer.timeout():
-                time.sleep(0.3)
-                self._data.device.screenshot()
-                screenshot = self._data.device.getScreenshot()
-                result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
-                #result2 = MatchUtil.match(screenshot, Battle.s_attackBtnImage)
-
-                if MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 72, 60):
-                    Logger.info('Detect a new 禮裝')
-                    self._data.device.tap(45, 42)
-                    time.sleep(0.2)
-
-                #check win condition
-                result = MatchUtil.match(screenshot, Battle.s_nextStepBtnImage)
-                if MatchUtil.isMatch(result):
-                    isWin = True
-                    break
-                
-                # if not MatchUtil.MatchColor(screenshot[573, 1130], 0, 209, 242):
-                #     continue # 沒有藍色按鈕
-
-                #if (MatchUtil.isMatch(result1, 0.8) and MatchUtil.isMatch(result2, 0.8)):
-                if (MatchUtil.isMatch(result1)):
-                    break       # is safty
-
-                # 點空白的地方
-                self._data.device.tap(900, 55)
+            if self.waitSaftyStageInBattle(timer):
+                isWin = True
+                break
 
             # assert in stable battle state
             time.sleep(0.8)
