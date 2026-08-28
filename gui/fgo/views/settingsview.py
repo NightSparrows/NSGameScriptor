@@ -68,47 +68,51 @@ class SettingsView(QWidget):
         deviceForm.addRow('裝置名稱/位址:', deviceRow)
         deviceForm.addRow('', self._deviceStatusLabel)
 
-        captureGroup = QGroupBox('截圖與蘋果設定', self)
-        captureForm = QFormLayout(captureGroup)
+        emulatorGroup = QGroupBox('模擬器', self)
+        emulatorForm = QFormLayout(emulatorGroup)
 
-        self._screencapCombo = QComboBox(captureGroup)
+        self._screencapCombo = QComboBox(emulatorGroup)
         for screencapType, label in SCREENCAP_LABELS.items():
             self._screencapCombo.addItem(label, screencapType)
         idx = self._screencapCombo.findData(self._controller.game._device._screenCapType)
         self._screencapCombo.setCurrentIndex(idx if idx >= 0 else 0)
 
-        screencapHint = QLabel('變更截圖模式需按「儲存設定」後重新啟動程式才會生效', captureGroup)
+        screencapHint = QLabel('變更截圖模式需按「儲存設定」後重新啟動程式才會生效', emulatorGroup)
         screencapHint.setStyleSheet('color: gray;')
 
-        self._emulatorCombo = QComboBox(captureGroup)
+        self._emulatorCombo = QComboBox(emulatorGroup)
         for emulatorType, label in EMULATOR_LABELS.items():
             self._emulatorCombo.addItem(label, emulatorType)
         idx = self._emulatorCombo.findData(self._controller.game._device._emulatorType)
         self._emulatorCombo.setCurrentIndex(idx if idx >= 0 else 0)
 
-        emulatorHint = QLabel('選MuMu的話，啟動時會自動確認/開啟模擬器，需按「儲存設定」後重新啟動程式才會生效', captureGroup)
+        emulatorHint = QLabel('選MuMu的話，啟動時會自動確認/開啟模擬器，需按「儲存設定」後重新啟動程式才會生效', emulatorGroup)
         emulatorHint.setStyleSheet('color: gray;')
 
-        self._emulatorPathEdit = QLineEdit(captureGroup)
+        self._emulatorPathEdit = QLineEdit(emulatorGroup)
         self._emulatorPathEdit.setPlaceholderText(MumuEmulator.EMULATOR_PATH)
         self._emulatorPathEdit.setText(self._controller.game._device._emulatorPath or '')
 
-        emulatorPathHint = QLabel('MuMu安裝路徑 (留空使用預設路徑)，需按「儲存設定」後重新啟動程式才會生效', captureGroup)
+        emulatorPathHint = QLabel('MuMu安裝路徑 (留空使用預設路徑)，需按「儲存設定」後重新啟動程式才會生效', emulatorGroup)
         emulatorPathHint.setStyleSheet('color: gray;')
 
-        self._appleCombo = QComboBox(captureGroup)
+        emulatorForm.addRow('截圖模式:', self._screencapCombo)
+        emulatorForm.addRow('', screencapHint)
+        emulatorForm.addRow('模擬器類型:', self._emulatorCombo)
+        emulatorForm.addRow('', emulatorHint)
+        emulatorForm.addRow('模擬器安裝路徑:', self._emulatorPathEdit)
+        emulatorForm.addRow('', emulatorPathHint)
+
+        gameGroup = QGroupBox('遊戲設定', self)
+        gameForm = QFormLayout(gameGroup)
+
+        self._appleCombo = QComboBox(gameGroup)
         for label, value in APPLE_LABELS:
             self._appleCombo.addItem(label, value)
         idx = self._appleCombo.findData(Apple.s_appleTypeName)
         self._appleCombo.setCurrentIndex(idx if idx >= 0 else 0)
 
-        captureForm.addRow('截圖模式:', self._screencapCombo)
-        captureForm.addRow('', screencapHint)
-        captureForm.addRow('模擬器類型:', self._emulatorCombo)
-        captureForm.addRow('', emulatorHint)
-        captureForm.addRow('模擬器安裝路徑:', self._emulatorPathEdit)
-        captureForm.addRow('', emulatorPathHint)
-        captureForm.addRow('自動吃蘋果類型:', self._appleCombo)
+        gameForm.addRow('自動吃蘋果類型:', self._appleCombo)
 
         self._saveBtn = QPushButton('儲存設定', self)
         self._saveBtn.clicked.connect(self._onSave)
@@ -119,7 +123,8 @@ class SettingsView(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(deviceGroup)
-        layout.addWidget(captureGroup)
+        layout.addWidget(emulatorGroup)
+        layout.addWidget(gameGroup)
         layout.addLayout(saveRow)
         layout.addStretch(1)
 

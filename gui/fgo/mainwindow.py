@@ -1,6 +1,7 @@
 
 from PySide6.QtWidgets import QLabel, QMainWindow, QTabWidget
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QIcon
 
 from gui.common.worker import WorkerPool
 from gui.fgo.controller import FGOController
@@ -15,6 +16,7 @@ class FGOMainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle('NSGameScriptor - FGO')
+        self.setWindowIcon(QIcon('./assets/icon/app.ico'))
         self.resize(1000, 640)
 
         self._controller = FGOController()

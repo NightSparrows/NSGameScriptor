@@ -301,9 +301,14 @@ class BattleEditorView(QWidget):
         actionRow = QHBoxLayout()
         self._saveBtn = QPushButton('儲存', panel)
         self._saveBtn.clicked.connect(self._onSave)
-        self._testRunBtn = QPushButton('測試執行 (1次)', panel)
+        self._testRunCountSpin = QSpinBox(panel)
+        self._testRunCountSpin.setRange(1, 999)
+        self._testRunCountSpin.setValue(1)
+        self._testRunBtn = QPushButton('測試執行', panel)
         self._testRunBtn.clicked.connect(self._onTestRun)
         actionRow.addWidget(self._saveBtn)
+        actionRow.addWidget(QLabel('執行次數:', panel))
+        actionRow.addWidget(self._testRunCountSpin)
         actionRow.addWidget(self._testRunBtn)
         actionRow.addStretch(1)
 
@@ -609,7 +614,7 @@ class BattleEditorView(QWidget):
 
         self._testRunBtn.setEnabled(False)
         self._pool.submit(
-            battle.execute, 1,
+            battle.execute, self._testRunCountSpin.value(),
             on_error=self._onTestRunError,
             on_finished=lambda: self._testRunBtn.setEnabled(True),
         )
