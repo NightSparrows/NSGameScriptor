@@ -64,6 +64,13 @@ class GateState(State):
             self._device.tap(point['x']['center'], point['y']['center'])
             return True
 
+        # a reward/support popup (e.g. 友情點數) can pop up unprompted a few
+        # seconds after entering Lobby, covering the swipeable area this
+        # loop is scanning - close it so the next swipe/detect attempt can
+        # actually see the Gate button underneath.
+        if MatchUtil.TapAnyImage(self._device, [Asset.CloseBtnImage, Asset.CloseBtnPillImage]):
+            return False
+
         return False
 
 

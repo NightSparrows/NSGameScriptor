@@ -18,7 +18,24 @@ class MatchUtil:
             device.tap(point['x']['center'], point['y']['center'])
             time.sleep(1)
             return True
-        
+
+        return False
+
+    # tries each template in order against a single fresh screenshot and
+    # taps the first one that matches. Used to dismiss whichever of several
+    # known popup styles (different close-button art per dialog type)
+    # happens to be on screen, without knowing in advance which one it is.
+    def TapAnyImage(device: Device, templates, thresh = 0.9):
+        device.screenshot()
+        screenshot = device.getScreenshot()
+        for template in templates:
+            result = MatchUtil.match(screenshot, template)
+            if MatchUtil.isMatch(result, thresh):
+                point = MatchUtil.calculated(result, template.shape)
+                device.tap(point['x']['center'], point['y']['center'])
+                time.sleep(1)
+                return True
+
         return False
 
     def MatchColor(color, r: int, g: int, b: int):

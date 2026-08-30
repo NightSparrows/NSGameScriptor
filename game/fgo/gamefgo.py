@@ -215,10 +215,10 @@ class GameFGO(Game):
         self._device.tap(1275, 5)
         time.sleep(1)
 
-        # TODO 視窗 for closing
-        
+        # 關閉登入後可能跳出的其他視窗 (友情點數等獎勵確認彈窗等)
         time.sleep(1)
-        while MatchUtil.TapImage(self._device, Asset.CloseBtnImage):
+        closeBtnImages = [Asset.CloseBtnImage, Asset.CloseBtnPillImage]
+        while MatchUtil.TapAnyImage(self._device, closeBtnImages):
             time.sleep(2)
 
         safty = False
