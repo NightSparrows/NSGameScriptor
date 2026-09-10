@@ -1,5 +1,7 @@
 
 import cv2
+import glob
+import os
 import numpy as np
 import ctypes
 from .screencap import ScreenCap
@@ -29,7 +31,7 @@ class NemuIPCScreenCap(ScreenCap):
         Logger.info(f'emulator index {self.m_instance_id} fetch from serial {device._connectDevice}')
 
         # 載入DLL
-        ipc_dll = f'{self._installPath}/nx_device/12.0/shell/sdk/external_renderer_ipc.dll'
+        ipc_dll = self._findIpcDll(self._installPath)
         self.m_lib = ctypes.CDLL(ipc_dll)
 
         # 建立 IPC 連線
@@ -45,6 +47,26 @@ class NemuIPCScreenCap(ScreenCap):
         self._update_resolution()
         Logger.info('Nemu IPC 截圖初始化成功')
     
+    @staticmethod
+    def _findIpcDll(installPath: str) -> str:
+        # the sdk lives under nx_device/<version>/shell/sdk - <version>
+        # tracks MuMu's own internal build (seen "12.0" and "15.0" across
+        # installs, presumably more over time), not the app-facing MuMu
+        # version number, so it can't be assumed. Discover whichever
+        # version folder is actually present instead of hardcoding one;
+        # if several exist, prefer the highest (newest) version.
+        pattern = os.path.join(installPath, 'nx_device', '*', 'shell', 'sdk', 'external_renderer_ipc.dll')
+        candidates = glob.glob(pattern)
+        if not candidates:
+            raise RuntimeError(f'找不到 external_renderer_ipc.dll (installPath={installPath})')
+
+        def versionKey(path: str):
+            version = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(path))))
+            return [int(part) if part.isdigit() else 0 for part in version.split('.')]
+
+        candidates.sort(key=versionKey, reverse=True)
+        return candidates[0]
+
     def _update_resolution(self):
         # 取得模擬器螢幕解析度
         width_ptr = ctypes.pointer(ctypes.c_int(0))
