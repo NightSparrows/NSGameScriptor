@@ -448,6 +448,7 @@ class BattleEditorView(QWidget):
         del self._controller.game._battles[key]
         Logger.info('Battle[' + key + ']刪除成功')
         self._currentKey = None
+        self._controller.save()
         self._controller.battlesChanged.emit()
         self._setEditingEnabled(False)
 
@@ -602,6 +603,7 @@ class BattleEditorView(QWidget):
         self._currentKey = name
         Logger.info('Battle[' + name + ']儲存成功')
 
+        self._controller.save()
         self._controller.battlesChanged.emit()
         self._testRunBtn.setEnabled(True)
 
