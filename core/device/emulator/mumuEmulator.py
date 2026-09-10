@@ -62,7 +62,7 @@ class MumuEmulator(Emulator):
 
         emulatorInfoList = json.loads(result.decode('utf-8').strip())
         for index, emulatorInfo in emulatorInfoList.items():
-            if emulatorInfo.get('adb_port') == adbPort:
+            if isinstance(emulatorInfo, dict) and emulatorInfo.get('adb_port') == adbPort:
                 return int(index)
 
         if (adbPort - 16384) % 32 == 0:
