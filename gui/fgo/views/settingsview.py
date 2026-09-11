@@ -1,7 +1,7 @@
 
 from PySide6.QtWidgets import (
     QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QVBoxLayout, QWidget,
+    QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget,
 )
 
 from core.logger import Logger
@@ -93,6 +93,13 @@ class SettingsView(QWidget):
         self._emulatorPathEdit.setPlaceholderText(MumuEmulator.EMULATOR_PATH)
         self._emulatorPathEdit.setText(self._controller.game._device._emulatorPath or '')
 
+        self._detectPathBtn = QPushButton('自動偵測', emulatorGroup)
+        self._detectPathBtn.clicked.connect(self._onDetectPath)
+
+        emulatorPathRow = QHBoxLayout()
+        emulatorPathRow.addWidget(self._emulatorPathEdit, 1)
+        emulatorPathRow.addWidget(self._detectPathBtn)
+
         emulatorPathHint = QLabel('MuMu安裝路徑 (留空使用預設路徑)，需按「儲存設定」後重新啟動程式才會生效', emulatorGroup)
         emulatorPathHint.setStyleSheet('color: gray;')
 
@@ -100,7 +107,7 @@ class SettingsView(QWidget):
         emulatorForm.addRow('', screencapHint)
         emulatorForm.addRow('模擬器類型:', self._emulatorCombo)
         emulatorForm.addRow('', emulatorHint)
-        emulatorForm.addRow('模擬器安裝路徑:', self._emulatorPathEdit)
+        emulatorForm.addRow('模擬器安裝路徑:', emulatorPathRow)
         emulatorForm.addRow('', emulatorPathHint)
 
         gameGroup = QGroupBox('遊戲設定', self)
@@ -167,6 +174,16 @@ class SettingsView(QWidget):
     def _onDeviceError(self, message: str):
         Logger.error('裝置操作失敗: ' + message)
         self._deviceStatusLabel.setText('失敗: ' + message)
+
+    def _onDetectPath(self):
+        path = MumuEmulator.detectInstallPath()
+        if not path:
+            Logger.error('自動偵測MuMu安裝路徑失敗')
+            QMessageBox.warning(self, '自動偵測失敗', '找不到MuMu安裝路徑，請手動輸入')
+            return
+
+        self._emulatorPathEdit.setText(path)
+        Logger.info('已自動偵測到MuMu安裝路徑: ' + path)
 
     def _onSave(self):
         self._controller.game._device._screenCapType = self._screencapCombo.currentData()

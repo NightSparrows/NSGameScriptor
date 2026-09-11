@@ -113,6 +113,39 @@ class MumuEmulatorTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 MumuEmulator.findVmIndex(16480, 'C:\\Nonexistent\\Path')
 
+    def test_is_valid_install_path_checks_manager_exe(self):
+        with mock.patch('os.path.isfile', return_value=True):
+            self.assertTrue(MumuEmulator._isValidInstallPath('C:\\Foo'))
+        with mock.patch('os.path.isfile', return_value=False):
+            self.assertFalse(MumuEmulator._isValidInstallPath('C:\\Foo'))
+        self.assertFalse(MumuEmulator._isValidInstallPath(''))
+
+    def test_detect_install_path_prefers_registry_result(self):
+        with mock.patch.object(MumuEmulator, '_installPathFromRegistry', return_value='C:\\FromRegistry'):
+            with mock.patch.object(MumuEmulator, '_installPathFromCommonDrives', return_value='D:\\FromDrives') as drives:
+                self.assertEqual(MumuEmulator.detectInstallPath(), 'C:\\FromRegistry')
+                drives.assert_not_called()
+
+    def test_detect_install_path_falls_back_to_common_drives(self):
+        with mock.patch.object(MumuEmulator, '_installPathFromRegistry', return_value=''):
+            with mock.patch.object(MumuEmulator, '_installPathFromCommonDrives', return_value='D:\\FromDrives'):
+                self.assertEqual(MumuEmulator.detectInstallPath(), 'D:\\FromDrives')
+
+    def test_detect_install_path_returns_empty_when_nothing_found(self):
+        with mock.patch.object(MumuEmulator, '_installPathFromRegistry', return_value=''):
+            with mock.patch.object(MumuEmulator, '_installPathFromCommonDrives', return_value=''):
+                self.assertEqual(MumuEmulator.detectInstallPath(), '')
+
+    def test_install_path_from_common_drives_returns_first_valid_match(self):
+        def isfileSideEffect(path):
+            return path == 'E:\\Program Files\\Netease\\MuMuPlayer\\nx_main\\MumuManager.exe'
+
+        with mock.patch('os.path.isfile', side_effect=isfileSideEffect):
+            self.assertEqual(
+                MumuEmulator._installPathFromCommonDrives(),
+                'E:\\Program Files\\Netease\\MuMuPlayer',
+            )
+
 
 if __name__ == '__main__':
     unittest.main()

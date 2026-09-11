@@ -1,11 +1,20 @@
 
 import json
+import os
+import string
 import subprocess
 import time
+import winreg
 
 from core.logger import Logger
 
 from .emulator import Emulator
+
+UNINSTALL_KEYS = (
+    (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
+    (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'),
+    (winreg.HKEY_CURRENT_USER, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
+)
 
 
 class MumuEmulator(Emulator):
@@ -26,6 +35,69 @@ class MumuEmulator(Emulator):
     # via installPath (wired from config's "emulatorPath" field)
     EMULATOR_PATH = 'C:\\Program Files\\Netease\\MuMuPlayer'
     MANAGER_EXE = EMULATOR_PATH + '\\nx_main\\MumuManager'
+
+    @staticmethod
+    def _isValidInstallPath(path: str) -> bool:
+        return bool(path) and os.path.isfile(path + '\\nx_main\\MumuManager.exe')
+
+    @staticmethod
+    def _installPathFromRegistry() -> str:
+        for hkey, subKeyPath in UNINSTALL_KEYS:
+            try:
+                key = winreg.OpenKey(hkey, subKeyPath)
+            except OSError:
+                continue
+
+            with key:
+                for i in range(winreg.QueryInfoKey(key)[0]):
+                    try:
+                        subKeyName = winreg.EnumKey(key, i)
+                        with winreg.OpenKey(key, subKeyName) as subKey:
+                            displayName = winreg.QueryValueEx(subKey, 'DisplayName')[0]
+                            if 'mumu' not in displayName.lower():
+                                continue
+
+                            try:
+                                installLocation = winreg.QueryValueEx(subKey, 'InstallLocation')[0].strip('"')
+                            except OSError:
+                                installLocation = ''
+                            if MumuEmulator._isValidInstallPath(installLocation):
+                                return installLocation
+
+                            try:
+                                uninstallString = winreg.QueryValueEx(subKey, 'UninstallString')[0]
+                            except OSError:
+                                continue
+                            candidate = os.path.dirname(uninstallString.strip('"'))
+                            if MumuEmulator._isValidInstallPath(candidate):
+                                return candidate
+                    except OSError:
+                        continue
+
+        return ''
+
+    @staticmethod
+    def _installPathFromCommonDrives() -> str:
+        for drive in string.ascii_uppercase:
+            for programFiles in ('Program Files', 'Program Files (x86)'):
+                candidate = drive + ':\\' + programFiles + '\\Netease\\MuMuPlayer'
+                if MumuEmulator._isValidInstallPath(candidate):
+                    return candidate
+
+        return ''
+
+    @staticmethod
+    def detectInstallPath() -> str:
+        """Best-effort auto-detect of the MuMu install path: checks the
+        Windows uninstall registry entries first (InstallLocation, falling
+        back to the UninstallString's directory since MuMu doesn't always
+        populate InstallLocation), then falls back to scanning each drive
+        letter's default Program Files location. Returns '' if nothing
+        found - caller should leave the existing/default path untouched."""
+        return (
+            MumuEmulator._installPathFromRegistry()
+            or MumuEmulator._installPathFromCommonDrives()
+        )
 
     def __init__(self, connectDevice: str, installPath: str = None) -> None:
         self._installPath = installPath or MumuEmulator.EMULATOR_PATH
