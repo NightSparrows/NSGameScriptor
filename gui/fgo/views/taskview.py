@@ -44,6 +44,8 @@ class TaskView(QWidget):
         self._toggleBtn = QPushButton('啟用/停用', self)
         self._runBtn = QPushButton('立即執行', self)
         self._runDueBtn = QPushButton('執行所有到期工作', self)
+        self._stopBtn = QPushButton('停止', self)
+        self._stopBtn.setEnabled(False)
         self._saveBtn = QPushButton('儲存設定', self)
 
         self._addBtn.clicked.connect(self._onAdd)
@@ -52,10 +54,11 @@ class TaskView(QWidget):
         self._toggleBtn.clicked.connect(self._onToggleEnable)
         self._runBtn.clicked.connect(self._onRunSelected)
         self._runDueBtn.clicked.connect(self._onRunDue)
+        self._stopBtn.clicked.connect(self._onStop)
         self._saveBtn.clicked.connect(self._onSave)
 
         buttonRow = QHBoxLayout()
-        for btn in (self._addBtn, self._editBtn, self._removeBtn, self._toggleBtn, self._runBtn, self._runDueBtn, self._saveBtn):
+        for btn in (self._addBtn, self._editBtn, self._removeBtn, self._toggleBtn, self._runBtn, self._runDueBtn, self._stopBtn, self._saveBtn):
             buttonRow.addWidget(btn)
         buttonRow.addStretch(1)
 
@@ -74,6 +77,7 @@ class TaskView(QWidget):
     def _setRunningButtonsEnabled(self, enabled: bool):
         for btn in (self._editBtn, self._removeBtn, self._toggleBtn, self._runBtn, self._runDueBtn):
             btn.setEnabled(enabled)
+        self._stopBtn.setEnabled(not enabled)
 
     def _onAdd(self):
         dialog = AddTaskDialog(self._controller, self)
@@ -130,6 +134,7 @@ class TaskView(QWidget):
             self._controller.game.runTask, row,
             on_result=self._onRunFinishedResult,
             on_error=self._onWorkerError,
+            on_cancelled=self._onRunCancelled,
             on_finished=self._onRunFinished,
         )
 
@@ -155,8 +160,16 @@ class TaskView(QWidget):
         self._pool.submit(
             self._controller.game.execute,
             on_error=self._onWorkerError,
+            on_cancelled=self._onRunCancelled,
             on_finished=self._onRunFinished,
         )
+
+    def _onStop(self):
+        Logger.info('已送出停止請求，等待目前動作結束...')
+        self._controller.game._device.requestCancel()
+
+    def _onRunCancelled(self):
+        Logger.info('工作已被使用者中斷')
 
     def _onWorkerError(self, message: str):
         Logger.error('執行失敗: ' + message)

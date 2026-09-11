@@ -1,6 +1,4 @@
 
-import time
-
 from core.logger import Logger
 from core.matchutil import MatchUtil
 
@@ -27,15 +25,15 @@ class SkillBattleTask(BattleTask):
 
             if self._useCharNo != -1:
                 useCharX = 320 * self._useCharNo
-                time.sleep(1)
+                self._data.device.sleep(1)
                 self._data.device.tap(useCharX, 450)
-                time.sleep(0.23)     # 加速
+                self._data.device.sleep(0.23)     # 加速
                 self._data.device.tap(900, 55)
-                time.sleep(1)
+                self._data.device.sleep(1)
             else:
-                time.sleep(0.23)
+                self._data.device.sleep(0.23)
                 self._data.device.tap(900, 55)             # 加速
-                time.sleep(1)
+                self._data.device.sleep(1)
 
             self._data.device.screenshot()
             screenshot = self._data.device.getScreenshot()

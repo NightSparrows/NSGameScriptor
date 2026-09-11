@@ -1,5 +1,4 @@
 
-import time
 import cv2
 import numpy as np
 
@@ -16,7 +15,7 @@ class MatchUtil:
         if MatchUtil.isMatch(result, thresh):
             point = MatchUtil.calculated(result, template.shape)
             device.tap(point['x']['center'], point['y']['center'])
-            time.sleep(1)
+            device.sleep(1)
             return True
 
         return False
@@ -33,7 +32,7 @@ class MatchUtil:
             if MatchUtil.isMatch(result, thresh):
                 point = MatchUtil.calculated(result, template.shape)
                 device.tap(point['x']['center'], point['y']['center'])
-                time.sleep(1)
+                device.sleep(1)
                 return True
 
         return False
@@ -56,7 +55,7 @@ class MatchUtil:
         while timer <= timeout:
 
             device.tap(x, y)
-            time.sleep(1)
+            device.sleep(1)
 
             device.screenshot()
             screenshot = device.getScreenshot()
@@ -87,13 +86,13 @@ class MatchUtil:
             result = MatchUtil.match(screenshot, template=template, method=cv2.TM_CCOEFF_NORMED)
 
             if result['max_val'] > 0.9:
-                time.sleep(MatchUtil.s_waitInterval)
+                device.sleep(MatchUtil.s_waitInterval)
                 return True
             else:
                 # press
                 device.tap(x, y)
             
-            time.sleep(MatchUtil.s_waitInterval)
+            device.sleep(MatchUtil.s_waitInterval)
             timer += MatchUtil.s_waitInterval
 
         
@@ -114,13 +113,13 @@ class MatchUtil:
             if result['max_val'] > 0.9:
                 # press
                 device.tap(x, y)
-                time.sleep(MatchUtil.s_waitInterval)
+                device.sleep(MatchUtil.s_waitInterval)
                 timer += MatchUtil.s_waitInterval
             else:
-                time.sleep(MatchUtil.s_waitInterval)
+                device.sleep(MatchUtil.s_waitInterval)
                 return True
             
-            time.sleep(MatchUtil.s_waitInterval)
+            device.sleep(MatchUtil.s_waitInterval)
             timer += MatchUtil.s_waitInterval
 
         
@@ -165,7 +164,7 @@ class MatchUtil:
             if result['max_val'] > thresh:
                 return True, result
             
-            time.sleep(MatchUtil.s_waitInterval)
+            device.sleep(MatchUtil.s_waitInterval)
             timer += MatchUtil.s_waitInterval
 
         
@@ -186,7 +185,7 @@ class MatchUtil:
             if result['max_val'] > 0.9:
                 return True, result
             
-            time.sleep(MatchUtil.s_waitInterval)
+            device.sleep(MatchUtil.s_waitInterval)
             timer += MatchUtil.s_waitInterval
 
         
@@ -257,7 +256,7 @@ class MatchUtil:
             if MatchUtil.HavingEdgeInRange(device, edgeMaskTemplate, x, y, width, height, thresh):
                 return True
 
-            time.sleep(MatchUtil.s_waitInterval)
+            device.sleep(MatchUtil.s_waitInterval)
             timer += MatchUtil.s_waitInterval
 
         return False

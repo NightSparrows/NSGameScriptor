@@ -1,11 +1,14 @@
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 
+from core.util.cancellation import CancelledException
+
 
 class WorkerSignals(QObject):
     started = Signal()
     result = Signal(object)
     error = Signal(str)
+    cancelled = Signal()
     finished = Signal()
 
 
@@ -23,6 +26,11 @@ class Worker(QRunnable):
         self.signals.started.emit()
         try:
             result = self._fn(*self._args, **self._kwargs)
+        except CancelledException:
+            # a deliberate Device.requestCancel() (e.g. the GUI's 停止
+            # button), not a real failure - kept separate from `error` so
+            # callers don't have to show a critical-error dialog for it.
+            self.signals.cancelled.emit()
         except Exception as e:
             self.signals.error.emit(str(e))
         else:
@@ -72,7 +80,7 @@ class WorkerPool:
     def isBusy(self) -> bool:
         return self._pool.activeThreadCount() > 0
 
-    def submit(self, fn, *args, on_result=None, on_error=None, on_finished=None, on_started=None, **kwargs) -> Worker:
+    def submit(self, fn, *args, on_result=None, on_error=None, on_cancelled=None, on_finished=None, on_started=None, **kwargs) -> Worker:
         worker = Worker(fn, *args, **kwargs)
         self._active.add(worker)
 
@@ -80,6 +88,8 @@ class WorkerPool:
             worker.signals.result.connect(on_result)
         if on_error is not None:
             worker.signals.error.connect(on_error)
+        if on_cancelled is not None:
+            worker.signals.cancelled.connect(on_cancelled)
         if on_started is not None:
             worker.signals.started.connect(on_started)
 

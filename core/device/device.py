@@ -13,6 +13,7 @@ from .screencap.adbScreencap import AdbScreenCap
 from .screencap.nemuScreencap import NemuIPCScreenCap
 from .emulator.mumuEmulator import MumuEmulator
 from core.base import Base
+from core.util.cancellation import CancellationToken
 
 class Device:
 
@@ -36,6 +37,12 @@ class Device:
         # while automation may be doing the same on another. This lock
         # serializes those calls; it's a no-op for the CLI's single thread.
         self._screenshotLock = threading.Lock()
+
+        # cooperative cancellation for the battle/task automation loop -
+        # see core/util/cancellation.py. requestCancel()/resetCancellation()
+        # are the public entry points; sleep() is what battle code calls
+        # instead of time.sleep() to make itself interruptible.
+        self.cancelToken = CancellationToken()
 
         self._emulatorType = emulatorType
         self._emulatorPath = emulatorPath
@@ -173,6 +180,23 @@ class Device:
 
     def getScreenshot(self):
         return self._screenCap.getScreenshot()
+
+    # drop-in replacement for time.sleep() in battle/automation code -
+    # sleeps in short interruptible chunks, raising CancelledException as
+    # soon as requestCancel() has been called.
+    def sleep(self, seconds: float) -> None:
+        self.cancelToken.sleep(seconds)
+
+    # ask whatever automation is currently running to stop at its next
+    # sleep()/checkPoint() - used by the GUI's 停止 button.
+    def requestCancel(self) -> None:
+        self.cancelToken.cancel()
+
+    # clear a previous cancel request - called once at the start of a new
+    # run (立即執行/執行所有到期工作/測試執行) so a stale request from a
+    # previous run can't immediately cancel the new one.
+    def resetCancellation(self) -> None:
+        self.cancelToken.reset()
 
     # adb's connection to the device can transiently drop ("device
     # offline") independent of whether the emulator/app is actually fine

@@ -306,10 +306,14 @@ class BattleEditorView(QWidget):
         self._testRunCountSpin.setValue(1)
         self._testRunBtn = QPushButton('測試執行', panel)
         self._testRunBtn.clicked.connect(self._onTestRun)
+        self._testStopBtn = QPushButton('停止', panel)
+        self._testStopBtn.setEnabled(False)
+        self._testStopBtn.clicked.connect(self._onTestStop)
         actionRow.addWidget(self._saveBtn)
         actionRow.addWidget(QLabel('執行次數:', panel))
         actionRow.addWidget(self._testRunCountSpin)
         actionRow.addWidget(self._testRunBtn)
+        actionRow.addWidget(self._testStopBtn)
         actionRow.addStretch(1)
 
         layout = QVBoxLayout(panel)
@@ -614,12 +618,26 @@ class BattleEditorView(QWidget):
         if battle is None:
             return
 
+        battle._data.device.resetCancellation()
         self._testRunBtn.setEnabled(False)
+        self._testStopBtn.setEnabled(True)
         self._pool.submit(
             battle.execute, self._testRunCountSpin.value(),
             on_error=self._onTestRunError,
-            on_finished=lambda: self._testRunBtn.setEnabled(True),
+            on_cancelled=lambda: Logger.info('測試執行已被使用者中斷'),
+            on_finished=self._onTestRunFinished,
         )
+
+    def _onTestStop(self):
+        battle = self._controller.game._battles.get(self._currentKey)
+        if battle is None:
+            return
+        Logger.info('已送出停止請求，等待目前動作結束...')
+        battle._data.device.requestCancel()
+
+    def _onTestRunFinished(self):
+        self._testRunBtn.setEnabled(True)
+        self._testStopBtn.setEnabled(False)
 
     def _onTestRunError(self, message: str):
         Logger.error('測試執行失敗: ' + message)

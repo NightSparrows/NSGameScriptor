@@ -1,5 +1,4 @@
 
-import time
 import cv2
 
 from core.logger import Logger
@@ -33,7 +32,7 @@ class SelectBattleTask(BattleTask):
         else:
             Logger.error('Unknown selection: ' + self._selectNo)
 
-        time.sleep(0.25)
+        self._data.device.sleep(0.25)
         
 
         return True

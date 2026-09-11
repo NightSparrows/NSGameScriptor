@@ -1,5 +1,4 @@
 
-import time
 import cv2
 
 from core.logger import Logger
@@ -41,9 +40,9 @@ class CardBattleTask(BattleTask):
             Logger.info('Failed to check attack button')
             return False
         
-        #time.sleep(1)
+        #self._data.device.sleep(1)
         MatchUtil.PressUntilColorChange(self._data.device, result['max_loc'][0], result['max_loc'][1], 3)
-        time.sleep(1)
+        self._data.device.sleep(1)
 
         chosenCard = [False, False, False, False, False]
         numberOfCardChoosed = 0
@@ -76,7 +75,7 @@ class CardBattleTask(BattleTask):
                 Logger.error('Card script syntax error')
                 return False
             
-            time.sleep(0.35)
+            self._data.device.sleep(0.35)
             i += 1
 
         return True

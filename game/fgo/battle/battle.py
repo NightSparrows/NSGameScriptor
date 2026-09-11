@@ -82,7 +82,7 @@ class Battle:
         inStage = False
         Logger.info('assert is in choose friend stage')
         for i in range(3):      # retry 3 time for checking it is in choose friend stage
-            time.sleep(1)
+            self._data.device.sleep(1)
             self._data.device.screenshot()
             result = MatchUtil.match(self._data.device.getScreenshot(), Battle.s_chooseFriendSkillSwitchBtn)
             if MatchUtil.isMatch(result):
@@ -96,7 +96,7 @@ class Battle:
         classX = 90 + self._friendInfo['class'] * 68
         Logger.info('choosing the correct classes ... ')
         self._data.device.tap(classX, 128)
-        time.sleep(1)
+        self._data.device.sleep(1)
 
         # Find servant
         foundServant = False
@@ -106,7 +106,7 @@ class Battle:
             for i in range(10):
                 # scan for servant
                 foundServant = False
-                time.sleep(1)
+                self._data.device.sleep(1)
                 self._data.device.screenshot()
                 #result = MatchUtil.match(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
                 matchResults = MatchUtil.matchMultiple(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
@@ -167,24 +167,24 @@ class Battle:
                             if MatchUtil.HavinginRange(self._data.device, self._craftEssenceImg, 50, servantPosition[1], 160, 115, 0.95):
                                 Logger.info('禮裝 match!')
                                 self._data.device.tap(servantPosition[0], servantPosition[1])
-                                time.sleep(1)
+                                self._data.device.sleep(1)
                                 return True
                             Logger.info('禮裝 not match')
                         else:
                             self._data.device.tap(servantPosition[0], servantPosition[1])
-                            time.sleep(1)
+                            self._data.device.sleep(1)
                             return True
 
                 # 沒找到，scroll一個
                 self._data.device.holdScroll(128, 610, 128, 450, 500)
-                time.sleep(1)
+                self._data.device.sleep(1)
             
             # 沒找到，refresh
             result = MatchUtil.TapImage(self._data.device, Battle.s_refreshBtnImage)
 
             if result:
                 refreshCount += 1
-                time.sleep(0.5)
+                self._data.device.sleep(0.5)
                 if not MatchUtil.TapImage(self._data.device, Asset.YesBtnImage):
                     Logger.error('無法按下 是 按鈕')
                     return False
@@ -203,16 +203,16 @@ class Battle:
 
         Logger.info('Choosing party ... ')
         # TODO Make sure you are in choose party
-        time.sleep(2)
+        self._data.device.sleep(2)
         self._data.device.tap(465, 50)
-        time.sleep(1)
+        self._data.device.sleep(1)
         
         
         partyBtnX = 465 + (self._partyNumber - 1) * 25
 
-        time.sleep(1)
+        self._data.device.sleep(1)
         self._data.device.tap(partyBtnX, 50)
-        time.sleep(1)
+        self._data.device.sleep(1)
 
         # 按任務開始
         isPressed = False
@@ -223,7 +223,7 @@ class Battle:
             elif MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtn2Image):
                 isPressed = True
                 break
-            time.sleep(1)
+            self._data.device.sleep(1)
         
         if not isPressed:
             Logger.error('Failed to press mission start button')
@@ -241,7 +241,7 @@ class Battle:
         
         timer.restart()
         while not timer.timeout():
-            time.sleep(0.3)
+            self._data.device.sleep(0.3)
             self._data.device.screenshot()
             screenshot = self._data.device.getScreenshot()
             result1 = MatchUtil.match(screenshot, Battle.s_inBattleFlagImage)
@@ -250,7 +250,7 @@ class Battle:
             if MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 72, 60):
                 Logger.info('Detect a new 禮裝')
                 self._data.device.tap(45, 42)
-                time.sleep(0.2)
+                self._data.device.sleep(0.2)
 
             #check win condition
             result = MatchUtil.match(screenshot, Battle.s_nextStepBtnImage)
@@ -273,7 +273,7 @@ class Battle:
 
         battleStartTime = time.time()
 
-        time.sleep(1)
+        self._data.device.sleep(1)
         # init battle variables
         self._data.executePC = 0
         
@@ -288,7 +288,7 @@ class Battle:
         self.waitSaftyStageInBattle(timer)
 
         # first time sleep more
-        time.sleep(1)
+        self._data.device.sleep(1)
 
         while not isWin:
             if self.waitSaftyStageInBattle(timer):
@@ -296,7 +296,7 @@ class Battle:
                 break
 
             # assert in stable battle state
-            time.sleep(0.8)
+            self._data.device.sleep(0.8)
             if isWin:
                 break
 
@@ -326,7 +326,7 @@ class Battle:
             battleTime = time.time() - battleStartTime
             Logger.info('Battle time: ' + str(battleTime) + 'secs')
             self._data.device.tap(1100, 640)
-            time.sleep(1)
+            self._data.device.sleep(1)
             return True
             # tap the next step btn ...
         raise NotImplementedError()
@@ -376,13 +376,13 @@ class Battle:
                     if MatchUtil.Having(self._data.device, Battle.s_nextStepBtnImage):
                         Logger.info('Encounter 下一步')
                         self._data.device.tap(1110, 647)
-                        time.sleep(0.5)
+                        self._data.device.sleep(0.5)
                         timer.restart()
                     elif MatchUtil.Having(self._data.device, Battle.s_friendConfirmImage):
                         Logger.info('Encounter 好友視窗')
                         Logger.info('好友申請，直接拒絕')
                         self._data.device.tap(329, 616)
-                        time.sleep(0.5)
+                        self._data.device.sleep(0.5)
                         timer.restart()
                     elif MatchUtil.Having(self._data.device, Battle.s_continueBtnImage) or MatchUtil.Having(self._data.device, Battle.s_endDicisionImage):
                         Logger.info('(新) Encounter 重複刷關的視窗')
@@ -391,11 +391,11 @@ class Battle:
                             Logger.info('刷完了，點離開')
                             self._endFlags = True
                             self._data.device.tap(444, 567)
-                            time.sleep(1)
+                            self._data.device.sleep(1)
                         else:
                             self._skipChooseParty = True
                             self._data.device.tap(840, 565)
-                            time.sleep(1)
+                            self._data.device.sleep(1)
 
                             # checking apple
                             Apple.checkAppleWindow(self._data.device)
@@ -404,11 +404,11 @@ class Battle:
                     elif MatchUtil.HavinginRange(self._data.device, Battle.s_closeBtnImage, 0, 0, 80, 80):
                         Logger.info('Encounter 關閉按鈕')
                         self._data.device.tap(45, 40)
-                        time.sleep(0.5)
+                        self._data.device.sleep(0.5)
                     else:
                         # 按角落
                         self._data.device.tap(1020, 5)
-                        time.sleep(0.1)
+                        self._data.device.sleep(0.1)
                     # TODO 加入關閉功能(取得新禮裝時)
 
                     Logger.trace('還沒找到結束確認視窗')

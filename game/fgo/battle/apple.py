@@ -1,5 +1,4 @@
 
-import time
 import cv2
 
 from core.logger import Logger
@@ -52,9 +51,9 @@ class Apple:
             if not MatchUtil.TapImage(device, apple):
                 Logger.info('Apple ' + appleType + ' not found, swipe.')
                 device.swipe(640, 400, 640, 200)
-                time.sleep(1)
+                device.sleep(1)
             else:
-                time.sleep(0.5)
+                device.sleep(0.5)
                 device.screenshot()
                 result = MatchUtil.match(device.getScreenshot(), Apple.s_OKBtnImage)
                 if MatchUtil.isMatch(result):

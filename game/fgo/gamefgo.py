@@ -114,6 +114,9 @@ class GameFGO(Game):
             return False
 
     def execute(self):
+        # clear any stale cancel request from a previous run before
+        # starting a new one - see Device.resetCancellation()
+        self._device.resetCancellation()
         if not self.ensureReady():
             Logger.error('無法確保遊戲穩定，跳過本次執行')
             return
@@ -124,6 +127,7 @@ class GameFGO(Game):
     # -2: 執行失敗
     # -3: 無法確保遊戲穩定 (重啟失敗)
     def runTask(self, id: int) -> int:
+        self._device.resetCancellation()
         if not self.ensureReady():
             Logger.error('無法確保遊戲穩定，跳過本次執行')
             return -3
