@@ -240,16 +240,26 @@ class Battle:
         # 按任務開始
         isPressed = False
         for i in range(5):
-            if MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtnImage):
-                isPressed = True
-                break
-            elif MatchUtil.TapImage(self._data.device, Battle.s_missionStartBtn2Image):
-                isPressed = True
+            self._data.device.screenshot()
+            screenshot = self._data.device.getScreenshot()
+            for template in (Battle.s_missionStartBtnImage, Battle.s_missionStartBtn2Image):
+                result = MatchUtil.match(screenshot, template)
+                Logger.info('Mission start button score: ' + format(result['max_val'], '.3f'))
+                if MatchUtil.isMatch(result, 0.9):
+                    point = MatchUtil.calculated(result, template.shape)
+                    self._data.device.tap(point['x']['center'], point['y']['center'])
+                    self._data.device.sleep(1)
+                    isPressed = True
+                    break
+            if isPressed:
                 break
             self._data.device.sleep(1)
         
         if not isPressed:
-            Logger.error('Failed to press mission start button')
+            # 留下當下的畫面, 方便確認是哪個畫面找不到按鈕
+            os.makedirs('./tmp', exist_ok=True)
+            cv2.imwrite('./tmp/missionStartBtnFail.png', screenshot)
+            Logger.error('Failed to press mission start button (screenshot saved to tmp/missionStartBtnFail.png)')
             return False
 
         return True
@@ -292,6 +302,32 @@ class Battle:
 
         pass
 
+    # 技能列的區域 (三隻從者的技能圖示), 用來判斷戰鬥介面是不是已經穩定
+    s_skillBarRegion = (540, 620, 30, 960)
+
+    # 等戰鬥介面穩定 (技能列連續幾張截圖都沒變)
+    # 剛進戰鬥時 Menu 已經出現, 但開場動畫還在跑, 這時點技能會點不到
+    # 而且技能有沒有按到是用顏色有沒有變來判斷, 動畫也會讓顏色變, 會誤判成有按到
+    def _waitBattleUIStable(self, timeout: float = 10, stableCount: int = 3) -> bool:
+        top, bottom, left, right = Battle.s_skillBarRegion
+        device = self._data.device
+        prev = None
+        stable = 0
+        startTime = time.time()
+        while time.time() - startTime < timeout:
+            device.screenshot()
+            cur = device.getScreenshot()[top:bottom, left:right]
+            if prev is not None and float(cv2.absdiff(prev, cur).mean()) <= 0.5:
+                stable += 1
+                if stable >= stableCount:
+                    return True
+            else:
+                stable = 0
+            prev = cur
+            device.sleep(0.3)
+        Logger.warn('Battle UI is not stable after ' + str(timeout) + ' secs, continue anyway')
+        return False
+
     def inBattle(self):
 
         battleStartTime = time.time()
@@ -310,8 +346,8 @@ class Battle:
 
         self.waitSaftyStageInBattle(timer)
 
-        # first time sleep more
-        self._data.device.sleep(1)
+        # first time wait until the opening animation is done
+        self._waitBattleUIStable()
 
         while not isWin:
             if self.waitSaftyStageInBattle(timer):
