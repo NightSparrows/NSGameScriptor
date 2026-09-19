@@ -77,6 +77,44 @@ class Battle:
             self._haveCraftEssence = False
 
 
+    # 助戰清單的區域 (不含上方職階列, 右邊捲軸也算進去, 捲動時它會跟著動)
+    s_friendListRegion = (170, 720, 0, 1280)
+
+    # 兩張截圖的助戰清單是否不同 (清單捲到底/頂時捲動不會讓畫面改變)
+    def _friendListChanged(before, after) -> bool:
+        top, bottom, left, right = Battle.s_friendListRegion
+        diff = cv2.absdiff(before[top:bottom, left:right], after[top:bottom, left:right])
+        return float(diff.mean()) > 0.5
+
+    # 把助戰清單往上捲到頂, 捲到畫面不再變化為止
+    def _scrollFriendListToTop(self, maxScroll: int = 15):
+        device = self._data.device
+        device.screenshot()
+        prev = device.getScreenshot()
+        for _ in range(maxScroll):
+            device.holdScroll(128, 450, 128, 610, 500)
+            device.sleep(1)
+            device.screenshot()
+            cur = device.getScreenshot()
+            if not Battle._friendListChanged(prev, cur):
+                return
+            prev = cur
+
+    # 比對助戰從者的技能圖示, 會印出分數方便調整門檻
+    def _matchFriendSkill(self, skillImage, skillIndex: int, thresh: float) -> bool:
+        Logger.info('Checking skill ' + str(skillIndex) + ' ... ')
+        try:
+            result = MatchUtil.match(skillImage, self._friendInfo['skill' + str(skillIndex)])
+        except Exception as e:
+            Logger.warn('Skill ' + str(skillIndex) + ' check error: ' + str(e))
+            return False
+        score = result['max_val']
+        if MatchUtil.isMatch(result, thresh):
+            Logger.info('Skill ' + str(skillIndex) + ' match! (' + format(score, '.3f') + ')')
+            return True
+        Logger.info('Skill ' + str(skillIndex) + ' not match (' + format(score, '.3f') + ' < ' + str(thresh) + ')')
+        return False
+
     # 選擇好友的method
     def chooseFriend(self):
         inStage = False
@@ -102,14 +140,25 @@ class Battle:
         foundServant = False
         Logger.info('Finding servant ... ')
         refreshCount = 0
+        # 點職階頁籤不一定會讓清單回到頂端, 先自己捲回去再開始找
+        self._scrollFriendListToTop()
         while True:
+            prevScreenshot = None
             for i in range(10):
                 # scan for servant
                 foundServant = False
                 self._data.device.sleep(1)
                 self._data.device.screenshot()
+                screenshot = self._data.device.getScreenshot()
+
+                # 捲動後畫面沒變 = 清單已經到底, 不用再空捲, 直接去更新
+                if prevScreenshot is not None and not Battle._friendListChanged(prevScreenshot, screenshot):
+                    Logger.info('Reach the end of friend list')
+                    break
+                prevScreenshot = screenshot
+
                 #result = MatchUtil.match(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
-                matchResults = MatchUtil.matchMultiple(self._data.device.getScreenshot(), self._friendInfo['nameImage'])
+                matchResults = MatchUtil.matchMultiple(screenshot, self._friendInfo['nameImage'])
 
                 for servantPosition in matchResults:
                 #if MatchUtil.isMatch(result):                        # found servant
@@ -119,41 +168,13 @@ class Battle:
                     #servantPosition = [result['max_loc'][0], result['max_loc'][1]]
                     skillLeft = servantPosition[0] + 460
                     skillTop = servantPosition[1]
-                    skillImage = self._data.device.getScreenshot()[skillTop:(skillTop + 105), skillLeft:(skillLeft + 150)]
+                    skillImage = screenshot[skillTop:(skillTop + 105), skillLeft:(skillLeft + 150)]
                     #cv2.imshow('', skillImage)
                     #cv2.waitKey(0)
 
-
-                    if (self._skill[0] == True):
-                        Logger.info('Checking skill 1 ... ')
-                        try:
-                            result = MatchUtil.match(skillImage, self._friendInfo['skill1'])
-                            if (not MatchUtil.isMatch(result, 0.85)):
-                                foundServant = False
-                            else:
-                                Logger.info('Skill 1 match!')
-                        except:
-                            foundServant = False
-                    if (self._skill[1] == True):
-                        Logger.info('Checking skill 2 ... ')
-                        try:
-                            result = MatchUtil.match(skillImage, self._friendInfo['skill2'])
-                            if (not MatchUtil.isMatch(result, 0.85)):
-                                foundServant = False    # 不符合找下一個
-                            else:
-                                Logger.info('Skill 2 match!')
-                        except:
-                            foundServant = False
-                    if (self._skill[2] == True):
-                        Logger.info('Checking skill 3 ... ')
-                        try:
-                            result = MatchUtil.match(skillImage, self._friendInfo['skill3'])
-                            if (not MatchUtil.isMatch(result, 0.8)):
-                                foundServant = False    # 不符合找下一個
-                            else:
-                                Logger.info('Skill 3 match!')
-                        except:
-                            foundServant = False
+                    for skillIndex, (needCheck, thresh) in enumerate(zip(self._skill[:3], (0.85, 0.85, 0.8)), start=1):
+                        if needCheck and not self._matchFriendSkill(skillImage, skillIndex, thresh):
+                            foundServant = False    # 不符合找下一個
                     # TODO 禮裝檢查
 
                     # Choose it!
@@ -192,6 +213,8 @@ class Battle:
                 if refreshCount == 5:
                     Logger.error('Do you dont have friends?')
                     return False
+
+                self._scrollFriendListToTop()
             else:
                 Logger.error('無法按列表更新按鈕')
                 return False
