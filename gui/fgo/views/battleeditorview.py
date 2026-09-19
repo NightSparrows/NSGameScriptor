@@ -15,7 +15,6 @@ from gui.common.worker import WorkerPool
 from game.fgo.battle.battle import Battle
 from game.fgo.configutil import ConfigUtil
 
-SERVANT_DIR = './assets/fgo/servant'
 CRAFT_ESSENCE_DIR = './assets/fgo/craftEssence'
 
 
@@ -365,20 +364,7 @@ class BattleEditorView(QWidget):
     def _populateServantCombo(self):
         self._servantCombo.clear()
 
-        appNameByFolder = {}
-        try:
-            for entry in self._controller.game._configData.get('friendServant', []):
-                appNameByFolder[entry['name']] = entry.get('AppName', entry['name'])
-        except Exception:
-            pass
-
-        if not os.path.isdir(SERVANT_DIR):
-            return
-
-        for folder in sorted(os.listdir(SERVANT_DIR)):
-            if not os.path.isdir(os.path.join(SERVANT_DIR, folder)):
-                continue
-            label = appNameByFolder.get(folder, folder)
+        for folder, label in ConfigUtil.ListServants():
             self._servantCombo.addItem(f'{label} ({folder})' if label != folder else folder, folder)
 
     def _populateCraftEssenceCombo(self):

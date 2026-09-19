@@ -96,16 +96,41 @@ class ConfigUtil:
         except Exception as e:
             Logger.error('轉換舊版設定檔失敗: ' + str(e))
 
-    # 好友從者的職階(助戰頁籤索引), 讀取 assets/fgo/servant/<name>/info.json
-    # legacyClass: 舊版設定檔的 classChoosing, 從者沒有 info.json 時才會使用
-    def GetServantClass(servantName: str, legacyClass: int | None = None) -> int:
+    # 讀取 assets/fgo/servant/<name>/info.json, 格式: {"class": 5, "AppName": "顯示名稱"}
+    # 檔案不存在或格式錯誤時回傳空 dict
+    def GetServantInfo(servantName: str) -> dict:
         infoPath = SERVANT_DIR + '/' + servantName + '/info.json'
         try:
             with open(infoPath, encoding='utf-8') as f:
-                return int(json.load(f)['class'])
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
         except Exception as e:
+            Logger.warn('讀取從者資料失敗 (' + infoPath + '): ' + str(e))
+            return {}
+
+    # 好友從者的顯示名稱, 沒有設定 AppName 就用資料夾名稱
+    def GetServantAppName(servantName: str) -> str:
+        return ConfigUtil.GetServantInfo(servantName).get('AppName') or servantName
+
+    # 列出所有好友從者: [(資料夾名稱, 顯示名稱), ...]
+    def ListServants() -> list:
+        if not os.path.isdir(SERVANT_DIR):
+            return []
+        return [
+            (folder, ConfigUtil.GetServantAppName(folder))
+            for folder in sorted(os.listdir(SERVANT_DIR))
+            if os.path.isdir(os.path.join(SERVANT_DIR, folder))
+        ]
+
+    # 好友從者的職階(助戰頁籤索引)
+    # legacyClass: 舊版設定檔的 classChoosing, 從者沒有設定 class 時才會使用
+    def GetServantClass(servantName: str, legacyClass: int | None = None) -> int:
+        try:
+            return int(ConfigUtil.GetServantInfo(servantName)['class'])
+        except Exception:
             fallback = legacyClass if legacyClass is not None else DEFAULT_FRIEND_CLASS
-            Logger.warn('讀取從者職階失敗 (' + infoPath + '): ' + str(e) + ', 使用職階 ' + str(fallback))
+            Logger.warn('從者 ' + servantName + ' 沒有設定職階 (info.json), 使用職階 ' + str(fallback))
             return fallback
 
     # 建立 Battle 用的 friendInfo

@@ -1,22 +1,3 @@
 {
-    "activityName": "SummerCamp",
-    "friendServant": [
-        {
-            "name": "skadi",
-            "AppName": "斯卡薩哈=斯卡蒂"
-        },
-        {
-            "name": "altriaCaster",
-            "AppName": "阿爾托利亞。Caster"
-        },
-        {
-            "name": "lightSkaya",
-            "AppName": "光之高揚斯卡婭"
-        },
-        {
-            "name": "oberon",
-            "AppName": "奧伯龍"
-        }
-
-    ]
+    "activityName": "SummerCamp"
 }

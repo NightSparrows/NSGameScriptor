@@ -33,28 +33,20 @@ class BattleUI:
             return
         
         print(StringUtil.align('ID', 5) + StringUtil.align('從者名稱', 20))
-        i = 0
-        for servantData in game._configData['friendServant']:
-            print(StringUtil.align(str(i), 5) + StringUtil.align(servantData['AppName'], 20))
-            i += 1
-        
+        servants = ConfigUtil.ListServants()
+        for i, (folder, appName) in enumerate(servants):
+            print(StringUtil.align(str(i), 5) + StringUtil.align(appName, 20))
+
         print('輸入要使用的好友從者')
         try:
             servantID = int(input('ID>'))
-            i = 0
-            isFound = False
-            
-            for servantData in game._configData['friendServant']:
-                if servantID == i:
-                    isFound = True
-                    friendServantName = servantData['name']
-                    break
-                i += 1
-            
-            if not isFound:       
+
+            if servantID < 0 or servantID >= len(servants):
                 print('輸入未知的ID')
                 return
- 
+
+            friendServantName = servants[servantID][0]
+
         except:
             print('非法輸入')
             return
