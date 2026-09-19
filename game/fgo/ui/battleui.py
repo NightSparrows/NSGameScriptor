@@ -7,6 +7,7 @@ from core.util.stringutil import StringUtil
 
 from game.fgo.gamefgo import GameFGO
 from game.fgo.battle.battle import Battle
+from game.fgo.configutil import ConfigUtil
 
 class BattleUI:
 
@@ -31,21 +32,6 @@ class BattleUI:
             print('非法輸入')
             return
         
-        print('職階選擇(0~10)(預設5)')
-        classChooseStr = input('職階>')
-        
-        if classChooseStr == '':
-            classChoosing = 5
-        else:
-            try:
-                classChoosing = int(classChooseStr)
-                if classChoosing < 1 or classChoosing > 10:
-                    print('不是1~10')
-                    return
-            except:
-                print('非法輸入')
-                return
-
         print(StringUtil.align('ID', 5) + StringUtil.align('從者名稱', 20))
         i = 0
         for servantData in game._configData['friendServant']:
@@ -106,14 +92,7 @@ class BattleUI:
             # 'skill2' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill2.png'),
             # 'skill3' : cv2.imread('.//assets//fgo//servant//' + friend + '//skill3.png')
             # }
-        friendInfo = {
-            'name': friendServantName,
-            'class': classChoosing,
-            'nameImage': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//name.png'),
-            'skill1': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill1.png'),
-            'skill2': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill2.png'),
-            'skill3': cv2.imread('.//assets//fgo//servant//' + friendServantName + '//skill3.png'),
-        }
+        friendInfo = ConfigUtil.MakeFriendInfo(friendServantName)
 
         scriptStr = ''
         for script in scriptList:

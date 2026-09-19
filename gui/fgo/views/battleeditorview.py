@@ -1,8 +1,6 @@
 
 import os
 
-import cv2
-
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QFormLayout, QGroupBox,
     QHBoxLayout, QHeaderView, QLabel, QLineEdit, QListWidget, QListWidgetItem,
@@ -15,6 +13,7 @@ from core.logger import Logger
 
 from gui.common.worker import WorkerPool
 from game.fgo.battle.battle import Battle
+from game.fgo.configutil import ConfigUtil
 
 SERVANT_DIR = './assets/fgo/servant'
 CRAFT_ESSENCE_DIR = './assets/fgo/craftEssence'
@@ -272,9 +271,6 @@ class BattleEditorView(QWidget):
         self._nameEdit = QLineEdit(infoGroup)
         self._partySpin = QSpinBox(infoGroup)
         self._partySpin.setRange(1, 10)
-        self._classCombo = QComboBox(infoGroup)
-        for i in range(0, 11):
-            self._classCombo.addItem(str(i), i)
         self._servantCombo = QComboBox(infoGroup)
         self._skillChecks = [QCheckBox('技能' + str(i + 1), infoGroup) for i in range(3)]
         for c in self._skillChecks:
@@ -288,7 +284,6 @@ class BattleEditorView(QWidget):
 
         form.addRow('名稱:', self._nameEdit)
         form.addRow('隊伍編號 (1-10):', self._partySpin)
-        form.addRow('好友職階:', self._classCombo)
         form.addRow('好友從者:', self._servantCombo)
         form.addRow('好友技能確認:', skillRow)
         form.addRow('禮裝:', self._craftEssenceCombo)
@@ -425,7 +420,6 @@ class BattleEditorView(QWidget):
         self._battleList.setCurrentItem(None)
         self._nameEdit.setText('')
         self._partySpin.setValue(1)
-        self._classCombo.setCurrentIndex(5)
         self._servantCombo.setCurrentIndex(0)
         for c in self._skillChecks:
             c.setChecked(True)
@@ -465,9 +459,6 @@ class BattleEditorView(QWidget):
         self._nameEdit.setText(key)
         self._partySpin.setValue(battle._partyNumber)
 
-        classIdx = self._classCombo.findData(battle._friendInfo.get('class', 5))
-        self._classCombo.setCurrentIndex(classIdx if classIdx >= 0 else 5)
-
         servantIdx = self._servantCombo.findData(battle._friendInfo.get('name'))
         self._servantCombo.setCurrentIndex(servantIdx if servantIdx >= 0 else 0)
 
@@ -486,7 +477,7 @@ class BattleEditorView(QWidget):
 
     def _setEditingEnabled(self, enabled: bool):
         for w in (
-            self._nameEdit, self._partySpin, self._classCombo, self._servantCombo,
+            self._nameEdit, self._partySpin, self._servantCombo,
             self._craftEssenceCombo, self._scriptTable, self._rawTextEdit,
             self._rawModeCheck, self._saveBtn,
         ):
@@ -579,14 +570,7 @@ class BattleEditorView(QWidget):
         scriptLines = self._currentScriptLines()
         script = '\n'.join(scriptLines) + ('\n' if scriptLines else '')
 
-        friendInfo = {
-            'name': friendName,
-            'class': self._classCombo.currentData(),
-            'nameImage': cv2.imread(f'{SERVANT_DIR}/{friendName}/name.png'),
-            'skill1': cv2.imread(f'{SERVANT_DIR}/{friendName}/skill1.png'),
-            'skill2': cv2.imread(f'{SERVANT_DIR}/{friendName}/skill2.png'),
-            'skill3': cv2.imread(f'{SERVANT_DIR}/{friendName}/skill3.png'),
-        }
+        friendInfo = ConfigUtil.MakeFriendInfo(friendName)
         skill = [c.isChecked() for c in self._skillChecks]
         craftEssenceNo = self._craftEssenceCombo.currentData()
 
