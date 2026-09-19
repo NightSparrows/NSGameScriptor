@@ -16,7 +16,7 @@ class AdbScreenCap:
             pass        # TODO warning: wired output
         image = np.frombuffer(data, np.uint8)
         self.m_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        return self.m_image != None
+        return self.m_image is not None
     
     def getScreenshot(self):
         return self.m_image

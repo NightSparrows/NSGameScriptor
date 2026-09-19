@@ -108,8 +108,7 @@ class NemuIPCScreenCap(ScreenCap):
         # 上下翻轉
         self.m_image = cv2.flip(img, 0)
 
-        return self.m_image != None
-        return self.m_image != None
+        return self.m_image is not None
     
     def getScreenshot(self):
         return self.m_image
