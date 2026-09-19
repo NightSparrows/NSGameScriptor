@@ -269,7 +269,7 @@ class BattleEditorView(QWidget):
 
         self._nameEdit = QLineEdit(infoGroup)
         self._partySpin = QSpinBox(infoGroup)
-        self._partySpin.setRange(1, 10)
+        self._partySpin.setRange(1, 15)
         self._servantCombo = QComboBox(infoGroup)
         self._skillChecks = [QCheckBox('技能' + str(i + 1), infoGroup) for i in range(3)]
         for c in self._skillChecks:
@@ -282,7 +282,7 @@ class BattleEditorView(QWidget):
         skillRow.addStretch(1)
 
         form.addRow('名稱:', self._nameEdit)
-        form.addRow('隊伍編號 (1-10):', self._partySpin)
+        form.addRow('隊伍編號 (1-15):', self._partySpin)
         form.addRow('好友從者:', self._servantCombo)
         form.addRow('好友技能確認:', skillRow)
         form.addRow('禮裝:', self._craftEssenceCombo)

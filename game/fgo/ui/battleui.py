@@ -24,9 +24,9 @@ class BattleUI:
                 return
         
         try:
-            partyNumber = int(input('隊伍編號(1~10)>'))
-            if partyNumber < 1 or partyNumber > 10:
-                print('不是1~10')
+            partyNumber = int(input('隊伍編號(1~15)>'))
+            if partyNumber < 1 or partyNumber > 15:
+                print('不是1~15')
                 return
         except:
             print('非法輸入')
