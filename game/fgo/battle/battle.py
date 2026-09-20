@@ -33,6 +33,7 @@ class Battle:
     s_endDicisionImage = cv2.imread('.//assets//fgo//battle//endDicision.png')
     s_continueBtnImage = cv2.imread('.//assets//fgo//battle//continueBtn.png')
     s_refreshBtnImage = cv2.imread('.//assets//fgo//battle//refreshBtn.png')
+    s_refreshBtn2Image = cv2.imread('./assets/fgo/battle/refreshBtn2.png')       # 新版 UI (文字單行)
     s_closeBtnImage = cv2.imread('.//assets//fgo//battle//closeBtn.png')
     s_friendConfirmImage = cv2.imread('.//assets//fgo//battle//friendConfirm.png')
     s_missionStartBtnImage = cv2.imread('./assets/fgo/battle/missionStartBtn.png')
@@ -172,7 +173,7 @@ class Battle:
                     #cv2.imshow('', skillImage)
                     #cv2.waitKey(0)
 
-                    for skillIndex, (needCheck, thresh) in enumerate(zip(self._skill[:3], (0.85, 0.85, 0.8)), start=1):
+                    for skillIndex, (needCheck, thresh) in enumerate(zip(self._skill[:3], (0.8, 0.8, 0.8)), start=1):
                         if needCheck and not self._matchFriendSkill(skillImage, skillIndex, thresh):
                             foundServant = False    # 不符合找下一個
                     # TODO 禮裝檢查
@@ -201,7 +202,13 @@ class Battle:
                 self._data.device.sleep(1)
             
             # 沒找到，refresh
-            result = MatchUtil.TapImage(self._data.device, Battle.s_refreshBtnImage)
+            # 剛更新過會有冷卻時間 (按鈕上顯示秒數), 找不到按鈕就等一下再試
+            result = False
+            for _ in range(6):
+                result = MatchUtil.TapAnyImage(self._data.device, (Battle.s_refreshBtn2Image, Battle.s_refreshBtnImage))
+                if result:
+                    break
+                self._data.device.sleep(2)
 
             if result:
                 refreshCount += 1
@@ -216,7 +223,9 @@ class Battle:
 
                 self._scrollFriendListToTop()
             else:
-                Logger.error('無法按列表更新按鈕')
+                os.makedirs('./tmp', exist_ok=True)
+                cv2.imwrite('./tmp/refreshBtnFail.png', self._data.device.getScreenshot())
+                Logger.error('無法按列表更新按鈕 (screenshot saved to tmp/refreshBtnFail.png)')
                 return False
             
 
