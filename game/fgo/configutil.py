@@ -57,7 +57,7 @@ class ConfigUtil:
             Logger.warn('Unknown error: ' + str(e))
             configData = ConfigUtil.GetDefault()
 
-        isLegacy = fromFile and ConfigUtil.HasLegacyFriendClass(configData)
+        isLegacy = fromFile and ConfigUtil.IsLegacyConfig(configData)
 
         screencapType = Device.ScreenCapType(configData['screencap'])
 
@@ -83,13 +83,24 @@ class ConfigUtil:
     def HasLegacyFriendClass(configData) -> bool:
         return any('classChoosing' in b for b in configData.get('battle', []))
 
+    # 舊版設定檔的 apple 是單一字串 (例如 'gold'), 新版是依優先順序排列的 list (例如 ['bronze', 'silver'])
+    def HasLegacyApple(configData) -> bool:
+        return isinstance(configData.get('apple'), str)
+
+    def IsLegacyConfig(configData) -> bool:
+        return ConfigUtil.HasLegacyFriendClass(configData) or ConfigUtil.HasLegacyApple(configData)
+
     # 把舊版設定檔備份後, 以新格式覆寫
+    # 備份檔已存在 (之前升級過) 就換一個編號, 不覆蓋舊的備份
     def MigrateLegacyConfig(game: GameFGO, configPath: str):
         configFile = configPath + '/config.json'
         backupFile = configFile + '.bak-legacy'
+        number = 2
+        while os.path.exists(backupFile):
+            backupFile = configFile + '.bak-legacy-' + str(number)
+            number += 1
         try:
-            if not os.path.exists(backupFile):
-                shutil.copyfile(configFile, backupFile)
+            shutil.copyfile(configFile, backupFile)
             with open(configFile, 'w', encoding='utf-8') as f:
                 f.write(ConfigUtil.Deserialize(game))
             Logger.info('舊版設定檔已轉換為新格式 (備份: ' + backupFile + ')')
@@ -162,7 +173,7 @@ class ConfigUtil:
                 }
             ],
             'task': [],
-            'apple': 'gold'
+            'apple': list(Apple.DEFAULT_SEQUENCE)
         }
 
         return configData
@@ -218,7 +229,7 @@ class ConfigUtil:
 
             data['task'].append(taskData)
         
-        data['apple'] = Apple.s_appleTypeName
+        data['apple'] = list(Apple.s_appleSequence)
         
 
         return json.dumps(data, indent=4, ensure_ascii=False)
@@ -228,10 +239,7 @@ class ConfigUtil:
         game._device._connectDevice = config['device']
         game._device._screenCapType = Device.ScreenCapType(config['screencap'])
         game._device._emulatorPath = config.get('emulatorPath') or None
-        try:
-            Apple.s_appleTypeName = config['apple']
-        except Exception as e:
-            Apple.s_appleTypeName = 'gold'
+        Apple.s_appleSequence = Apple.normalizeSequence(config.get('apple'))
 
         for battleData in config['battle']:
             friendInfo = ConfigUtil.MakeFriendInfo(battleData['friendServantName'], battleData.get('classChoosing'))

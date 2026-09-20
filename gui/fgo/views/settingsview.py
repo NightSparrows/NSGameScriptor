@@ -1,7 +1,8 @@
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget,
+    QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel, QListWidget,
+    QListWidgetItem, QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget,
 )
 
 from core.logger import Logger
@@ -25,9 +26,10 @@ EMULATOR_LABELS = {
 }
 
 APPLE_LABELS = [
-    ('金蘋果', 'gold'),
-    ('銀蘋果', 'silver'),
-    ('銅蘋果', 'copper'),
+    ('金蘋果 (黃金果實)', 'gold'),
+    ('銀蘋果 (白銀果實)', 'silver'),
+    ('青銅蘋果 (青銅果實)', 'bronze'),
+    ('赤銅蘋果 (赤銅果實)', 'copper'),
 ]
 
 
@@ -113,13 +115,38 @@ class SettingsView(QWidget):
         gameGroup = QGroupBox('遊戲設定', self)
         gameForm = QFormLayout(gameGroup)
 
-        self._appleCombo = QComboBox(gameGroup)
-        for label, value in APPLE_LABELS:
-            self._appleCombo.addItem(label, value)
-        idx = self._appleCombo.findData(Apple.s_appleTypeName)
-        self._appleCombo.setCurrentIndex(idx if idx >= 0 else 0)
+        # 打勾的蘋果依照由上到下的順序使用, 沒打勾的不會吃
+        self._appleList = QListWidget(gameGroup)
+        self._appleList.setMaximumHeight(110)
+        labels = dict((value, label) for label, value in APPLE_LABELS)
+        chosen = [appleType for appleType in Apple.s_appleSequence if appleType in labels]
+        for appleType in chosen + [value for _, value in APPLE_LABELS if value not in chosen]:
+            item = QListWidgetItem(labels[appleType])
+            item.setData(Qt.ItemDataRole.UserRole, appleType)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if appleType in chosen else Qt.CheckState.Unchecked)
+            self._appleList.addItem(item)
+        self._appleList.setCurrentRow(0)
 
-        gameForm.addRow('自動吃蘋果類型:', self._appleCombo)
+        self._appleUpBtn = QPushButton('上移', gameGroup)
+        self._appleUpBtn.clicked.connect(lambda: self._moveApple(-1))
+        self._appleDownBtn = QPushButton('下移', gameGroup)
+        self._appleDownBtn.clicked.connect(lambda: self._moveApple(1))
+
+        appleBtnCol = QVBoxLayout()
+        appleBtnCol.addWidget(self._appleUpBtn)
+        appleBtnCol.addWidget(self._appleDownBtn)
+        appleBtnCol.addStretch(1)
+
+        appleRow = QHBoxLayout()
+        appleRow.addWidget(self._appleList, 1)
+        appleRow.addLayout(appleBtnCol)
+
+        appleHint = QLabel('打勾的蘋果依由上到下的順序使用，前一種吃完或沒有了才會吃下一種，全部不勾則不自動吃蘋果', gameGroup)
+        appleHint.setStyleSheet('color: gray;')
+
+        gameForm.addRow('自動吃蘋果順序:', appleRow)
+        gameForm.addRow('', appleHint)
 
         self._saveBtn = QPushButton('儲存設定', self)
         self._saveBtn.clicked.connect(self._onSave)
@@ -185,9 +212,26 @@ class SettingsView(QWidget):
         self._emulatorPathEdit.setText(path)
         Logger.info('已自動偵測到MuMu安裝路徑: ' + path)
 
+    def _moveApple(self, delta: int):
+        row = self._appleList.currentRow()
+        newRow = row + delta
+        if row < 0 or newRow < 0 or newRow >= self._appleList.count():
+            return
+        item = self._appleList.takeItem(row)
+        self._appleList.insertItem(newRow, item)
+        self._appleList.setCurrentRow(newRow)
+
+    def _appleSequence(self) -> list:
+        sequence = []
+        for row in range(self._appleList.count()):
+            item = self._appleList.item(row)
+            if item.checkState() == Qt.CheckState.Checked:
+                sequence.append(item.data(Qt.ItemDataRole.UserRole))
+        return sequence
+
     def _onSave(self):
         self._controller.game._device._screenCapType = self._screencapCombo.currentData()
         self._controller.game._device._emulatorType = self._emulatorCombo.currentData()
         self._controller.game._device._emulatorPath = self._emulatorPathEdit.text().strip() or None
-        Apple.s_appleTypeName = self._appleCombo.currentData()
+        Apple.s_appleSequence = self._appleSequence()
         self._controller.save()
