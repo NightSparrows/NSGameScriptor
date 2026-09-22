@@ -3,18 +3,30 @@ import json
 import os
 import string
 import subprocess
+import sys
 import time
-import winreg
 
 from core.logger import Logger
 
 from .emulator import Emulator
 
-UNINSTALL_KEYS = (
-    (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
-    (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'),
-    (winreg.HKEY_CURRENT_USER, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
-)
+# MuMu Player itself is Windows-only, and winreg (the Windows registry
+# module) doesn't exist on other platforms at all - importing it
+# unconditionally would crash this module's import on Linux/macOS, which
+# in turn crashes core/device/device.py's unconditional import of
+# MumuEmulator. Guard it so the module loads fine everywhere; registry
+# lookup just isn't available (and isn't needed - Device.EmulatorType.NONE
+# is used instead) off Windows.
+if sys.platform == 'win32':
+    import winreg
+
+    UNINSTALL_KEYS = (
+        (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
+        (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'),
+        (winreg.HKEY_CURRENT_USER, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'),
+    )
+else:
+    UNINSTALL_KEYS = ()
 
 
 class MumuEmulator(Emulator):

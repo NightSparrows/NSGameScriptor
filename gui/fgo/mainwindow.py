@@ -16,7 +16,7 @@ class FGOMainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle('NSGameScriptor - FGO')
-        self.setWindowIcon(QIcon('./assets/icon/app.ico'))
+        self.setWindowIcon(QIcon('./assets/icon/app.png'))
         self.resize(1000, 640)
 
         self._controller = FGOController()

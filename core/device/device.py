@@ -28,7 +28,7 @@ class Device:
         MUMU = 1
 
     def __init__(self, connectDevice: str = 'emulator-5554', screencapType: ScreenCapType = ScreenCapType.aScreenCap, emulatorType: EmulatorType = EmulatorType.NONE, emulatorPath: str = None) -> None:
-        self._adbExePath = '\"' + Base.s_toolkitPath + '/adb/adb.exe\"'
+        self._adbExePath = '\"' + Base.getAdbPath() + '\"'
         self._connectDevice = connectDevice
         # Screencap backends (esp. NemuIPC, which calls straight into a
         # native DLL over a shared IPC handle) aren't safe to call
@@ -230,7 +230,7 @@ class Device:
 
     # completely kill the process will executing something
     def run_adb_dontcare(self, args):
-        args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
+        args = [Base.getAdbPath(), '-s', self._connectDevice] + args
 
         try:
             p = subprocess.Popen([str(arg) for arg in args], stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, encoding='utf-8')
@@ -244,11 +244,11 @@ class Device:
             Logger.error('Error: ' + e.output)
             return None
         except OSError as e:
-            Logger.error('存取被拒: ' + str(e.winerror))
+            Logger.error('存取被拒: ' + str(e))
             return None
 
     def run_adb(self, args, pipeOutput=True, timeout=5.0):
-        args = ['../toolkit/adb/adb.exe', '-s', self._connectDevice] + args
+        args = [Base.getAdbPath(), '-s', self._connectDevice] + args
 
         # print('exec cmd : %s' % args)
         out = subprocess.DEVNULL
@@ -265,7 +265,7 @@ class Device:
             Logger.error('Error: ' + e.output)
             return None
         except OSError as e:
-            Logger.error('存取被拒: ' + str(e.winerror))
+            Logger.error('存取被拒: ' + str(e))
             return None
 
     def openApp(self, appName):
