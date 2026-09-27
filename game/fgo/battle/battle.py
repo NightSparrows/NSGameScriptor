@@ -234,8 +234,27 @@ class Battle:
     def chooseParty(self):
 
         Logger.info('Choosing party ... ')
-        # TODO Make sure you are in choose party
-        self._data.device.sleep(2)
+
+        inStage = False
+        Logger.info('assert is in choose party stage')
+        for i in range(5):      # retry 5 time for checking it is in choose party stage
+            self._data.device.sleep(1)
+            self._data.device.screenshot()
+            screenshot = self._data.device.getScreenshot()
+            for template in (Battle.s_missionStartBtnImage, Battle.s_missionStartBtn2Image):
+                result = MatchUtil.match(screenshot, template)
+                if MatchUtil.isMatch(result, 0.9):
+                    inStage = True
+                    break
+            if inStage:
+                break
+
+        if not inStage:
+            os.makedirs('./tmp', exist_ok=True)
+            cv2.imwrite('./tmp/choosePartyStageFail.png', self._data.device.getScreenshot())
+            Logger.error('未偵測到編成畫面 (screenshot saved to tmp/choosePartyStageFail.png)')
+            return False
+
         self._data.device.tap(465, 50)
         self._data.device.sleep(1)
         
